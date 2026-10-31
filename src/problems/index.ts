@@ -13,12 +13,15 @@ import { meta as a1Meta } from './a1-concurrency-limiter/meta';
 import { tests as a1Tests } from './a1-concurrency-limiter/tests';
 import { meta as g1Meta } from './g1-virtual-list/meta';
 import { tests as g1Tests } from './g1-virtual-list/tests';
+import { meta as c3Meta } from './c3-http-interceptors/meta';
+import { tests as c3Tests } from './c3-http-interceptors/tests';
 
 /** Every problem in display order. To add one, see README "Adding a problem". */
 export const problems: Problem[] = [
   { ...a1Meta, tests: a1Tests },
   { ...a8Meta, tests: a8Tests },
   { ...b1Meta, tests: b1Tests },
+  { ...c3Meta, tests: c3Tests },
   { ...d6Meta, tests: d6Tests },
   { ...e2Meta, tests: e2Tests },
   { ...e6Meta, tests: e6Tests },
