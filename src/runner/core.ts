@@ -4,14 +4,15 @@ import { FakeClock, macrotask } from './clock';
 import { format } from './format';
 import type { Deferred, Language, RunSummary, TestCase, TestContext, TestError, TestResult } from './types';
 
-export interface CompiledModule { code: string }
-
-/** TS/JS (ESM syntax) -> CommonJS-style script we can evaluate with new Function. */
+/**
+ * Strip TypeScript types (if any) and syntax-check. Output is still an ES module;
+ * sucrase keeps line numbers stable, so stack lines map back to the editor.
+ */
 export function compile(source: string, language: Language): string {
   return transform(source, {
-    transforms: language === 'ts' ? ['typescript', 'imports'] : ['imports'],
-    production: true,
+    transforms: language === 'ts' ? ['typescript'] : [],
     disableESTransforms: true,
+    production: true,
   }).code;
 }
 
@@ -33,20 +34,38 @@ function makeConsole(sinkRef: { current: Sink }) {
   return { log: write('log'), info: write('info'), warn: write('warn'), error: write('error'), debug: write('debug'), table: write('table'), dir: write('log') };
 }
 
-/** Evaluate compiled code into a fresh exports object. */
-export function loadModule(compiled: string, consoleObj: unknown): Record<string, unknown> {
-  const module = { exports: {} as Record<string, unknown> };
-  const require = (name: string) => { throw new Error(`Imports are not available in this sandbox (tried to import "${name}"). Put everything in one file.`); };
-  // eslint-disable-next-line no-new-func
-  const fn = new Function('exports', 'module', 'require', 'console', compiled);
-  fn(module.exports, module, require, consoleObj);
-  return module.exports;
+const CONSOLE_KEY = '__practical_console__';
+const inBrowser = typeof (globalThis as { WorkerGlobalScope?: unknown }).WorkerGlobalScope !== 'undefined' || typeof window !== 'undefined';
+let loadCounter = 0;
+
+/**
+ * Evaluate compiled code as a real ES module and return a FRESH instance (new URL each time,
+ * so module-level state never leaks between tests). `console` is shadowed by a module-scoped
+ * const on line 1, so logs are captured without touching the global console.
+ */
+export async function loadModule(compiled: string, consoleObj: unknown): Promise<Record<string, unknown>> {
+  (globalThis as Record<string, unknown>)[CONSOLE_KEY] = consoleObj;
+  const code = `const console = globalThis.${CONSOLE_KEY}; ${compiled}\n// load ${++loadCounter}\n`;
+  if (inBrowser) {
+    const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+    try { return await import(/* @vite-ignore */ url); } finally { URL.revokeObjectURL(url); }
+  }
+  return import(/* @vite-ignore */ `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 }
 
 function toError(e: unknown): TestError {
   if (e instanceof AssertionError) return { message: e.message, expected: e.expected, actual: e.actual };
   if (e instanceof Error) {
-    const stack = (e.stack || '').split('\n').filter((l) => !/runner\/|node_modules|<anonymous>:\d+:\d+\)?$/.test(l) || /eval|Function/.test(l)).slice(0, 6).join('\n');
+    // Keep only frames from the user's module (a blob:/data: URL) and point at the line.
+    const stack = (e.stack || '').split('\n')
+      .filter((l) => /^\s*at /.test(l) && /(blob:|data:text)/.test(l))
+      .map((l) => {
+        const t = l.trim().slice(3);
+        const line = t.match(/:(\d+):\d+\)?$/)?.[1];
+        const name = t.includes(' (') ? t.split(' (')[0] : '<module>';
+        return `  at ${name} (your code${line ? `, line ${line}` : ''})`;
+      })
+      .slice(0, 6).join('\n');
     return { message: `${e.name}: ${e.message}`, stack };
   }
   return { message: `Thrown non-Error value: ${format(e)}` };
@@ -83,7 +102,7 @@ export async function runTests(tests: TestCase[], source: string, language: Lang
     return { results: [], compileError: `Syntax error: ${e instanceof Error ? e.message : String(e)}`, moduleLogs: [], passed: 0, total: tests.length };
   }
   try {
-    loadModule(compiled, consoleObj); // surface top-level errors once, up front
+    await loadModule(compiled, consoleObj); // surface top-level errors once, up front
   } catch (e) {
     return { results: [], compileError: `Error while loading your code: ${e instanceof Error ? `${e.name}: ${e.message}` : String(e)}`, moduleLogs: moduleSink.lines, passed: 0, total: tests.length };
   }
@@ -97,7 +116,7 @@ export async function runTests(tests: TestCase[], source: string, language: Lang
     let status: TestResult['status'] = 'pass';
     let error: TestError | undefined;
     try {
-      const mod = loadModule(compiled, consoleObj);
+      const mod = await loadModule(compiled, consoleObj);
       const ctx: TestContext = {
         expect: createExpect(),
         clock: (s?: number) => new FakeClock(s),

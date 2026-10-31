@@ -1,5 +1,5 @@
 import type { Language, RunSummary, TestResult } from './types';
-import RunnerWorker from './worker.ts?worker';
+
 
 /** Kill the worker if it sends nothing for this long (an infinite loop blocks it completely). */
 export const WATCHDOG_MS = 5000;
@@ -13,7 +13,7 @@ export function runInWorker(
   language: Language,
   onResult: (r: TestResult) => void,
 ): RunHandle {
-  const worker = new RunnerWorker();
+  const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
   const received: TestResult[] = [];
   let finished = false;
   let watchdog: ReturnType<typeof setTimeout>;
