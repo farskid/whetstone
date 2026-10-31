@@ -51,6 +51,19 @@ export class FakeClock implements Clock {
     return best;
   }
 
+  /** Synchronous version of advance(): fires due timers in order but does NOT flush promises. */
+  tick(ms: number): void {
+    const target = this.t + ms;
+    for (let guard = 0; guard < 100000; guard++) {
+      const tm = this.nextTimer(target);
+      if (!tm) break;
+      this.timers.delete(tm.id);
+      this.t = Math.max(this.t, tm.at);
+      tm.fn(...tm.args);
+    }
+    this.t = target;
+  }
+
   /** Move time forward by ms, firing due timers in order and flushing promises between them. */
   async advance(ms: number): Promise<void> {
     const target = this.t + ms;
