@@ -11,6 +11,8 @@ import { meta as e2Meta } from './e2-signals/meta';
 import { tests as e2Tests } from './e2-signals/tests';
 import { meta as a1Meta } from './a1-concurrency-limiter/meta';
 import { tests as a1Tests } from './a1-concurrency-limiter/tests';
+import { meta as g1Meta } from './g1-virtual-list/meta';
+import { tests as g1Tests } from './g1-virtual-list/tests';
 
 /** Every problem in display order. To add one, see README "Adding a problem". */
 export const problems: Problem[] = [
@@ -20,6 +22,7 @@ export const problems: Problem[] = [
   { ...d6Meta, tests: d6Tests },
   { ...e2Meta, tests: e2Tests },
   { ...e6Meta, tests: e6Tests },
+  { ...g1Meta, tests: g1Tests },
 ];
 
 export const problemsById = new Map(problems.map((p) => [p.id, p]));
