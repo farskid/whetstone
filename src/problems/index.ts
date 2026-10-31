@@ -1,4 +1,8 @@
 import type { Problem } from './types';
+import { meta as a9Meta } from './a9-promise-all-settled/meta';
+import { tests as a9Tests } from './a9-promise-all-settled/tests';
+import { meta as f1Meta } from './f1-debounce/meta';
+import { tests as f1Tests } from './f1-debounce/tests';
 import { meta as a8Meta } from './a8-task-graph/meta';
 import { tests as a8Tests } from './a8-task-graph/tests';
 import { meta as b1Meta } from './b1-lru-ttl/meta';
@@ -22,6 +26,9 @@ import { tests as f6Tests } from './f6-schema-validation/tests';
 
 /** Every problem in display order. To add one, see README "Adding a problem". */
 export const problems: Problem[] = [
+  // Easy warm-ups first.
+  { ...a9Meta, tests: a9Tests },
+  { ...f1Meta, tests: f1Tests },
   { ...a1Meta, tests: a1Tests },
   { ...a8Meta, tests: a8Tests },
   { ...b1Meta, tests: b1Tests },

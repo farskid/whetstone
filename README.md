@@ -46,8 +46,12 @@ npm run verify -- e2-signals   # verify only one problem
 
 ## Problems (v1)
 
+The two Easy warm-ups are listed first. F1 is the easy cut of the catalog's F1 (no `maxWait`, `flush()` or throttle yet), and A9 isn't in the catalog.
+
 | id | title | theme | difficulty |
 |---|---|---|---|
+| A9 | Promise.allSettled (warm-up) | Async | Easy |
+| F1 | Debounce (warm-up) | Utilities | Easy |
 | A1 | Concurrency limiter | Async | Medium |
 | A8 | Task graph runner | Async | Hard |
 | B1 | LRU cache with TTL | Data/Caches | Medium |
