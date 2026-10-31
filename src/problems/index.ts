@@ -5,6 +5,8 @@ import { meta as b1Meta } from './b1-lru-ttl/meta';
 import { tests as b1Tests } from './b1-lru-ttl/tests';
 import { meta as d6Meta } from './d6-route-matching/meta';
 import { tests as d6Tests } from './d6-route-matching/tests';
+import { meta as e6Meta } from './e6-query-cache/meta';
+import { tests as e6Tests } from './e6-query-cache/tests';
 import { meta as e2Meta } from './e2-signals/meta';
 import { tests as e2Tests } from './e2-signals/tests';
 import { meta as a1Meta } from './a1-concurrency-limiter/meta';
@@ -17,6 +19,7 @@ export const problems: Problem[] = [
   { ...b1Meta, tests: b1Tests },
   { ...d6Meta, tests: d6Tests },
   { ...e2Meta, tests: e2Tests },
+  { ...e6Meta, tests: e6Tests },
 ];
 
 export const problemsById = new Map(problems.map((p) => [p.id, p]));
