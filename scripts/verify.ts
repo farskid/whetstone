@@ -13,6 +13,8 @@ import { runTests, stripTypes, compile } from '../src/runner/core';
 import type { RunSummary } from '../src/runner/types';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'problems');
+// A test that fails early can leave a user promise rejected with no handler; that's not a crash.
+process.on('unhandledRejection', () => {});
 const only = process.argv[2];
 let failures = 0;
 const fail = (msg: string) => { failures++; console.log(`  ✗ ${msg}`); };

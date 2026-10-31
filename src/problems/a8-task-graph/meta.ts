@@ -1,0 +1,17 @@
+import type { ProblemMeta } from '../types';
+
+export const meta: ProblemMeta = {
+  id: 'a8-task-graph',
+  catalogId: 'A8',
+  title: 'Task graph runner',
+  theme: 'Async',
+  difficulty: 'Hard',
+  inspiredBy: 'Turborepo, Nx, Listr',
+  summary: 'Run dependent async tasks with max parallelism, cycle detection, skip-on-failure, failFast with abort, and targets.',
+  stages: [
+    { title: 'Topological run', summary: 'Each task starts once all its deps succeeded and receives their results.' },
+    { title: 'Validation', summary: 'Duplicate ids, unknown deps, and cycles reported with their path.' },
+    { title: 'Failures', summary: 'Dependents of a failed task are skipped; failFast aborts the rest.' },
+    { title: 'Concurrency, targets, events', summary: 'Concurrency limit with input-order priority, targets subset and lifecycle events.' },
+  ],
+};
