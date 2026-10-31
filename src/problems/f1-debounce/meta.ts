@@ -5,9 +5,9 @@ export const meta: ProblemMeta = {
   catalogId: 'F1',
   title: 'Debounce',
   theme: 'Utilities',
-  difficulty: 'Easy',
+  difficulty: 'Medium',
   inspiredBy: 'lodash.debounce',
-  summary: 'Warm-up (~5 min): debounce(fn, wait) with leading/trailing options, cancel() and pending(), on an injected clock.',
+  summary: 'debounce(fn, wait) with leading/trailing options, cancel() and pending(), on an injected clock.',
   stages: [
     { title: 'Trailing debounce', summary: 'debounce(fn, wait): one trailing call with the latest args and `this`.' },
     { title: 'Leading and trailing', summary: '{ leading, trailing } options.' },

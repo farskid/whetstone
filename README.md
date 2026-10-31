@@ -46,12 +46,12 @@ npm run verify -- e2-signals   # verify only one problem
 
 ## Problems (v1)
 
-The two Easy warm-ups are listed first. F1 is the easy cut of the catalog's F1 (no `maxWait`, `flush()` or throttle yet), and A9 isn't in the catalog.
+The two Easy warm-ups are listed first. F10 (plain trailing debounce) and A9 aren't in the catalog. F1 is the catalog's F1 without `maxWait`, `flush()` or throttle yet.
 
 | id | title | theme | difficulty |
 |---|---|---|---|
+| F10 | Debounce (basic, warm-up) | Utilities | Easy |
 | A9 | Promise.allSettled (warm-up) | Async | Easy |
-| F1 | Debounce (warm-up) | Utilities | Easy |
 | A1 | Concurrency limiter | Async | Medium |
 | A8 | Task graph runner | Async | Hard |
 | B1 | LRU cache with TTL | Data/Caches | Medium |
@@ -59,6 +59,7 @@ The two Easy warm-ups are listed first. F1 is the easy cut of the catalog's F1 (
 | D6 | Route matching | Parsing | Medium |
 | E2 | Signals | State | Hard |
 | E6 | Query cache | Data/Caches | Hard |
+| F1 | Debounce (leading/trailing, cancel, pending) | Utilities | Medium |
 | F6 | Schema validation (runtime only) | Parsing | Medium |
 | G1 | Virtual list | Browser/UI | Hard |
 | H6 | Offline mutation queue | API/Network | Hard |

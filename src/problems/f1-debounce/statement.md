@@ -1,7 +1,5 @@
 # Debounce
 
-**Warm-up, about 5 minutes.**
-
 Write `debounce(fn, wait, options)`, a small version of **lodash.debounce**. It turns a burst of calls into one call to `fn`.
 
 ```ts
