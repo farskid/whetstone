@@ -17,6 +17,8 @@ import { meta as c3Meta } from './c3-http-interceptors/meta';
 import { tests as c3Tests } from './c3-http-interceptors/tests';
 import { meta as h6Meta } from './h6-offline-queue/meta';
 import { tests as h6Tests } from './h6-offline-queue/tests';
+import { meta as f6Meta } from './f6-schema-validation/meta';
+import { tests as f6Tests } from './f6-schema-validation/tests';
 
 /** Every problem in display order. To add one, see README "Adding a problem". */
 export const problems: Problem[] = [
@@ -27,6 +29,7 @@ export const problems: Problem[] = [
   { ...d6Meta, tests: d6Tests },
   { ...e2Meta, tests: e2Tests },
   { ...e6Meta, tests: e6Tests },
+  { ...f6Meta, tests: f6Tests },
   { ...g1Meta, tests: g1Tests },
   { ...h6Meta, tests: h6Tests },
 ];
