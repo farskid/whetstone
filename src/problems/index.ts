@@ -15,6 +15,8 @@ import { meta as g1Meta } from './g1-virtual-list/meta';
 import { tests as g1Tests } from './g1-virtual-list/tests';
 import { meta as c3Meta } from './c3-http-interceptors/meta';
 import { tests as c3Tests } from './c3-http-interceptors/tests';
+import { meta as h6Meta } from './h6-offline-queue/meta';
+import { tests as h6Tests } from './h6-offline-queue/tests';
 
 /** Every problem in display order. To add one, see README "Adding a problem". */
 export const problems: Problem[] = [
@@ -26,6 +28,7 @@ export const problems: Problem[] = [
   { ...e2Meta, tests: e2Tests },
   { ...e6Meta, tests: e6Tests },
   { ...g1Meta, tests: g1Tests },
+  { ...h6Meta, tests: h6Tests },
 ];
 
 export const problemsById = new Map(problems.map((p) => [p.id, p]));
