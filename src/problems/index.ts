@@ -51,8 +51,28 @@ import { meta as c7Meta } from './c7-structured-logger/meta';
 import { tests as c7Tests } from './c7-structured-logger/tests';
 import { meta as c8Meta } from './c8-mini-bundler/meta';
 import { tests as c8Tests } from './c8-mini-bundler/tests';
+import { meta as d1Meta } from './d1-cli-args/meta';
+import { tests as d1Tests } from './d1-cli-args/tests';
+import { meta as d2Meta } from './d2-semver/meta';
+import { tests as d2Tests } from './d2-semver/tests';
+import { meta as d3Meta } from './d3-cron/meta';
+import { tests as d3Tests } from './d3-cron/tests';
+import { meta as d4Meta } from './d4-template-engine/meta';
+import { tests as d4Tests } from './d4-template-engine/tests';
+import { meta as d5Meta } from './d5-markdown-lite/meta';
+import { tests as d5Tests } from './d5-markdown-lite/tests';
 import { meta as d6Meta } from './d6-route-matching/meta';
 import { tests as d6Tests } from './d6-route-matching/tests';
+import { meta as d7Meta } from './d7-object-path/meta';
+import { tests as d7Tests } from './d7-object-path/tests';
+import { meta as d8Meta } from './d8-spreadsheet/meta';
+import { tests as d8Tests } from './d8-spreadsheet/tests';
+import { meta as d9Meta } from './d9-csv-parser/meta';
+import { tests as d9Tests } from './d9-csv-parser/tests';
+import { meta as d10Meta } from './d10-query-string/meta';
+import { tests as d10Tests } from './d10-query-string/tests';
+import { meta as d11Meta } from './d11-env-parser/meta';
+import { tests as d11Tests } from './d11-env-parser/tests';
 import { meta as e2Meta } from './e2-signals/meta';
 import { tests as e2Tests } from './e2-signals/tests';
 import { meta as e6Meta } from './e6-query-cache/meta';
@@ -94,7 +114,17 @@ export const problems: Problem[] = [
   { ...c6Meta, tests: c6Tests },
   { ...c7Meta, tests: c7Tests },
   { ...c8Meta, tests: c8Tests },
+  { ...d1Meta, tests: d1Tests },
+  { ...d2Meta, tests: d2Tests },
+  { ...d3Meta, tests: d3Tests },
+  { ...d4Meta, tests: d4Tests },
+  { ...d5Meta, tests: d5Tests },
   { ...d6Meta, tests: d6Tests },
+  { ...d7Meta, tests: d7Tests },
+  { ...d8Meta, tests: d8Tests },
+  { ...d9Meta, tests: d9Tests },
+  { ...d10Meta, tests: d10Tests },
+  { ...d11Meta, tests: d11Tests },
   { ...e2Meta, tests: e2Tests },
   { ...e6Meta, tests: e6Tests },
   { ...f1Meta, tests: f1Tests },

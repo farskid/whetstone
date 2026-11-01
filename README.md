@@ -77,7 +77,17 @@ The two Easy warm-ups come first. F10 (plain trailing debounce) and A9 aren't in
 | C6 | Loader chain with pitching | Middleware | Hard | 11 |
 | C7 | Structured logger | Middleware | Medium | 12 |
 | C8 | Mini bundler with plugins | Middleware | Hard | 11 |
+| D1 | CLI argument parser | Parsing | Medium | 9 |
+| D2 | Semver ranges | Parsing | Medium | 10 |
+| D3 | Cron next-run | Parsing | Hard | 10 |
+| D4 | Template engine | Parsing | Medium | 10 |
+| D5 | Markdown lite | Parsing | Hard | 10 |
 | D6 | Route matching | Parsing | Medium | 15 |
+| D7 | Object path get/set/query | Parsing | Medium | 10 |
+| D8 | Spreadsheet formulas | Parsing | Hard | 10 |
+| D9 | CSV parser | Parsing | Medium | 11 |
+| D10 | Query string codec | Parsing | Medium | 10 |
+| D11 | .env parser | Parsing | Easy | 10 |
 | E2 | Signals | State | Hard | 19 |
 | E6 | Query cache | Data/Caches | Hard | 15 |
 | F1 | Debounce | Utilities | Medium | 13 |
