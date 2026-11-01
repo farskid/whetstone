@@ -7,6 +7,10 @@ export const meta: ProblemMeta = {
   theme: 'Utilities',
   difficulty: 'Medium',
   inspiredBy: 'lodash.debounce',
+  tags: [
+    { kind: 'library', name: 'lodash' },
+    { kind: 'pattern', name: 'Debounce' },
+  ],
   summary: 'debounce(fn, wait) with leading/trailing options, cancel() and pending(), on an injected clock.',
   stages: [
     { title: 'Trailing debounce', summary: 'debounce(fn, wait): one trailing call with the latest args and `this`.' },

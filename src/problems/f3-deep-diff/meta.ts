@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Utilities',
   difficulty: 'Hard',
   inspiredBy: 'jsondiffpatch, fast-json-patch',
+  tags: [
+    { kind: 'library', name: 'jsondiffpatch' },
+    { kind: 'library', name: 'fast-json-patch' },
+    { kind: 'pattern', name: 'Deep equality' },
+    { kind: 'pattern', name: 'JSON Patch (RFC 6902)' },
+  ],
   summary: 'Deep equality, a JSON Patch (RFC 6902) diff with pointer escaping and hash-based array moves, and an atomic, immutable applyPatch.',
   stages: [
     { title: 'Equality', summary: 'SameValueZero, Dates, key order, undefined vs missing.' },

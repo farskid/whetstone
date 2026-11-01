@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Async',
   difficulty: 'Hard',
   inspiredBy: 'Go channels, it-pushable',
+  tags: [
+    { kind: 'library', name: 'it-pushable' },
+    { kind: 'pattern', name: 'Channels' },
+    { kind: 'pattern', name: 'Backpressure' },
+    { kind: 'pattern', name: 'Async iteration' },
+  ],
   summary: 'A Go-style channel with rendezvous and buffered modes, close semantics, async iteration, merge and a lossless select.',
   stages: [
     { title: 'Unbuffered channel', summary: 'send() waits for a receiver and receive() waits for a sender (rendezvous), FIFO on both sides.' },

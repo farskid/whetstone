@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Data/Caches',
   difficulty: 'Medium',
   inspiredBy: 'Prometheus summaries',
+  tags: [
+    { kind: 'library', name: 'Prometheus' },
+    { kind: 'pattern', name: 'Sliding window' },
+    { kind: 'pattern', name: 'Ring buffer' },
+    { kind: 'pattern', name: 'Percentiles' },
+    { kind: 'pattern', name: 'Histogram' },
+  ],
   summary: 'Count- and time-based sliding windows with avg, O(1) min/max, percentiles, and a bounded-memory histogram window.',
   stages: [
     { title: 'Ring buffer', summary: 'Last N numbers with push, toArray (oldest first), count and avg.' },

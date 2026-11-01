@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Async',
   difficulty: 'Medium',
   inspiredBy: 'p-retry',
+  tags: [
+    { kind: 'library', name: 'p-retry' },
+    { kind: 'pattern', name: 'Retry' },
+    { kind: 'pattern', name: 'Exponential backoff' },
+    { kind: 'pattern', name: 'Cancellation' },
+  ],
   summary: 'Retry a flaky async call with exponential backoff, jitter, shouldRetry, AbortError, onFailedAttempt and an AbortSignal.',
   stages: [
     { title: 'Retry until success', summary: 'retry(fn, { retries }) calls fn(attempt) until it resolves, or rejects with the last error.' },

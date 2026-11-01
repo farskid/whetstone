@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Medium',
   inspiredBy: 'Zod, Valibot, Yup',
+  tags: [
+    { kind: 'library', name: 'Zod' },
+    { kind: 'library', name: 'Valibot' },
+    { kind: 'library', name: 'Yup' },
+    { kind: 'pattern', name: 'Schema validation' },
+  ],
   summary: 'A Zod-style runtime validator: primitives with checks, objects (strip/strict/passthrough), arrays, unions, optional/default, refine/transform, lazy recursion, all issues with paths.',
   stages: [
     { title: 'Primitives', summary: 'string/number/boolean/literal/enum with parse and safeParse and typed issues.' },

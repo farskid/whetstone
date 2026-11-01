@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Middleware',
   difficulty: 'Hard',
   inspiredBy: 'tsyringe, InversifyJS',
+  tags: [
+    { kind: 'library', name: 'tsyringe' },
+    { kind: 'library', name: 'InversifyJS' },
+    { kind: 'pattern', name: 'Dependency injection' },
+    { kind: 'pattern', name: 'Scoped lifetimes' },
+  ],
   summary: 'A dependency injection container with value/factory/class providers, singleton/transient/scoped lifetimes, child scopes, captive and circular dependency errors, async factories and dispose.',
   stages: [
     { title: 'Values and factories', summary: 'register(token, { useValue | useFactory }) and resolve(token).' },

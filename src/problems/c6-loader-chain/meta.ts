@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Middleware',
   difficulty: 'Hard',
   inspiredBy: 'webpack loaders (loader-runner)',
+  tags: [
+    { kind: 'library', name: 'webpack' },
+    { kind: 'library', name: 'loader-runner' },
+    { kind: 'pattern', name: 'Loader chain' },
+    { kind: 'pattern', name: 'Middleware' },
+  ],
   summary: 'Run webpack-style loaders right to left with sync, promise and this.async() results, query options, a left-to-right pitch phase that can short-circuit, shared data and dependencies.',
   stages: [
     { title: 'Loader chain', summary: 'Apply loaders right to left to the resource.' },

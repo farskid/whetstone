@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Browser/UI',
   difficulty: 'Hard',
   inspiredBy: 'ProseMirror, Slate',
+  tags: [
+    { kind: 'library', name: 'ProseMirror' },
+    { kind: 'library', name: 'Slate' },
+    { kind: 'pattern', name: 'Rich text' },
+    { kind: 'pattern', name: 'Normalization' },
+    { kind: 'pattern', name: 'HTML serialization' },
+  ],
   summary: 'A text model of marked spans: add, remove and toggle marks over ranges with normalization, typing that inherits marks (with non-inclusive links and stored marks), marks with attributes, and HTML serialization that round-trips.',
   stages: [
     { title: 'Spans and marks', summary: 'Text as spans with marks; addMark splits spans as needed.' },

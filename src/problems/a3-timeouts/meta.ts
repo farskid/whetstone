@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Async',
   difficulty: 'Medium',
   inspiredBy: 'p-timeout, AbortSignal.timeout/any',
+  tags: [
+    { kind: 'library', name: 'p-timeout' },
+    { kind: 'pattern', name: 'Timeout' },
+    { kind: 'pattern', name: 'Cancellation' },
+  ],
   summary: 'withTimeout for promises and abortable tasks, with fallback, custom errors and no leaked timers, plus anySignal().',
   stages: [
     { title: 'Reject on timeout', summary: 'withTimeout(promise, ms) rejects with TimeoutError if the promise has not settled by then.' },

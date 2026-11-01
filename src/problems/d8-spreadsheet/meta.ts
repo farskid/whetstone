@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Hard',
   inspiredBy: 'HyperFormula',
+  tags: [
+    { kind: 'library', name: 'HyperFormula' },
+    { kind: 'company', name: 'Handsontable' },
+    { kind: 'pattern', name: 'Formula parsing' },
+    { kind: 'pattern', name: 'Dependency graph' },
+    { kind: 'pattern', name: 'Topological sort' },
+  ],
   summary: 'A spreadsheet engine: parse formulas with precedence, ranges and functions, track dependencies, recalculate only what changed in topological order, detect cycles, and propagate errors.',
   stages: [
     { title: 'Formulas', summary: 'Literals, references, operator precedence, comparisons and &.' },

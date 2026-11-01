@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Medium',
   inspiredBy: 'Mustache, Handlebars',
+  tags: [
+    { kind: 'library', name: 'Mustache' },
+    { kind: 'library', name: 'Handlebars' },
+    { kind: 'pattern', name: 'Templating' },
+    { kind: 'pattern', name: 'HTML escaping' },
+  ],
   summary: 'A Mustache-style engine: escaping, dotted paths through a context stack, sections and inverted sections, partials with a depth limit, helpers, compile(), and errors with line and column.',
   stages: [
     { title: 'Variables', summary: '{{name}} escaped, {{{raw}}} and {{& raw}}, missing renders empty.' },

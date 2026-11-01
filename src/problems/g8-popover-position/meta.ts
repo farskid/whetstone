@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Browser/UI',
   difficulty: 'Hard',
   inspiredBy: 'Floating UI (computePosition and middleware)',
+  tags: [
+    { kind: 'library', name: 'Floating UI' },
+    { kind: 'pattern', name: 'Positioning' },
+    { kind: 'pattern', name: 'Middleware' },
+    { kind: 'pattern', name: 'Collision detection' },
+  ],
   summary: 'Place a tooltip or popover next to its anchor: 12 placements with RTL, overflow detection, and a middleware pipeline with offset, flip (with a best-fit fallback), shift, arrow and autoPlacement, plus capped resets.',
   stages: [
     { title: 'Placements', summary: 'Coordinates for the four sides and their start/end alignments, RTL-aware.' },

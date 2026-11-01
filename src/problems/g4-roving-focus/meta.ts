@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Browser/UI',
   difficulty: 'Medium',
   inspiredBy: 'Radix UI, WAI-ARIA listbox and grid patterns',
+  tags: [
+    { kind: 'library', name: 'Radix UI' },
+    { kind: 'framework', name: 'React' },
+    { kind: 'pattern', name: 'Roving focus' },
+    { kind: 'pattern', name: 'Typeahead' },
+    { kind: 'pattern', name: 'WAI-ARIA' },
+  ],
   summary: 'Keyboard models for a listbox and a grid: arrows, Home/End and paging past disabled items, optional looping, Radix-style typeahead on an injected clock, ragged grids and RTL.',
   stages: [
     { title: 'Arrow keys', summary: 'ArrowUp/Down, Home and End move the active index.' },

@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Browser/UI',
   difficulty: 'Medium',
   inspiredBy: 'tinykeys, hotkeys-js',
+  tags: [
+    { kind: 'library', name: 'tinykeys' },
+    { kind: 'library', name: 'hotkeys-js' },
+    { kind: 'pattern', name: 'Keyboard shortcuts' },
+    { kind: 'pattern', name: 'Key sequences' },
+  ],
   summary: 'Parse and match key combos, then a binding manager with "g i" sequences, scopes, input filtering, platform-aware $mod and conflict detection.',
   stages: [
     { title: 'Parse and match', summary: 'parseCombo with modifier aliases; exact modifier matching against key events.' },

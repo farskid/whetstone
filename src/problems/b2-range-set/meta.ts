@@ -7,6 +7,10 @@ export const meta: ProblemMeta = {
   theme: 'Data/Caches',
   difficulty: 'Medium',
   inspiredBy: 'calendar free/busy',
+  tags: [
+    { kind: 'pattern', name: 'Interval set' },
+    { kind: 'pattern', name: 'Free/busy scheduling' },
+  ],
   summary: 'A set of half-open ranges that merges and splits, answers point and overlap queries in O(log n), and finds common free slots.',
   stages: [
     { title: 'Add and merge', summary: 'add([start, end)) merges overlapping and adjacent ranges; toArray() is sorted.' },

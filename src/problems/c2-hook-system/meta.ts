@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Middleware',
   difficulty: 'Hard',
   inspiredBy: 'tapable, Rollup plugin hooks',
+  tags: [
+    { kind: 'library', name: 'tapable' },
+    { kind: 'library', name: 'webpack' },
+    { kind: 'library', name: 'Rollup' },
+    { kind: 'pattern', name: 'Plugin hooks' },
+    { kind: 'pattern', name: 'Interceptors' },
+  ],
   summary: 'tapable-style plugin hooks: sync, waterfall and bail hooks, async series and parallel hooks, stage/before ordering and interceptors.',
   stages: [
     { title: 'SyncHook', summary: 'tap(name, fn) and call(...args) in registration order.' },

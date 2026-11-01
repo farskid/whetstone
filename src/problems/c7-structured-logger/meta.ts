@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Middleware',
   difficulty: 'Medium',
   inspiredBy: 'pino',
+  tags: [
+    { kind: 'library', name: 'pino' },
+    { kind: 'pattern', name: 'Structured logging' },
+    { kind: 'pattern', name: 'Redaction' },
+  ],
   summary: 'A pino-style JSON logger with level filtering, child bindings, safe serialization, redaction paths, error serializers, buffered per-transport writes with flush(), and sampling.',
   stages: [
     { title: 'JSON lines', summary: 'info/warn/error(obj?, msg) write one JSON line each, filtered by level.' },

@@ -7,6 +7,14 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Medium',
   inspiredBy: 'find-my-way, path-to-regexp, React Router',
+  tags: [
+    { kind: 'library', name: 'find-my-way' },
+    { kind: 'library', name: 'path-to-regexp' },
+    { kind: 'library', name: 'React Router' },
+    { kind: 'framework', name: 'React' },
+    { kind: 'pattern', name: 'Routing' },
+    { kind: 'pattern', name: 'Reverse routing' },
+  ],
   summary: 'A router with params, optional segments, constraints, wildcards, specificity ranking, 405s and reverse routing.',
   stages: [
     { title: 'Static and params', summary: 'add(method, "/users/:id") and match(method, path) with decoded params.' },

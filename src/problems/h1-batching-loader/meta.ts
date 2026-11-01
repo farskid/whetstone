@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'API/Network',
   difficulty: 'Medium',
   inspiredBy: 'dataloader',
+  tags: [
+    { kind: 'library', name: 'dataloader' },
+    { kind: 'company', name: 'Meta' },
+    { kind: 'pattern', name: 'Batching' },
+    { kind: 'pattern', name: 'Request deduplication' },
+  ],
   summary: 'Collect load(key) calls into one batch call, cache per key without caching errors, split by maxBatchSize, take a custom schedule, and support clear, prime, cacheKeyFn and loadMany.',
   stages: [
     { title: 'Batching', summary: 'load() calls in the same synchronous run become one batchFn(keys) call.' },

@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Data/Caches',
   difficulty: 'Hard',
   inspiredBy: 'VS Code text buffer',
+  tags: [
+    { kind: 'company', name: 'Microsoft' },
+    { kind: 'pattern', name: 'Piece table' },
+    { kind: 'pattern', name: 'Text buffer' },
+  ],
   summary: 'An editor text buffer on a piece table: cheap inserts and deletes, line/column mapping with CRLF and surrogate pairs, and O(1) snapshots.',
   stages: [
     { title: 'Piece table', summary: 'insert, delete and getText without copying the whole document per edit.' },

@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'API/Network',
   difficulty: 'Medium',
   inspiredBy: 'Stripe webhooks',
+  tags: [
+    { kind: 'company', name: 'Stripe' },
+    { kind: 'pattern', name: 'Webhooks' },
+    { kind: 'pattern', name: 'HMAC signatures' },
+    { kind: 'pattern', name: 'Replay protection' },
+    { kind: 'pattern', name: 'Idempotency' },
+  ],
   summary: 'Verify Stripe-style t=…,v1=… signatures with HMAC-SHA256 and a timing-safe compare, reject replays, and process events idempotently: duplicates share one result, failures stay retryable, and stale out-of-order events are skipped.',
   stages: [
     { title: 'Signatures', summary: 'Parse the header and verify HMAC-SHA256 over `${t}.${rawBody}` with a timing-safe compare.' },

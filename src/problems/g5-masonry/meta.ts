@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Browser/UI',
   difficulty: 'Medium',
   inspiredBy: 'Masonry, Pinterest-style grids, react-masonry-css',
+  tags: [
+    { kind: 'library', name: 'Masonry' },
+    { kind: 'library', name: 'react-masonry-css' },
+    { kind: 'framework', name: 'React' },
+    { kind: 'company', name: 'Pinterest' },
+    { kind: 'pattern', name: 'Masonry layout' },
+  ],
   summary: 'Place cards into the shortest column with gutters, derive columns from a minimum width, handle multi-column spans and aspect ratios, and append or resize incrementally.',
   stages: [
     { title: 'Shortest column', summary: 'Fixed column count, gutters, leftmost column on ties, total height.' },

@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Utilities',
   difficulty: 'Medium',
   inspiredBy: 'structuredClone, rfdc',
+  tags: [
+    { kind: 'library', name: 'rfdc' },
+    { kind: 'pattern', name: 'Deep clone' },
+    { kind: 'pattern', name: 'structuredClone' },
+  ],
   summary: 'Deep-clone values with cycles, shared references, built-ins (Date, RegExp, Map, Set, typed arrays), sparse arrays, symbol keys and very deep nesting.',
   stages: [
     { title: 'Plain data', summary: 'Objects, arrays, primitives; functions and symbols throw.' },

@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'State',
   difficulty: 'Medium',
   inspiredBy: 'react-hook-form, Formik',
+  tags: [
+    { kind: 'library', name: 'react-hook-form' },
+    { kind: 'library', name: 'Formik' },
+    { kind: 'framework', name: 'React' },
+    { kind: 'pattern', name: 'Form state' },
+    { kind: 'pattern', name: 'Validation' },
+  ],
   summary: 'Nested form values with dirty/touched tracking, sync, debounced async and form-level validation, submit that waits for pending checks, and field arrays whose items keep stable ids.',
   stages: [
     { title: 'Values and dirty', summary: 'Nested get/set by path, dirty compared to the initial values, touched.' },

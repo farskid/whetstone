@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Browser/UI',
   difficulty: 'Hard',
   inspiredBy: 'TanStack Virtual, react-window',
+  tags: [
+    { kind: 'library', name: 'TanStack Virtual' },
+    { kind: 'library', name: 'react-window' },
+    { kind: 'framework', name: 'React' },
+    { kind: 'pattern', name: 'Virtualization' },
+    { kind: 'pattern', name: 'Scroll anchoring' },
+  ],
   summary: 'The math behind list virtualization: visible range with overscan, dynamic measurement with scroll anchoring, scrollToIndex, 100k rows fast.',
   stages: [
     { title: 'Fixed size', summary: 'Visible range for a fixed row height, with overscan and total size.' },

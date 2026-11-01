@@ -7,6 +7,14 @@ export const meta: ProblemMeta = {
   theme: 'API/Network',
   difficulty: 'Medium',
   inspiredBy: 'ky, ofetch',
+  tags: [
+    { kind: 'library', name: 'ky' },
+    { kind: 'library', name: 'ofetch' },
+    { kind: 'pattern', name: 'HTTP client' },
+    { kind: 'pattern', name: 'Retry' },
+    { kind: 'pattern', name: 'Exponential backoff' },
+    { kind: 'pattern', name: 'Hooks' },
+  ],
   summary: 'A small ky-style client over an injected fetch: prefixUrl and searchParams, HTTPError, retries that honor Retry-After, request/response/error hooks, timeouts with AbortSignal, and extend() with merged headers.',
   stages: [
     { title: 'Requests', summary: 'api.get(url).json() with prefixUrl and searchParams; non-2xx throws HTTPError.' },

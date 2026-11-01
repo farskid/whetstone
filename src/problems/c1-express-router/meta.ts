@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Middleware',
   difficulty: 'Medium',
   inspiredBy: 'Express',
+  tags: [
+    { kind: 'framework', name: 'Express' },
+    { kind: 'pattern', name: 'Middleware' },
+    { kind: 'pattern', name: 'Routing' },
+    { kind: 'pattern', name: 'Error handling' },
+  ],
   summary: 'next() chaining, path-scoped middleware and :param routes, 4-arity error handlers that can recover, async handlers, and mountable sub-routers.',
   stages: [
     { title: 'Middleware chain', summary: 'use(fn) and handle(req, res) with next() chaining.' },

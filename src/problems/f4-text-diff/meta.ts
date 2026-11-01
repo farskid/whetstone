@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Utilities',
   difficulty: 'Hard',
   inspiredBy: 'jsdiff, GNU diff',
+  tags: [
+    { kind: 'library', name: 'jsdiff' },
+    { kind: 'library', name: 'GNU diff' },
+    { kind: 'pattern', name: 'Myers diff' },
+    { kind: 'pattern', name: 'Unified diff' },
+  ],
   summary: 'A Myers line diff, word diff, unified patches with context and no-newline markers, and applying patches at an offset.',
   stages: [
     { title: 'Line diff', summary: 'Minimal line changes, merged, removes before adds.' },

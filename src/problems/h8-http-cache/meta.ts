@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'API/Network',
   difficulty: 'Hard',
   inspiredBy: 'RFC 9111, cacache',
+  tags: [
+    { kind: 'library', name: 'cacache' },
+    { kind: 'pattern', name: 'HTTP caching (RFC 9111)' },
+    { kind: 'pattern', name: 'Revalidation' },
+    { kind: 'pattern', name: 'Stale-while-revalidate' },
+  ],
   summary: 'An RFC 9111-style HTTP cache in front of fetch: freshness from Cache-Control, Expires and the Last-Modified heuristic, Age math, ETag/Last-Modified revalidation, Vary variants, private vs shared rules, and stale-while-revalidate / stale-if-error.',
   stages: [
     { title: 'Freshness', summary: 'Store cacheable GET responses and serve them while fresh, with correct Age.' },

@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'API/Network',
   difficulty: 'Medium',
   inspiredBy: 'token bucket, rate-limiter-flexible',
+  tags: [
+    { kind: 'library', name: 'rate-limiter-flexible' },
+    { kind: 'pattern', name: 'Rate limiting' },
+    { kind: 'pattern', name: 'Token bucket' },
+    { kind: 'pattern', name: 'Sliding window' },
+  ],
   summary: 'A token bucket with fractional refill and a fair FIFO wait with AbortSignal, per-key buckets with idle eviction, and a sliding-window counter that reports remaining, resetAt and retryAfter.',
   stages: [
     { title: 'Token bucket', summary: 'TokenBucket({ capacity, refillPerSec }) with tryRemove(n) on an injected clock.' },

@@ -7,6 +7,10 @@ export const meta: ProblemMeta = {
   theme: 'Utilities',
   difficulty: 'Easy',
   inspiredBy: 'lodash.debounce',
+  tags: [
+    { kind: 'library', name: 'lodash' },
+    { kind: 'pattern', name: 'Debounce' },
+  ],
   summary: 'Warm-up (~5 min): debounce(fn, wait). Every call restarts the timer; after wait ms of silence, call fn once with the latest args.',
   stages: [
     { title: 'Trailing call', summary: 'After wait ms with no calls, call fn once.' },

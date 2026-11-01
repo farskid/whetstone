@@ -7,6 +7,15 @@ export const meta: ProblemMeta = {
   theme: 'Data/Caches',
   difficulty: 'Hard',
   inspiredBy: 'TanStack Query, SWR',
+  tags: [
+    { kind: 'library', name: 'TanStack Query' },
+    { kind: 'library', name: 'SWR' },
+    { kind: 'company', name: 'Vercel' },
+    { kind: 'pattern', name: 'Query cache' },
+    { kind: 'pattern', name: 'Request deduplication' },
+    { kind: 'pattern', name: 'Stale-while-revalidate' },
+    { kind: 'pattern', name: 'Garbage collection' },
+  ],
   summary: 'Server-state cache: stable keys, dedupe, staleTime, observers, prefix invalidation that drops stale responses, retries, GC.',
   stages: [
     { title: 'Keyed cache + dedupe', summary: 'fetchQuery(key, fn) caches by a stable key hash and dedupes in-flight requests.' },

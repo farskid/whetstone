@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Hard',
   inspiredBy: 'cron-parser',
+  tags: [
+    { kind: 'library', name: 'cron-parser' },
+    { kind: 'pattern', name: 'Cron expressions' },
+    { kind: 'pattern', name: 'Time zones and DST' },
+  ],
   summary: 'Parse 5-field cron expressions and compute the next and previous run, with day-of-month OR day-of-week semantics, impossible schedules, and time zones across DST gaps and overlaps.',
   stages: [
     { title: 'Parse fields', summary: '*, numbers and lists into sorted sets.' },

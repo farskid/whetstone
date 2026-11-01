@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Browser/UI',
   difficulty: 'Hard',
   inspiredBy: 'dnd-kit sortable and tree examples',
+  tags: [
+    { kind: 'library', name: 'dnd-kit' },
+    { kind: 'framework', name: 'React' },
+    { kind: 'pattern', name: 'Drag and drop' },
+    { kind: 'pattern', name: 'Sortable lists' },
+    { kind: 'pattern', name: 'Tree projection' },
+  ],
   summary: 'The math behind sortable lists and trees: non-mutating moves, midpoint drop index, multi-select drags, and tree depth projection from the drag offset with descendant protection.',
   stages: [
     { title: 'arrayMove', summary: 'Move one item without mutating the list.' },

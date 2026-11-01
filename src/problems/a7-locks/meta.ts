@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Async',
   difficulty: 'Hard',
   inspiredBy: 'async-mutex',
+  tags: [
+    { kind: 'library', name: 'async-mutex' },
+    { kind: 'pattern', name: 'Mutex' },
+    { kind: 'pattern', name: 'Semaphore' },
+    { kind: 'pattern', name: 'Read/write lock' },
+  ],
   summary: 'A weighted FIFO semaphore with timeouts and tryAcquire, a Mutex, and a writer-preferring read/write lock.',
   stages: [
     { title: 'Mutex', summary: 'Mutex with acquire() → release and runExclusive(fn), FIFO, release is idempotent.' },

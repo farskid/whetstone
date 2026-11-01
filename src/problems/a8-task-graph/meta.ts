@@ -7,6 +7,14 @@ export const meta: ProblemMeta = {
   theme: 'Async',
   difficulty: 'Hard',
   inspiredBy: 'Turborepo, Nx, Listr',
+  tags: [
+    { kind: 'library', name: 'Turborepo' },
+    { kind: 'library', name: 'Nx' },
+    { kind: 'library', name: 'Listr' },
+    { kind: 'company', name: 'Vercel' },
+    { kind: 'pattern', name: 'Topological sort' },
+    { kind: 'pattern', name: 'Concurrency limit' },
+  ],
   summary: 'Run dependent async tasks with max parallelism, cycle detection, skip-on-failure, failFast with abort, and targets.',
   stages: [
     { title: 'Topological run', summary: 'Each task starts once all its deps succeeded and receives their results.' },

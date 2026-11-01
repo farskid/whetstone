@@ -7,6 +7,16 @@ export const meta: ProblemMeta = {
   theme: 'API/Network',
   difficulty: 'Hard',
   inspiredBy: 'Workbox background sync, TanStack Query offline mutations, Replicache',
+  tags: [
+    { kind: 'library', name: 'Workbox' },
+    { kind: 'library', name: 'TanStack Query' },
+    { kind: 'library', name: 'Replicache' },
+    { kind: 'company', name: 'Google' },
+    { kind: 'pattern', name: 'Offline queue' },
+    { kind: 'pattern', name: 'Retry' },
+    { kind: 'pattern', name: 'Exponential backoff' },
+    { kind: 'pattern', name: 'Persistence' },
+  ],
   summary: 'Persisted FIFO queue of writes made offline: sent in order when back online, retried with backoff, coalesced by key, survives reloads.',
   stages: [
     { title: 'FIFO while online', summary: 'enqueue() sends one mutation at a time, in order.' },

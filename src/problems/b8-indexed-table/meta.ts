@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Data/Caches',
   difficulty: 'Hard',
   inspiredBy: 'minimongo, Dexie',
+  tags: [
+    { kind: 'library', name: 'minimongo' },
+    { kind: 'library', name: 'Dexie' },
+    { kind: 'pattern', name: 'Secondary indexes' },
+    { kind: 'pattern', name: 'Query planning' },
+    { kind: 'pattern', name: 'Live queries' },
+  ],
   summary: 'A row store with single, compound and unique indexes, range queries that pick the cheapest index, orderBy/limit, and live queries that fire only on real changes.',
   stages: [
     { title: 'CRUD', summary: 'insert, get, update(id, patch), remove.' },

@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Async',
   difficulty: 'Medium',
   inspiredBy: 'Go singleflight, SWR dedupe',
+  tags: [
+    { kind: 'library', name: 'Go singleflight' },
+    { kind: 'library', name: 'SWR' },
+    { kind: 'company', name: 'Vercel' },
+    { kind: 'pattern', name: 'Request deduplication' },
+    { kind: 'pattern', name: 'Stale-while-revalidate' },
+  ],
   summary: 'Share one in-flight call per key, cache results with a TTL, forget keys, and serve stale while revalidating.',
   stages: [
     { title: 'Share in-flight calls', summary: 'group.do(key, fn) shares one in-flight call across concurrent callers with the same key.' },

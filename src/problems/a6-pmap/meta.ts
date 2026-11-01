@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Async',
   difficulty: 'Medium',
   inspiredBy: 'p-map',
+  tags: [
+    { kind: 'library', name: 'p-map' },
+    { kind: 'pattern', name: 'Concurrency limit' },
+    { kind: 'pattern', name: 'Async iteration' },
+  ],
   summary: 'Map over sync or async iterables with a concurrency cap, ordered results, pMapSkip, stopOnError and abort.',
   stages: [
     { title: 'Ordered results with a cap', summary: 'pMap(items, mapper, { concurrency }) keeps results in input order.' },

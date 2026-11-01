@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Middleware',
   difficulty: 'Hard',
   inspiredBy: 'axios interceptors, ky hooks',
+  tags: [
+    { kind: 'library', name: 'axios' },
+    { kind: 'library', name: 'ky' },
+    { kind: 'pattern', name: 'Interceptors' },
+    { kind: 'pattern', name: 'Token refresh' },
+    { kind: 'pattern', name: 'Request deduplication' },
+  ],
   summary: 'An axios-style client with ordered request/response interceptors, then a 401 handler that refreshes the token exactly once for many concurrent requests.',
   stages: [
     { title: 'Client + adapter', summary: 'request() with baseURL, non-2xx → HttpError, injected adapter.' },

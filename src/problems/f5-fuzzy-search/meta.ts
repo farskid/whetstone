@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Utilities',
   difficulty: 'Medium',
   inspiredBy: 'fzf, Fuse.js, VS Code quick open',
+  tags: [
+    { kind: 'library', name: 'fzf' },
+    { kind: 'library', name: 'Fuse.js' },
+    { kind: 'company', name: 'Microsoft' },
+    { kind: 'pattern', name: 'Fuzzy matching' },
+    { kind: 'pattern', name: 'Ranking' },
+  ],
   summary: 'Score subsequence matches with boundary, camelCase and consecutive bonuses, pick the best alignment, highlight it, and rank items across weighted keys with optional typo tolerance.',
   stages: [
     { title: 'Matching', summary: 'Case- and accent-insensitive subsequence matching.' },

@@ -3,10 +3,11 @@ import { problems } from '../problems';
 import type { Difficulty, Theme } from '../problems/types';
 import { useProgress, actions } from '../store';
 import { href } from './router';
+import { KIND_LABEL, KIND_ORDER, TagChips } from './TagChips';
 
 const DIFFS: Difficulty[] = ['Easy', 'Medium', 'Hard'];
 
-export function ListPage() {
+export function ListPage({ tag }: { tag: string | null }) {
   const progress = useProgress();
   const [query, setQuery] = useState('');
   const [diff, setDiff] = useState<Difficulty | 'All'>('All');
@@ -16,16 +17,30 @@ export function ListPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   const themes = useMemo(() => [...new Set(problems.map((p) => p.theme))].sort(), []);
+  /** Every tag with how many problems use it, grouped by kind. */
+  const tagGroups = useMemo(() => {
+    const counts = new Map<string, { kind: (typeof KIND_ORDER)[number]; name: string; n: number }>();
+    for (const p of problems) for (const t of p.tags) {
+      const c = counts.get(t.name) ?? { ...t, n: 0 };
+      c.n++;
+      counts.set(t.name, c);
+    }
+    return KIND_ORDER.map((kind) => ({
+      kind,
+      tags: [...counts.values()].filter((c) => c.kind === kind).sort((a, b) => b.n - a.n || a.name.localeCompare(b.name)),
+    }));
+  }, []);
   const solvedCount = problems.filter((p) => progress.solved[p.id]).length;
 
   const visible = problems.filter((p) => {
     if (diff !== 'All' && p.difficulty !== diff) return false;
     if (theme !== 'All' && p.theme !== theme) return false;
+    if (tag && !p.tags.some((t) => t.name === tag)) return false;
     const solved = !!progress.solved[p.id];
     if (status === 'Solved' && !solved) return false;
     if (status === 'Unsolved' && solved) return false;
     const q = query.trim().toLowerCase();
-    if (q && !`${p.title} ${p.summary} ${p.inspiredBy} ${p.catalogId}`.toLowerCase().includes(q)) return false;
+    if (q && !`${p.title} ${p.summary} ${p.inspiredBy} ${p.catalogId} ${p.tags.map((t) => t.name).join(' ')}`.toLowerCase().includes(q)) return false;
     return true;
   });
 
@@ -85,6 +100,30 @@ export function ListPage() {
         </select>
       </section>
 
+      <section className="tag-filter" aria-label="Tags">
+        {tag && (
+          <div className="tag-active small">
+            Tagged <span className="tchip on">{tag}</span>
+            <a className="muted" href={href.list()} data-testid="clear-tag">Clear ✕</a>
+          </div>
+        )}
+        <details className="tag-browser">
+          <summary className="small muted">Browse by library, framework, company or pattern</summary>
+          {tagGroups.map((g) => (
+            <div key={g.kind} className="tag-group">
+              <span className="tag-group-label small muted">{KIND_LABEL[g.kind]}</span>
+              <span className="tag-chips">
+                {g.tags.map((t) => (
+                  <a key={t.name} className={`tchip k-${t.kind} ${tag === t.name ? 'on' : ''}`} href={href.list(tag === t.name ? null : t.name)}>
+                    {t.name} <span className="tchip-n">{t.n}</span>
+                  </a>
+                ))}
+              </span>
+            </div>
+          ))}
+        </details>
+      </section>
+
       <section className="problem-list" aria-label="Problems">
         <div className="problem-row head">
           <span />
@@ -97,19 +136,20 @@ export function ListPage() {
           const solved = !!progress.solved[p.id];
           const started = !!progress.code[p.id] && Object.keys(progress.code[p.id]).length > 0;
           return (
-            <a key={p.id} className={`problem-row ${solved ? 'solved' : ''}`} href={href.problem(p.id)} data-testid={`problem-${p.id}`}>
+            <div key={p.id} className={`problem-row link-row ${solved ? 'solved' : ''}`}>
               <span className={`status-dot ${solved ? 'ok' : started ? 'started' : ''}`} title={solved ? 'Solved' : started ? 'Started' : 'Not started'}>
                 {solved ? '✓' : ''}
               </span>
               <span className="p-main">
-                <span className="p-title"><span className="cat-id">{p.catalogId}</span>{p.title}</span>
+                <a className="p-title row-link" href={href.problem(p.id)} data-testid={`problem-${p.id}`}><span className="cat-id">{p.catalogId}</span>{p.title}</a>
                 <span className="p-summary muted">{p.summary}</span>
                 <span className="p-inspired small">like {p.inspiredBy}</span>
+                <TagChips tags={p.tags} active={tag} />
               </span>
               <span><span className="tag">{p.theme}</span></span>
               <span className={`diff d-${p.difficulty.toLowerCase()}`}>{p.difficulty}</span>
               <span className="right muted">{p.tests.length}</span>
-            </a>
+            </div>
           );
         })}
         {!visible.length && <div className="empty muted">No problems match these filters.</div>}

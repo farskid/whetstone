@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'API/Network',
   difficulty: 'Medium',
   inspiredBy: 'Relay connections',
+  tags: [
+    { kind: 'library', name: 'Relay' },
+    { kind: 'company', name: 'Meta' },
+    { kind: 'pattern', name: 'Cursor pagination' },
+    { kind: 'pattern', name: 'GraphQL connections' },
+    { kind: 'pattern', name: 'Async iteration' },
+  ],
   summary: 'An async generator that walks cursor pages with dedupe, loop guards and resume, then a Relay-style feed that loads newer and older pages, evicts beyond a window, and applies live insert, update and delete events.',
   stages: [
     { title: 'Paging', summary: 'paginate(fetchPage) yields items until hasNextPage is false; break stops fetching.' },

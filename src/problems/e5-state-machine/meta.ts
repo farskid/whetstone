@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'State',
   difficulty: 'Hard',
   inspiredBy: 'XState',
+  tags: [
+    { kind: 'library', name: 'XState' },
+    { kind: 'pattern', name: 'State machine' },
+    { kind: 'pattern', name: 'Statecharts' },
+  ],
   summary: 'Interpret a statechart config: nested states, guards, assign, exit/transition/entry action order, final states with onDone, delayed transitions and invoked promises that cancel on exit.',
   stages: [
     { title: 'Flat machine', summary: 'createMachine + transition(state, event) for flat states.' },

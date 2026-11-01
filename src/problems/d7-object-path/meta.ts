@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Medium',
   inspiredBy: 'lodash.get, JSONPath',
+  tags: [
+    { kind: 'library', name: 'lodash' },
+    { kind: 'library', name: 'JSONPath' },
+    { kind: 'pattern', name: 'Path expressions' },
+    { kind: 'pattern', name: 'Immutable updates' },
+  ],
   summary: 'Parse paths like a.b[0]["x.y"], read and write through them (mutably and immutably), and query with wildcards and filter expressions that report concrete paths.',
   stages: [
     { title: 'get', summary: "Dots, [0] indexes and ['quoted'] keys, with a default for missing values." },

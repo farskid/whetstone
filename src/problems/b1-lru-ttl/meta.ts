@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Data/Caches',
   difficulty: 'Medium',
   inspiredBy: 'lru-cache (isaacs)',
+  tags: [
+    { kind: 'library', name: 'lru-cache' },
+    { kind: 'pattern', name: 'LRU cache' },
+    { kind: 'pattern', name: 'TTL expiry' },
+  ],
   summary: 'O(1) LRU with per-entry TTL, eviction callbacks with reasons, and size-based limits.',
   stages: [
     { title: 'Bounded LRU', summary: 'get/set/has/peek/delete with least-recently-used eviction at max entries.' },

@@ -27,6 +27,15 @@ function describeFailures(s: RunSummary) {
 }
 
 const seenIds = new Set<string>();
+/** A tag name means one thing everywhere, so it must keep the same kind across problems. */
+const tagKinds = new Map<string, string>();
+for (const p of problems) {
+  for (const t of p.tags ?? []) {
+    const k = tagKinds.get(t.name);
+    if (k && k !== t.kind) console.log(`  ✗ tag "${t.name}" is a ${k} in one problem and a ${t.kind} in ${p.id}`), failures++;
+    tagKinds.set(t.name, t.kind);
+  }
+}
 for (const p of problems) {
   if (only && p.id !== only) continue;
   console.log(`\n${p.catalogId} ${p.title} (${p.id}) — ${p.tests.length} tests`);
@@ -35,6 +44,8 @@ for (const p of problems) {
   seenIds.add(p.id);
   for (const f of ['statement.md', 'starter.ts', 'solution.ts']) if (!existsSync(join(dir, f))) fail(`missing ${f}`);
   if (p.stages.length < 2) fail('stages[] should keep the catalog chain (>= 2 stages)');
+  if (!p.tags?.length) fail('tags[] is empty: tag at least one library, framework, company or pattern');
+  else if (new Set(p.tags.map((t) => t.name)).size !== p.tags.length) fail('tags[] has a duplicate name');
   const titles = new Set(p.tests.map((t) => t.title));
   if (titles.size !== p.tests.length) fail('test titles must be unique');
 

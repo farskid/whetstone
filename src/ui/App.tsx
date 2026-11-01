@@ -33,7 +33,7 @@ export function App() {
           <main className="empty"><h2>Problem not found</h2><a href={href.list()}>Back to all problems</a></main>
         )
       ) : (
-        <ListPage />
+        <ListPage tag={route.tag} />
       )}
     </div>
   );

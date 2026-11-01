@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Hard',
   inspiredBy: 'marked',
+  tags: [
+    { kind: 'library', name: 'marked' },
+    { kind: 'pattern', name: 'Markdown' },
+    { kind: 'pattern', name: 'HTML escaping' },
+  ],
   summary: 'Render a Markdown subset to HTML: headings, paragraphs, fenced code, blockquotes, nested lists, emphasis, code spans and links, with HTML escaping and unsafe-URL filtering.',
   stages: [
     { title: 'Blocks', summary: 'Headings, paragraphs, fenced code, HTML escaping.' },

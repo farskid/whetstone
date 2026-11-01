@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'State',
   difficulty: 'Medium',
   inspiredBy: 'Editor history, zundo',
+  tags: [
+    { kind: 'library', name: 'zundo' },
+    { kind: 'pattern', name: 'Undo/redo' },
+    { kind: 'pattern', name: 'Command pattern' },
+    { kind: 'pattern', name: 'Transactions' },
+  ],
   summary: 'An undo/redo stack with typing coalescing, a capacity limit, nestable transactions, selection restore and a command-pattern variant.',
   stages: [
     { title: 'Snapshot stack', summary: 'push/undo/redo; a push after undo clears redo.' },

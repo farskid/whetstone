@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Middleware',
   difficulty: 'Medium',
   inspiredBy: 'Node events, mitt',
+  tags: [
+    { kind: 'library', name: 'Node.js events' },
+    { kind: 'library', name: 'mitt' },
+    { kind: 'pattern', name: 'Event emitter' },
+    { kind: 'pattern', name: 'Pub/sub' },
+  ],
   summary: 'A typed emitter with once, prepend, wildcard listeners, snapshot-on-emit, Node error and max-listener semantics, and an abortable events.once promise.',
   stages: [
     { title: 'on/off/emit', summary: 'Register, remove and call listeners; emit reports whether anyone listened.' },

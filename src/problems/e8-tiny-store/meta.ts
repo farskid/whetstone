@@ -7,6 +7,14 @@ export const meta: ProblemMeta = {
   theme: 'State',
   difficulty: 'Medium',
   inspiredBy: 'Zustand',
+  tags: [
+    { kind: 'library', name: 'Zustand' },
+    { kind: 'framework', name: 'React' },
+    { kind: 'pattern', name: 'Store' },
+    { kind: 'pattern', name: 'Selectors' },
+    { kind: 'pattern', name: 'Persistence' },
+    { kind: 'pattern', name: 'Migrations' },
+  ],
   summary: 'A minimal store with selector subscriptions, plus a persist middleware with async hydration, versions and migrations, partialize, corrupt-storage fallback and cross-tab sync.',
   stages: [
     { title: 'Store', summary: 'create(set/get), merge or replace, subscribe(state, prev).' },

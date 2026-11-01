@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Data/Caches',
   difficulty: 'Medium',
   inspiredBy: 'memoize-one, reselect',
+  tags: [
+    { kind: 'library', name: 'memoize-one' },
+    { kind: 'library', name: 'reselect' },
+    { kind: 'pattern', name: 'Memoization' },
+    { kind: 'pattern', name: 'LRU cache' },
+    { kind: 'pattern', name: 'Selectors' },
+  ],
   summary: 'memoizeOne with custom equality and this-binding, a tuple-keyed memoize with LRU and WeakMap-held objects, and a reselect-style createSelector.',
   stages: [
     { title: 'memoizeOne', summary: 'Cache the last args and result with shallow arg equality.' },

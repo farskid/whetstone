@@ -27,8 +27,10 @@ def field(d, name):
     return m.group(1).replace("\\'", "'") if m else ''
 def count_tests(d):
     return len(re.findall(r'^\s*title:', open(os.path.join(ROOT, d, 'tests.ts')).read(), re.M))
-rows = ['| id | title | theme | difficulty | tests |', '|---|---|---|---|---|']
-rows += [f"| {field(d, 'catalogId')} | {field(d, 'title')} | {field(d, 'theme')} | {field(d, 'difficulty')} | {count_tests(d)} |" for d in dirs]
+def tags(d):
+    return ', '.join(n.replace("\\'", "'") for n in re.findall(r"name: '((?:[^'\\]|\\.)*)'", open(os.path.join(ROOT, d, 'meta.ts')).read()))
+rows = ['| id | title | theme | difficulty | tests | tags |', '|---|---|---|---|---|---|']
+rows += [f"| {field(d, 'catalogId')} | {field(d, 'title')} | {field(d, 'theme')} | {field(d, 'difficulty')} | {count_tests(d)} | {tags(d)} |" for d in dirs]
 text = open(readme).read()
 a, b = '<!-- problems:start -->', '<!-- problems:end -->'
 if a in text and b in text:

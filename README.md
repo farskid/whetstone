@@ -20,6 +20,7 @@ npm run verify -- e2-signals   # verify only one problem
 ## How it works
 
 - **List** (`#/`) shows search, difficulty, theme and status filters, a solved marker, a progress count, and JSON export and import of progress.
+- **Tags**: every problem carries small tag chips for the libraries, frameworks, companies and patterns it relates to. Click a chip, or open "Browse by…" above the list, to filter the list to that tag (`#/?tag=<name>`); click it again or "Clear" to drop the filter. Search also matches tag names. The problem page shows the same chips above the statement.
 - **Problem** (`#/p/<id>`) has the following parts:
   - A markdown statement.
   - A Monaco editor with a TS/JS toggle. Each language keeps its own code, and the starter's types power autocomplete.
@@ -35,7 +36,8 @@ npm run verify -- e2-signals   # verify only one problem
 ## Add a problem
 
 1. Create `src/problems/<id>/`, where `<id>` is the URL slug (for example `x1-thing`), with these files:
-   - `meta.ts`: `export const meta: ProblemMeta = { id, catalogId, title, theme, difficulty, inspiredBy, summary, stages }`. `stages` lists the catalog's staged chain. v1 shows the **final stage** as the whole problem.
+   - `meta.ts`: `export const meta: ProblemMeta = { id, catalogId, title, theme, difficulty, inspiredBy, tags, summary, stages }`. `stages` lists the catalog's staged chain. v1 shows the **final stage** as the whole problem.
+   - `tags` in `meta.ts`: a flat list of `{ kind, name }`, where `kind` is `'library'` (a package or tool), `'framework'`, `'company'` or `'pattern'`. Take them from the problem's "inspired by" sources and the catalog, and only tag real relations: a company only when the referenced work comes from it (for example Stripe for Stripe webhooks, Meta for DataLoader and Relay). A tag name must keep the same kind in every problem; `npm run verify` checks that and that each problem has at least one tag.
    - `statement.md`: the problem statement, written against the final stage. State exact error messages and orders whenever the tests check them.
    - `starter.ts`: the exported API, with types and `throw new Error('Not implemented')` bodies. The JS starter is generated from it.
    - `solution.ts`: the reference solution. It's shown in the Solution tab.
@@ -49,80 +51,80 @@ npm run verify -- e2-signals   # verify only one problem
 The two Easy warm-ups come first. F10 (plain trailing debounce) and A9 aren't in the catalog. F1 is the catalog's F1 without `maxWait`, `flush()` or throttle yet.
 
 <!-- problems:start -->
-| id | title | theme | difficulty | tests |
-|---|---|---|---|---|
-| F10 | Debounce (basic) | Utilities | Easy | 10 |
-| A9 | Promise.allSettled | Async | Easy | 12 |
-| A1 | Concurrency limiter | Async | Medium | 16 |
-| A2 | Retry with backoff | Async | Medium | 18 |
-| A3 | Timeouts & cancellation | Async | Medium | 18 |
-| A4 | Singleflight / request dedupe | Async | Medium | 17 |
-| A5 | Async channel with backpressure | Async | Hard | 15 |
-| A6 | Ordered concurrent map | Async | Medium | 13 |
-| A7 | Mutex, semaphore, RW lock | Async | Hard | 16 |
-| A8 | Task graph runner | Async | Hard | 15 |
-| B1 | LRU cache with TTL | Data/Caches | Medium | 16 |
-| B2 | Range set / availability | Data/Caches | Medium | 16 |
-| B3 | Indexed priority queue | Data/Caches | Medium | 14 |
-| B4 | Rolling metrics window | Data/Caches | Medium | 12 |
-| B5 | Sorted set / leaderboard | Data/Caches | Medium | 13 |
-| B6 | Piece table text buffer | Data/Caches | Hard | 14 |
-| B7 | Memoization family | Data/Caches | Medium | 13 |
-| B8 | In-memory table with indexes | Data/Caches | Hard | 14 |
-| C1 | Express router with error middleware | Middleware | Medium | 12 |
-| C2 | Hook system | Middleware | Hard | 12 |
-| C3 | HTTP interceptors + token refresh | Middleware | Hard | 16 |
-| C4 | EventEmitter | Middleware | Medium | 12 |
-| C5 | DI container | Middleware | Hard | 12 |
-| C6 | Loader chain with pitching | Middleware | Hard | 11 |
-| C7 | Structured logger | Middleware | Medium | 12 |
-| C8 | Mini bundler with plugins | Middleware | Hard | 11 |
-| D1 | CLI argument parser | Parsing | Medium | 9 |
-| D2 | Semver ranges | Parsing | Medium | 10 |
-| D3 | Cron next-run | Parsing | Hard | 10 |
-| D4 | Template engine | Parsing | Medium | 10 |
-| D5 | Markdown lite | Parsing | Hard | 10 |
-| D6 | Route matching | Parsing | Medium | 15 |
-| D7 | Object path get/set/query | Parsing | Medium | 10 |
-| D8 | Spreadsheet formulas | Parsing | Hard | 10 |
-| D9 | CSV parser | Parsing | Medium | 11 |
-| D10 | Query string codec | Parsing | Medium | 10 |
-| D11 | .env parser | Parsing | Easy | 10 |
-| E1 | Redux store | State | Medium | 11 |
-| E2 | Signals | State | Hard | 19 |
-| E3 | Immutable produce | State | Hard | 11 |
-| E4 | Undo/redo history | State | Medium | 11 |
-| E5 | State machine interpreter | State | Hard | 11 |
-| E6 | Query cache | Data/Caches | Hard | 15 |
-| E7 | Form state manager | State | Medium | 11 |
-| E8 | Tiny store + persist | State | Medium | 11 |
-| F1 | Debounce | Utilities | Medium | 13 |
-| F2 | Deep clone | Utilities | Medium | 11 |
-| F3 | Deep diff & patch | Utilities | Hard | 12 |
-| F4 | Text diff | Utilities | Hard | 12 |
-| F5 | Fuzzy search | Utilities | Medium | 11 |
-| F6 | Schema validation | Parsing | Medium | 16 |
-| F7 | Money math | Utilities | Medium | 12 |
-| F8 | Date math | Utilities | Medium | 14 |
-| F9 | Humanize bytes and durations | Utilities | Easy | 10 |
-| G1 | Virtual list | Browser/UI | Hard | 15 |
-| G2 | Keyboard shortcuts | Browser/UI | Medium | 12 |
-| G3 | Sortable drag-and-drop | Browser/UI | Hard | 11 |
-| G4 | Roving focus and typeahead | Browser/UI | Medium | 12 |
-| G5 | Masonry layout | Browser/UI | Medium | 11 |
-| G6 | Toast queue | Browser/UI | Medium | 11 |
-| G7 | Router history | Browser/UI | Medium | 10 |
-| G8 | Popover positioning | Browser/UI | Hard | 12 |
-| G9 | Rich-text marks | Browser/UI | Hard | 11 |
-| H1 | Batching loader | API/Network | Medium | 11 |
-| H2 | Rate limiter | API/Network | Medium | 10 |
-| H3 | Fetch wrapper | API/Network | Medium | 11 |
-| H4 | Cursor pagination | API/Network | Medium | 11 |
-| H5 | Circuit breaker | API/Network | Medium | 11 |
-| H6 | Offline mutation queue | API/Network | Hard | 15 |
-| H7 | Webhook verify & idempotency | API/Network | Medium | 11 |
-| H8 | HTTP response cache | API/Network | Hard | 11 |
-| H9 | Reconnecting socket client | API/Network | Hard | 11 |
+| id | title | theme | difficulty | tests | tags |
+|---|---|---|---|---|---|
+| F10 | Debounce (basic) | Utilities | Easy | 10 | lodash, Debounce |
+| A9 | Promise.allSettled | Async | Easy | 12 | Promise combinators |
+| A1 | Concurrency limiter | Async | Medium | 16 | p-limit, p-queue, Concurrency limit, Priority queue, Cancellation |
+| A2 | Retry with backoff | Async | Medium | 18 | p-retry, Retry, Exponential backoff, Cancellation |
+| A3 | Timeouts & cancellation | Async | Medium | 18 | p-timeout, Timeout, Cancellation |
+| A4 | Singleflight / request dedupe | Async | Medium | 17 | Go singleflight, SWR, Vercel, Request deduplication, Stale-while-revalidate |
+| A5 | Async channel with backpressure | Async | Hard | 15 | it-pushable, Channels, Backpressure, Async iteration |
+| A6 | Ordered concurrent map | Async | Medium | 13 | p-map, Concurrency limit, Async iteration |
+| A7 | Mutex, semaphore, RW lock | Async | Hard | 16 | async-mutex, Mutex, Semaphore, Read/write lock |
+| A8 | Task graph runner | Async | Hard | 15 | Turborepo, Nx, Listr, Vercel, Topological sort, Concurrency limit |
+| B1 | LRU cache with TTL | Data/Caches | Medium | 16 | lru-cache, LRU cache, TTL expiry |
+| B2 | Range set / availability | Data/Caches | Medium | 16 | Interval set, Free/busy scheduling |
+| B3 | Indexed priority queue | Data/Caches | Medium | 14 | Priority queue, Binary heap, Timer scheduler |
+| B4 | Rolling metrics window | Data/Caches | Medium | 12 | Prometheus, Sliding window, Ring buffer, Percentiles, Histogram |
+| B5 | Sorted set / leaderboard | Data/Caches | Medium | 13 | Redis, Sorted set, Leaderboard |
+| B6 | Piece table text buffer | Data/Caches | Hard | 14 | Microsoft, Piece table, Text buffer |
+| B7 | Memoization family | Data/Caches | Medium | 13 | memoize-one, reselect, Memoization, LRU cache, Selectors |
+| B8 | In-memory table with indexes | Data/Caches | Hard | 14 | minimongo, Dexie, Secondary indexes, Query planning, Live queries |
+| C1 | Express router with error middleware | Middleware | Medium | 12 | Express, Middleware, Routing, Error handling |
+| C2 | Hook system | Middleware | Hard | 12 | tapable, webpack, Rollup, Plugin hooks, Interceptors |
+| C3 | HTTP interceptors + token refresh | Middleware | Hard | 16 | axios, ky, Interceptors, Token refresh, Request deduplication |
+| C4 | EventEmitter | Middleware | Medium | 12 | Node.js events, mitt, Event emitter, Pub/sub |
+| C5 | DI container | Middleware | Hard | 12 | tsyringe, InversifyJS, Dependency injection, Scoped lifetimes |
+| C6 | Loader chain with pitching | Middleware | Hard | 11 | webpack, loader-runner, Loader chain, Middleware |
+| C7 | Structured logger | Middleware | Medium | 12 | pino, Structured logging, Redaction |
+| C8 | Mini bundler with plugins | Middleware | Hard | 11 | Rollup, Module bundling, Plugin hooks, Code splitting, Topological sort |
+| D1 | CLI argument parser | Parsing | Medium | 9 | minimist, yargs, Argument parsing, Did-you-mean suggestions |
+| D2 | Semver ranges | Parsing | Medium | 10 | semver, Semantic versioning, Version ranges |
+| D3 | Cron next-run | Parsing | Hard | 10 | cron-parser, Cron expressions, Time zones and DST |
+| D4 | Template engine | Parsing | Medium | 10 | Mustache, Handlebars, Templating, HTML escaping |
+| D5 | Markdown lite | Parsing | Hard | 10 | marked, Markdown, HTML escaping |
+| D6 | Route matching | Parsing | Medium | 15 | find-my-way, path-to-regexp, React Router, React, Routing, Reverse routing |
+| D7 | Object path get/set/query | Parsing | Medium | 10 | lodash, JSONPath, Path expressions, Immutable updates |
+| D8 | Spreadsheet formulas | Parsing | Hard | 10 | HyperFormula, Handsontable, Formula parsing, Dependency graph, Topological sort |
+| D9 | CSV parser | Parsing | Medium | 11 | PapaParse, CSV (RFC 4180), Streaming parser |
+| D10 | Query string codec | Parsing | Medium | 10 | qs, Query strings, Prototype pollution protection |
+| D11 | .env parser | Parsing | Easy | 10 | dotenv, dotenv-expand, Config parsing, Variable expansion |
+| E1 | Redux store | State | Medium | 11 | Redux, Reducers, Middleware, Flux |
+| E2 | Signals | State | Hard | 19 | Preact Signals, Preact, SolidJS, Signals, Fine-grained reactivity |
+| E3 | Immutable produce | State | Hard | 11 | Immer, Copy-on-write, Structural sharing, Proxies, Patches |
+| E4 | Undo/redo history | State | Medium | 11 | zundo, Undo/redo, Command pattern, Transactions |
+| E5 | State machine interpreter | State | Hard | 11 | XState, State machine, Statecharts |
+| E6 | Query cache | Data/Caches | Hard | 15 | TanStack Query, SWR, Vercel, Query cache, Request deduplication, Stale-while-revalidate, Garbage collection |
+| E7 | Form state manager | State | Medium | 11 | react-hook-form, Formik, React, Form state, Validation |
+| E8 | Tiny store + persist | State | Medium | 11 | Zustand, React, Store, Selectors, Persistence, Migrations |
+| F1 | Debounce | Utilities | Medium | 13 | lodash, Debounce |
+| F2 | Deep clone | Utilities | Medium | 11 | rfdc, Deep clone, structuredClone |
+| F3 | Deep diff & patch | Utilities | Hard | 12 | jsondiffpatch, fast-json-patch, Deep equality, JSON Patch (RFC 6902) |
+| F4 | Text diff | Utilities | Hard | 12 | jsdiff, GNU diff, Myers diff, Unified diff |
+| F5 | Fuzzy search | Utilities | Medium | 11 | fzf, Fuse.js, Microsoft, Fuzzy matching, Ranking |
+| F6 | Schema validation | Parsing | Medium | 16 | Zod, Valibot, Yup, Schema validation |
+| F7 | Money math | Utilities | Medium | 12 | dinero.js, Money, Value object, Rounding modes, Intl formatting |
+| F8 | Date math | Utilities | Medium | 14 | date-fns, Date math, Time zones and DST, Recurrence (RRULE) |
+| F9 | Humanize bytes and durations | Utilities | Easy | 10 | pretty-bytes, ms, Humanized formatting, Intl formatting |
+| G1 | Virtual list | Browser/UI | Hard | 15 | TanStack Virtual, react-window, React, Virtualization, Scroll anchoring |
+| G2 | Keyboard shortcuts | Browser/UI | Medium | 12 | tinykeys, hotkeys-js, Keyboard shortcuts, Key sequences |
+| G3 | Sortable drag-and-drop | Browser/UI | Hard | 11 | dnd-kit, React, Drag and drop, Sortable lists, Tree projection |
+| G4 | Roving focus and typeahead | Browser/UI | Medium | 12 | Radix UI, React, Roving focus, Typeahead, WAI-ARIA |
+| G5 | Masonry layout | Browser/UI | Medium | 11 | Masonry, react-masonry-css, React, Pinterest, Masonry layout |
+| G6 | Toast queue | Browser/UI | Medium | 11 | sonner, react-hot-toast, React, Toast notifications, FIFO queue |
+| G7 | Router history | Browser/UI | Medium | 10 | history, React Router, React, Session history, Navigation blocking |
+| G8 | Popover positioning | Browser/UI | Hard | 12 | Floating UI, Positioning, Middleware, Collision detection |
+| G9 | Rich-text marks | Browser/UI | Hard | 11 | ProseMirror, Slate, Rich text, Normalization, HTML serialization |
+| H1 | Batching loader | API/Network | Medium | 11 | dataloader, Meta, Batching, Request deduplication |
+| H2 | Rate limiter | API/Network | Medium | 10 | rate-limiter-flexible, Rate limiting, Token bucket, Sliding window |
+| H3 | Fetch wrapper | API/Network | Medium | 11 | ky, ofetch, HTTP client, Retry, Exponential backoff, Hooks |
+| H4 | Cursor pagination | API/Network | Medium | 11 | Relay, Meta, Cursor pagination, GraphQL connections, Async iteration |
+| H5 | Circuit breaker | API/Network | Medium | 11 | opossum, Circuit breaker, Fallback, Sliding window |
+| H6 | Offline mutation queue | API/Network | Hard | 15 | Workbox, TanStack Query, Replicache, Google, Offline queue, Retry, Exponential backoff, Persistence |
+| H7 | Webhook verify & idempotency | API/Network | Medium | 11 | Stripe, Webhooks, HMAC signatures, Replay protection, Idempotency |
+| H8 | HTTP response cache | API/Network | Hard | 11 | cacache, HTTP caching (RFC 9111), Revalidation, Stale-while-revalidate |
+| H9 | Reconnecting socket client | API/Network | Hard | 11 | reconnecting-websocket, WebSocket, Reconnect with backoff, Heartbeat, Last-Event-ID resume |
 <!-- problems:end -->
 
 ## Known gaps

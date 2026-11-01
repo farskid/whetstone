@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'State',
   difficulty: 'Hard',
   inspiredBy: 'Preact Signals, SolidJS',
+  tags: [
+    { kind: 'library', name: 'Preact Signals' },
+    { kind: 'framework', name: 'Preact' },
+    { kind: 'framework', name: 'SolidJS' },
+    { kind: 'pattern', name: 'Signals' },
+    { kind: 'pattern', name: 'Fine-grained reactivity' },
+  ],
   summary: 'Fine-grained reactivity: signal, lazy computed, effects, batching and glitch-free updates.',
   stages: [
     { title: 'Signal and computed', summary: 'signal(v) with .value get/set and computed(fn) that is lazy and cached.' },

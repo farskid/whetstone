@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Data/Caches',
   difficulty: 'Medium',
   inspiredBy: 'Redis ZSET',
+  tags: [
+    { kind: 'library', name: 'Redis' },
+    { kind: 'pattern', name: 'Sorted set' },
+    { kind: 'pattern', name: 'Leaderboard' },
+  ],
   summary: 'A Redis-style sorted set: ranks, score and rank ranges with exclusive bounds, increments, dense ranks and "me ± k" paging, all O(log n).',
   stages: [
     { title: 'Add, score, rank', summary: 'add(member, score), score(member), rank(member) with 0 = lowest.' },

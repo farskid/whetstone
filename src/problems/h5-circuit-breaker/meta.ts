@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'API/Network',
   difficulty: 'Medium',
   inspiredBy: 'opossum',
+  tags: [
+    { kind: 'library', name: 'opossum' },
+    { kind: 'pattern', name: 'Circuit breaker' },
+    { kind: 'pattern', name: 'Fallback' },
+    { kind: 'pattern', name: 'Sliding window' },
+  ],
   summary: 'Wrap an async call so that repeated failures open the circuit and fail fast, with a timed half-open trial, a rolling error-rate window, timeouts, a fallback, events, and an error filter.',
   stages: [
     { title: 'Failing fast', summary: 'fire(...args) wraps the call; N failures in a row open the circuit.' },

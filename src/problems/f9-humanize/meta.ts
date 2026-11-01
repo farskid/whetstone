@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Utilities',
   difficulty: 'Easy',
   inspiredBy: 'pretty-bytes, ms',
+  tags: [
+    { kind: 'library', name: 'pretty-bytes' },
+    { kind: 'library', name: 'ms' },
+    { kind: 'pattern', name: 'Humanized formatting' },
+    { kind: 'pattern', name: 'Intl formatting' },
+  ],
   summary: 'Format byte counts with SI or binary units, parse and format durations like "2h 30m", and phrase relative times with Intl.',
   stages: [
     { title: 'Bytes', summary: 'SI and binary units, rounding that carries into the next unit.' },

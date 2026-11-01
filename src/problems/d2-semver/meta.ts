@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Medium',
   inspiredBy: 'semver',
+  tags: [
+    { kind: 'library', name: 'semver' },
+    { kind: 'pattern', name: 'Semantic versioning' },
+    { kind: 'pattern', name: 'Version ranges' },
+  ],
   summary: 'Parse and compare semantic versions with prerelease precedence, then match ranges: caret, tilde, comparators, x-ranges, hyphens, unions and the prerelease rule.',
   stages: [
     { title: 'Parse and compare', summary: 'Strict parsing; 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0; build metadata ignored.' },

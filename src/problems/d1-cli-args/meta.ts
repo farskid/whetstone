@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Medium',
   inspiredBy: 'minimist, yargs',
+  tags: [
+    { kind: 'library', name: 'minimist' },
+    { kind: 'library', name: 'yargs' },
+    { kind: 'pattern', name: 'Argument parsing' },
+    { kind: 'pattern', name: 'Did-you-mean suggestions' },
+  ],
   summary: 'Parse argv minimist-style, then with a schema: types, aliases, defaults, --no-flags, nested subcommands, unknown/required errors with "did you mean", and generated help.',
   stages: [
     { title: 'Schema-less parsing', summary: '--a=1 --b 2 -xyz pos -- rest, repeated flags, negative numbers.' },

@@ -6,6 +6,7 @@ import { useProgress, actions } from '../store';
 import type { Language, TestResult } from '../runner/types';
 import { runInWorker, type RunHandle } from '../runner/client';
 import { monaco } from '../monaco';
+import { TagChips } from './TagChips';
 import { href } from './router';
 import { Markdown } from './Markdown';
 import { Results, type RunState } from './Results';
@@ -111,6 +112,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
           <div className="left-body">
             {tab === 'statement' ? (
               <>
+                <div className="pb-tags" aria-label="Tags"><TagChips tags={problem.tags} /></div>
                 <Markdown source={sources.statement} theme={progress.theme} />
                 <div className="inspired muted small">Inspired by {problem.inspiredBy}.</div>
               </>

@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Easy',
   inspiredBy: 'dotenv, dotenv-expand',
+  tags: [
+    { kind: 'library', name: 'dotenv' },
+    { kind: 'library', name: 'dotenv-expand' },
+    { kind: 'pattern', name: 'Config parsing' },
+    { kind: 'pattern', name: 'Variable expansion' },
+  ],
   summary: 'Parse .env files (comments, export, quotes, multiline values, inline comments) and expand ${VAR} and ${VAR:-default} references with cycle detection.',
   stages: [
     { title: 'KEY=value', summary: 'Parse lines, skip comments and blanks.' },

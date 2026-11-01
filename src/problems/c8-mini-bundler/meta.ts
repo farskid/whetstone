@@ -7,6 +7,13 @@ export const meta: ProblemMeta = {
   theme: 'Middleware',
   difficulty: 'Hard',
   inspiredBy: 'Rollup',
+  tags: [
+    { kind: 'library', name: 'Rollup' },
+    { kind: 'pattern', name: 'Module bundling' },
+    { kind: 'pattern', name: 'Plugin hooks' },
+    { kind: 'pattern', name: 'Code splitting' },
+    { kind: 'pattern', name: 'Topological sort' },
+  ],
   summary: 'Bundle a virtual file system of ES modules: dependency order, resolveId/load/transform plugin hooks, circular imports, a define() registry output, virtual modules and dynamic-import code splitting.',
   stages: [
     { title: 'Dependency order', summary: 'Resolve relative imports and list modules dependencies-first, each once.' },

@@ -7,6 +7,12 @@ export const meta: ProblemMeta = {
   theme: 'State',
   difficulty: 'Medium',
   inspiredBy: 'Redux',
+  tags: [
+    { kind: 'library', name: 'Redux' },
+    { kind: 'pattern', name: 'Reducers' },
+    { kind: 'pattern', name: 'Middleware' },
+    { kind: 'pattern', name: 'Flux' },
+  ],
   summary: 'createStore, combineReducers, compose and applyMiddleware, with snapshot subscriptions, reducer re-entrancy guards and replaceReducer.',
   stages: [
     { title: 'Store', summary: 'createStore(reducer, initial) with getState/dispatch/subscribe and an init action.' },

@@ -7,6 +7,11 @@ export const meta: ProblemMeta = {
   theme: 'Parsing',
   difficulty: 'Medium',
   inspiredBy: 'PapaParse',
+  tags: [
+    { kind: 'library', name: 'PapaParse' },
+    { kind: 'pattern', name: 'CSV (RFC 4180)' },
+    { kind: 'pattern', name: 'Streaming parser' },
+  ],
   summary: 'An RFC 4180 CSV parser with quoting, CRLF, header rows, dynamic typing, delimiter detection, row-numbered errors and a streaming parser that handles any chunk split.',
   stages: [
     { title: 'Rows and fields', summary: 'Split rows on newlines and fields on commas.' },
