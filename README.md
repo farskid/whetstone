@@ -60,12 +60,12 @@ One-time setup: in the repo, go to Settings → Pages → Build and deployment a
 
 ## Problems
 
-The two Easy warm-ups come first. F10 (plain trailing debounce) and A9 aren't in the catalog. F1 is the catalog's F1 without `maxWait`, `flush()` or throttle yet.
+The two warm-ups come first. F1 is the catalog's F1 without `maxWait`, `flush()` or throttle yet; its stage 1 is plain trailing debounce (the old F10 warm-up, now folded in). A9 isn't in the catalog.
 
 <!-- problems:start -->
 | id | title | theme | difficulty | tests | tags |
 |---|---|---|---|---|---|
-| F10 | Debounce (basic) | Utilities | Easy | 10 | lodash, Debounce |
+| F1 | Debounce | Utilities | Medium | 15 | lodash, Debounce |
 | A9 | Promise.allSettled | Async | Easy | 12 | Promise combinators |
 | A1 | Concurrency limiter | Async | Medium | 16 | p-limit, p-queue, Concurrency limit, Priority queue, Cancellation |
 | A2 | Retry with backoff | Async | Medium | 18 | p-retry, Retry, Exponential backoff, Cancellation |
@@ -110,7 +110,6 @@ The two Easy warm-ups come first. F10 (plain trailing debounce) and A9 aren't in
 | E6 | Query cache | Data/Caches | Hard | 15 | TanStack Query, SWR, Vercel, Query cache, Request deduplication, Stale-while-revalidate, Garbage collection |
 | E7 | Form state manager | State | Medium | 11 | react-hook-form, Formik, React, Form state, Validation |
 | E8 | Tiny store + persist | State | Medium | 11 | Zustand, React, Store, Selectors, Persistence, Migrations |
-| F1 | Debounce | Utilities | Medium | 13 | lodash, Debounce |
 | F2 | Deep clone | Utilities | Medium | 11 | rfdc, Deep clone, structuredClone |
 | F3 | Deep diff & patch | Utilities | Hard | 12 | jsondiffpatch, fast-json-patch, Deep equality, JSON Patch (RFC 6902) |
 | F4 | Text diff | Utilities | Hard | 12 | jsdiff, GNU diff, Myers diff, Unified diff |

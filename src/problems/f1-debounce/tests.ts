@@ -1,6 +1,10 @@
 import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
 
+const G1 = 'Trailing debounce';
+const G2 = 'Leading and trailing';
+const G3 = 'cancel() and pending()';
+
 /** A spy that records each call's args and `this`. */
 function spy() {
   const calls: unknown[][] = [];
@@ -11,6 +15,7 @@ function spy() {
 
 export const tests: TestCase<M>[] = [
   {
+    group: G1,
     title: 'trailing: calls fn once, wait ms after the call',
     input: 'debounce(fn, 100); d("a"); advance 99, then 1',
     run({ debounce }, { expect, clock }) {
@@ -25,6 +30,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'a burst of calls fires once with the latest args',
     input: 'd(1); d(2); d(3) at 0 ms, wait 100',
     run({ debounce }, { expect, clock }) {
@@ -36,6 +42,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'every call restarts the timer',
     input: 'wait 100; calls at 0, 80, 160 → fires at 260',
     run({ debounce }, { expect, clock }) {
@@ -50,6 +57,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'keeps `this` from the latest call',
     input: 'obj.save = debounce(fn, 50); obj.save()',
     run({ debounce }, { expect, clock }) {
@@ -61,6 +69,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'separate bursts fire separately',
     input: 'd("a"); +100 ms; d("b"); +100 ms',
     run({ debounce }, { expect, clock }) {
@@ -72,6 +81,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'wait 0 still runs on a timer, not synchronously',
     run({ debounce }, { expect, clock }) {
       const c = clock(); const s = spy();
@@ -83,6 +93,32 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
+    title: 'no calls means fn never runs and no timer is left',
+    run({ debounce }, { expect, clock }) {
+      const c = clock(); const s = spy();
+      debounce(s.fn, 100, { clock: c });
+      c.tick(1000);
+      expect(s.calls.length, 'calls').toBe(0);
+      expect(c.pendingTimers(), 'timers on the clock').toBe(0);
+    },
+  },
+  {
+    group: G1,
+    title: 'two debounced functions are independent',
+    input: 'd1("a"); d2("b"); advance 100 ms',
+    run({ debounce }, { expect, clock }) {
+      const c = clock(); const s1 = spy(); const s2 = spy();
+      const d1 = debounce(s1.fn, 100, { clock: c });
+      const d2 = debounce(s2.fn, 100, { clock: c });
+      d1('a'); d2('b');
+      c.tick(100);
+      expect(s1.calls, 'd1 calls').toEqual([['a']]);
+      expect(s2.calls, 'd2 calls').toEqual([['b']]);
+    },
+  },
+  {
+    group: G2,
     title: 'leading only: fires immediately, once per burst',
     input: '{ leading: true, trailing: false }; d(1); d(2); d(3)',
     run({ debounce }, { expect, clock }) {
@@ -95,6 +131,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'leading only: a new burst fires again',
     input: 'd(1); +100 ms; d(2)',
     run({ debounce }, { expect, clock }) {
@@ -106,6 +143,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'leading + trailing, single call: fires once',
     input: '{ leading: true, trailing: true }; d("only")',
     run({ debounce }, { expect, clock }) {
@@ -117,6 +155,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'leading + trailing, burst: first args now, last args at the end',
     input: 'd(1); d(2); d(3)',
     run({ debounce }, { expect, clock }) {
@@ -129,6 +168,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'cancel() drops the scheduled call',
     run({ debounce }, { expect, clock }) {
       const c = clock(); const s = spy();
@@ -141,6 +181,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'after cancel() the next call starts a fresh burst',
     input: 'leading + trailing; d(1); d(2); cancel(); d(3)',
     run({ debounce }, { expect, clock }) {
@@ -155,6 +196,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'pending() tracks the scheduled trailing call',
     run({ debounce }, { expect, clock }) {
       const c = clock(); const s = spy();

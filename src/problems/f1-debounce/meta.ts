@@ -13,8 +13,8 @@ export const meta: ProblemMeta = {
   ],
   summary: 'debounce(fn, wait) with leading/trailing options, cancel() and pending(), on an injected clock.',
   stages: [
-    { title: 'Trailing debounce', summary: 'debounce(fn, wait): one trailing call with the latest args and `this`.' },
-    { title: 'Leading and trailing', summary: '{ leading, trailing } options.' },
-    { title: 'cancel() and pending()', summary: 'Drop a scheduled call; report whether one is waiting.' },
+    { title: 'Trailing debounce', summary: 'debounce(fn, wait): one trailing call with the latest args and `this`.', groups: ['Trailing debounce'] },
+    { title: 'Leading and trailing', summary: '{ leading, trailing } options.', groups: ['Leading and trailing'] },
+    { title: 'cancel() and pending()', summary: 'Drop a scheduled call; report whether one is waiting.', groups: ['cancel() and pending()'] },
   ],
 };

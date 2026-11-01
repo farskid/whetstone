@@ -1,7 +1,10 @@
-// Bug: never clears the old timer, so every call in a burst fires.
 export interface Clock {
   setTimeout(fn: () => void, ms: number): unknown;
   clearTimeout(id: unknown): void;
+}
+
+export interface DebounceOptions {
+  clock?: Clock;
 }
 
 const globalClock: Clock = {
@@ -12,10 +15,12 @@ const globalClock: Clock = {
 export function debounce<A extends unknown[]>(
   fn: (...args: A) => unknown,
   wait: number,
-  clock: Clock = globalClock,
+  options: DebounceOptions = {},
 ): (...args: A) => void {
+  const { clock = globalClock } = options;
   let timer: unknown = undefined;
   return function (this: unknown, ...args: A) {
+    if (timer !== undefined) clock.clearTimeout(timer);
     timer = clock.setTimeout(() => {
       timer = undefined;
       fn.apply(this, args);

@@ -3,7 +3,7 @@
 Order: the Easy warm-ups listed in WARMUPS first, then catalog order (theme letter, then number)."""
 import os, re
 ROOT = os.path.join(os.path.dirname(__file__), '..', 'src', 'problems')
-WARMUPS = ['f10-debounce-basic', 'a9-promise-all-settled']
+WARMUPS = ['f1-debounce', 'a9-promise-all-settled']
 dirs = [d for d in os.listdir(ROOT) if os.path.isfile(os.path.join(ROOT, d, 'meta.ts'))]
 def key(d):
     m = re.match(r'([a-z])(\d+)-', d)

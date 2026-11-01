@@ -1,3 +1,4 @@
+// Bug: calls fn without `this`.
 export interface Clock {
   setTimeout(fn: () => void, ms: number): unknown;
   clearTimeout(id: unknown): void;
@@ -11,14 +12,15 @@ const globalClock: Clock = {
 export function debounce<A extends unknown[]>(
   fn: (...args: A) => unknown,
   wait: number,
-  clock: Clock = globalClock,
+  options: { clock?: Clock } = {},
 ): (...args: A) => void {
+  const clock = options.clock ?? globalClock;
   let timer: unknown = undefined;
   return function (this: unknown, ...args: A) {
     if (timer !== undefined) clock.clearTimeout(timer);
     timer = clock.setTimeout(() => {
       timer = undefined;
-      fn.apply(this, args);
+      fn(...args);
     }, wait);
   };
 }

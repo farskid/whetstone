@@ -3,10 +3,14 @@ export interface Clock {
   clearTimeout(id: unknown): void;
 }
 
+export interface DebounceOptions {
+  clock?: Clock;
+}
+
 export function debounce<A extends unknown[]>(
   fn: (...args: A) => unknown,
   wait: number,
-  clock?: Clock,
+  options: DebounceOptions = {},
 ): (...args: A) => void {
   throw new Error('Not implemented');
 }
