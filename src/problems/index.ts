@@ -101,8 +101,28 @@ import { meta as f5Meta } from './f5-fuzzy-search/meta';
 import { tests as f5Tests } from './f5-fuzzy-search/tests';
 import { meta as f6Meta } from './f6-schema-validation/meta';
 import { tests as f6Tests } from './f6-schema-validation/tests';
+import { meta as f7Meta } from './f7-money/meta';
+import { tests as f7Tests } from './f7-money/tests';
+import { meta as f8Meta } from './f8-date-math/meta';
+import { tests as f8Tests } from './f8-date-math/tests';
+import { meta as f9Meta } from './f9-humanize/meta';
+import { tests as f9Tests } from './f9-humanize/tests';
 import { meta as g1Meta } from './g1-virtual-list/meta';
 import { tests as g1Tests } from './g1-virtual-list/tests';
+import { meta as g2Meta } from './g2-keyboard-shortcuts/meta';
+import { tests as g2Tests } from './g2-keyboard-shortcuts/tests';
+import { meta as g3Meta } from './g3-sortable-dnd/meta';
+import { tests as g3Tests } from './g3-sortable-dnd/tests';
+import { meta as g4Meta } from './g4-roving-focus/meta';
+import { tests as g4Tests } from './g4-roving-focus/tests';
+import { meta as g5Meta } from './g5-masonry/meta';
+import { tests as g5Tests } from './g5-masonry/tests';
+import { meta as g6Meta } from './g6-toast-queue/meta';
+import { tests as g6Tests } from './g6-toast-queue/tests';
+import { meta as g7Meta } from './g7-history/meta';
+import { tests as g7Tests } from './g7-history/tests';
+import { meta as g8Meta } from './g8-popover-position/meta';
+import { tests as g8Tests } from './g8-popover-position/tests';
 import { meta as h6Meta } from './h6-offline-queue/meta';
 import { tests as h6Tests } from './h6-offline-queue/tests';
 
@@ -159,7 +179,17 @@ export const problems: Problem[] = [
   { ...f4Meta, tests: f4Tests },
   { ...f5Meta, tests: f5Tests },
   { ...f6Meta, tests: f6Tests },
+  { ...f7Meta, tests: f7Tests },
+  { ...f8Meta, tests: f8Tests },
+  { ...f9Meta, tests: f9Tests },
   { ...g1Meta, tests: g1Tests },
+  { ...g2Meta, tests: g2Tests },
+  { ...g3Meta, tests: g3Tests },
+  { ...g4Meta, tests: g4Tests },
+  { ...g5Meta, tests: g5Tests },
+  { ...g6Meta, tests: g6Tests },
+  { ...g7Meta, tests: g7Tests },
+  { ...g8Meta, tests: g8Tests },
   { ...h6Meta, tests: h6Tests },
 ];
 

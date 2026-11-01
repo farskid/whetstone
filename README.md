@@ -102,7 +102,17 @@ The two Easy warm-ups come first. F10 (plain trailing debounce) and A9 aren't in
 | F4 | Text diff | Utilities | Hard | 12 |
 | F5 | Fuzzy search | Utilities | Medium | 11 |
 | F6 | Schema validation | Parsing | Medium | 16 |
+| F7 | Money math | Utilities | Medium | 12 |
+| F8 | Date math | Utilities | Medium | 14 |
+| F9 | Humanize bytes and durations | Utilities | Easy | 10 |
 | G1 | Virtual list | Browser/UI | Hard | 15 |
+| G2 | Keyboard shortcuts | Browser/UI | Medium | 12 |
+| G3 | Sortable drag-and-drop | Browser/UI | Hard | 11 |
+| G4 | Roving focus and typeahead | Browser/UI | Medium | 12 |
+| G5 | Masonry layout | Browser/UI | Medium | 11 |
+| G6 | Toast queue | Browser/UI | Medium | 11 |
+| G7 | Router history | Browser/UI | Medium | 10 |
+| G8 | Popover positioning | Browser/UI | Hard | 12 |
 | H6 | Offline mutation queue | API/Network | Hard | 15 |
 <!-- problems:end -->
 
