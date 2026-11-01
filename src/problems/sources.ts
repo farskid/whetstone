@@ -6,12 +6,27 @@ import { stripTypes } from '../runner/core';
 const statements = import.meta.glob('./*/statement.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 const starters = import.meta.glob('./*/starter.ts', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 const solutions = import.meta.glob('./*/solution.ts', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+// Staged problems: stages/<k>.md (statement section), stages/<k>.solution.ts (reference for stage k), stages/starter.ts.
+const stageFiles = import.meta.glob(['./*/stages/*.md', './*/stages/*.ts'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 
-export function getSources(id: string): ProblemSources {
+/** `stages` = the problem's stage count when it is staged (see problems/stages.ts), else 1. */
+export function getSources(id: string, stages = 1): ProblemSources {
+  const solutionTs = solutions[`./${id}/solution.ts`] ?? '';
+  const stageStatements: string[] = [];
+  const stageSolutionsTs: string[] = [];
+  if (stages > 1) {
+    for (let k = 1; k <= stages; k++) {
+      stageStatements.push(stageFiles[`./${id}/stages/${k}.md`] ?? `_Missing statement for stage ${k}._`);
+      stageSolutionsTs.push(k === stages ? solutionTs : stageFiles[`./${id}/stages/${k}.solution.ts`] ?? '');
+    }
+  }
   return {
     statement: statements[`./${id}/statement.md`] ?? `# Missing statement for ${id}`,
     starterTs: starters[`./${id}/starter.ts`] ?? '',
-    solutionTs: solutions[`./${id}/solution.ts`] ?? '',
+    solutionTs,
+    stageStatements,
+    stageSolutionsTs,
+    stageStarterTs: stages > 1 ? stageFiles[`./${id}/stages/starter.ts`] : undefined,
   };
 }
 

@@ -188,6 +188,32 @@ a.problem-row:hover, .link-row:hover { background: var(--bg-3); }
 .inspired { margin-top: 24px; }
 .codeview { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow: auto; font-size: 12.5px; line-height: 1.5; }
 .locked { text-align: center; padding: 50px 20px; }
+
+/* stages */
+.stage-bar { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-bottom: 1px solid var(--line); background: var(--bg-2); flex: none; overflow-x: auto; }
+.stage-label { margin-right: 6px; white-space: nowrap; }
+.stage-tab { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--bg-3); color: var(--text); border-radius: 999px; padding: 3px 12px 3px 4px; font: inherit; font-size: 12.5px; cursor: pointer; white-space: nowrap; }
+.stage-tab:hover:not(:disabled) { border-color: var(--accent); }
+.stage-tab.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, var(--bg-3)); }
+.stage-tab:disabled { cursor: default; }
+.stage-tab.locked { color: var(--muted); opacity: .65; }
+.stage-num { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: var(--bg-2); border: 1px solid var(--line); }
+.stage-tab.done .stage-num { background: var(--pass); border-color: var(--pass); color: #fff; }
+.stage-tab.on:not(.done) .stage-num { border-color: var(--accent); color: var(--accent); }
+.full-toggle { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); white-space: nowrap; cursor: pointer; }
+.staged-h1 { font-size: 22px; margin: 16px 0 4px; }
+.stage-section { border-left: 3px solid var(--line); padding: 2px 0 2px 14px; margin: 14px 0; scroll-margin-top: 8px; }
+.stage-section.current { border-left-color: var(--accent); }
+.stage-section .markdown > :first-child { margin-top: 6px; }
+.stage-head { display: flex; align-items: baseline; gap: 10px; }
+.stage-kicker { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+.stage-head-title { font-weight: 600; font-size: 15px; }
+.locked-section { border-left-style: dashed; padding: 6px 14px; }
+.stage-unlocked { display: flex; align-items: center; gap: 12px; justify-content: space-between; margin: 8px 14px 0; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--pass); background: color-mix(in srgb, var(--pass) 10%, transparent); font-size: 13px; }
+.stage-pill { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); margin-top: 2px; }
+.stage-dots { display: inline-flex; gap: 3px; }
+.sd { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--muted); }
+.sd.on { background: var(--pass); border-color: var(--pass); }
 .lock-icon { font-size: 34px; }
 
 /* results */

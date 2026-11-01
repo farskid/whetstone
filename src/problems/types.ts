@@ -13,8 +13,14 @@ export interface Tag {
 
 export interface Stage {
   title: string;
-  /** What this stage asks for (from the catalog). v1 UI ignores stages; v2 will unlock them one by one. */
+  /** What this stage asks for (from the catalog). */
   summary: string;
+  /**
+   * The test groups this stage adds. When every stage lists its groups the problem is staged: stages unlock one by one,
+   * and stage k runs the groups of stages 1..k (earlier ones re-run as regression). Without groups the problem is
+   * single-stage and the catalog chain is shown as information only.
+   */
+  groups?: string[];
 }
 
 export interface ProblemMeta {
@@ -30,14 +36,23 @@ export interface ProblemMeta {
   tags: Tag[];
   /** One line for the problem list. */
   summary: string;
-  /** The staged chain from the catalog. v1 shows the final stage as one full problem. */
+  /** The staged chain from the catalog. See Stage.groups for when it becomes a real staged problem. */
   stages: Stage[];
 }
 
 export interface ProblemSources {
+  /** The full statement (single-stage problems, and the "full problem" mode of staged ones). */
   statement: string;
+  /** The full starter. */
   starterTs: string;
+  /** The reference solution for the whole problem (= the final stage). */
   solutionTs: string;
+  /** Staged problems only: stages/<k>.md, one section per stage (1-based files, 0-based array). */
+  stageStatements: string[];
+  /** Staged problems only: the reference for each stage; stages/<k>.solution.ts, and solution.ts for the last one. */
+  stageSolutionsTs: string[];
+  /** Staged problems only: stages/starter.ts, the starting code for stage 1. */
+  stageStarterTs?: string;
 }
 
 export interface Problem extends ProblemMeta {

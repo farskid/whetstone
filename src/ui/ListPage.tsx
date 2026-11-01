@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
 import { problems } from '../problems';
 import type { Difficulty, Theme } from '../problems/types';
-import { useProgress, actions } from '../store';
+import { useProgress, actions, passedStages } from '../store';
+import { stageCount } from '../problems/stages';
 import { href } from './router';
 import { KIND_LABEL, KIND_ORDER, TagChips } from './TagChips';
 
@@ -134,7 +135,9 @@ export function ListPage({ tag }: { tag: string | null }) {
         </div>
         {visible.map((p) => {
           const solved = !!progress.solved[p.id];
-          const started = !!progress.code[p.id] && Object.keys(progress.code[p.id]).length > 0;
+          const n = stageCount(p);
+          const passedN = n > 1 ? passedStages(progress, p.id) : 0;
+          const started = passedN > 0 || (!!progress.code[p.id] && Object.keys(progress.code[p.id]).length > 0);
           return (
             <div key={p.id} className={`problem-row link-row ${solved ? 'solved' : ''}`}>
               <span className={`status-dot ${solved ? 'ok' : started ? 'started' : ''}`} title={solved ? 'Solved' : started ? 'Started' : 'Not started'}>
@@ -144,6 +147,14 @@ export function ListPage({ tag }: { tag: string | null }) {
                 <a className="p-title row-link" href={href.problem(p.id)} data-testid={`problem-${p.id}`}><span className="cat-id">{p.catalogId}</span>{p.title}</a>
                 <span className="p-summary muted">{p.summary}</span>
                 <span className="p-inspired small">like {p.inspiredBy}</span>
+                {n > 1 && (
+                  <span className="stage-pill small" data-testid={`stages-${p.id}`} title={p.stages.map((st, k) => `${k + 1}. ${st.title}`).join('\n')}>
+                    <span className="stage-dots" aria-hidden="true">
+                      {p.stages.map((_, k) => <span key={k} className={`sd ${progress.stagePassed[p.id]?.[k] ? 'on' : ''}`} />)}
+                    </span>
+                    {passedN}/{n} stages
+                  </span>
+                )}
                 <TagChips tags={p.tags} active={tag} />
               </span>
               <span><span className="tag">{p.theme}</span></span>

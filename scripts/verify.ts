@@ -4,12 +4,19 @@
  *  - reference solution (TS, and the type-stripped JS) must pass every test
  *  - the starter code must compile (TS and JS) and fail
  *  - every broken/*.ts solution must fail at least one test
+ * Staged problems (every stage lists its groups) also:
+ *  - every test has a group, and every group belongs to exactly one stage; every stage adds at least one test
+ *  - stages/<k>.md exists for every stage, stages/starter.ts compiles and fails stage 1
+ *  - the stage-k reference (stages/<k>.solution.ts, solution.ts for the last) passes stages 1..k (TS and JS)
+ *    and fails at least one test that stage k+1 adds (so every split really asks for something new)
+ *  - broken/s<k>-*.ts must fail stage k (stages 1..k); every broken still fails the full run
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { problems } from '../src/problems/index';
 import { runTests, stripTypes, compile } from '../src/runner/core';
+import { isStaged, testsAddedBy, testsForStage } from '../src/problems/stages';
 import type { RunSummary } from '../src/runner/types';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'problems');
@@ -64,6 +71,9 @@ for (const p of problems) {
   else if (st.passed === st.total) fail('starter passes every test (tests are too weak)');
   else ok(`starter fails as expected (${st.passed}/${st.total})`);
 
+  if (isStaged(p)) await verifyStages(p, dir);
+  else if (p.stages.some((st) => st.groups?.length)) fail('some stages list groups and some do not: list groups on every stage (staged) or none (single)');
+
   const brokenDir = join(dir, 'broken');
   const broken = existsSync(brokenDir) ? readdirSync(brokenDir).filter((f) => f.endsWith('.ts')) : [];
   if (!broken.length) fail('no broken/*.ts solution to check the tests against');
@@ -72,6 +82,60 @@ for (const p of problems) {
     if (s.compileError) fail(`broken/${f} does not compile: ${s.compileError}`);
     else if (s.passed === s.total) fail(`broken/${f} passes every test — tests miss this bug`);
     else ok(`broken/${f} caught: ${s.total - s.passed} failing (${s.results.filter((r) => r.status !== 'pass').map((r) => r.title).slice(0, 3).join('; ')}${s.total - s.passed > 3 ? '; …' : ''})`);
+  }
+}
+
+async function verifyStages(p: (typeof problems)[number], dir: string) {
+  const n = p.stages.length;
+  const ungrouped = p.tests.filter((t) => !t.group);
+  if (ungrouped.length) fail(`staged problem has tests with no group: ${ungrouped.map((t) => t.title).join('; ')}`);
+  for (const g of new Set(p.tests.map((t) => t.group).filter(Boolean) as string[])) {
+    const owners = p.stages.filter((st) => st.groups!.includes(g)).length;
+    if (owners !== 1) fail(`group "${g}" belongs to ${owners} stages (must be exactly 1)`);
+  }
+  p.stages.forEach((st, k) => {
+    for (const g of st.groups!) if (!p.tests.some((t) => t.group === g)) fail(`stage ${k + 1} lists group "${g}" but no test uses it`);
+    if (!testsAddedBy(p, k).length) fail(`stage ${k + 1} adds no tests`);
+  });
+  for (let k = 1; k <= n; k++) if (!existsSync(join(dir, 'stages', `${k}.md`))) fail(`missing stages/${k}.md`);
+
+  const starterPath = join(dir, 'stages', 'starter.ts');
+  if (!existsSync(starterPath)) fail('missing stages/starter.ts (the stage-1 starter)');
+  else {
+    const starter = readFileSync(starterPath, 'utf8');
+    try { compile(stripTypes(starter), 'js'); } catch (e) { fail(`stages/starter.ts JS does not compile: ${e}`); }
+    const s = await runTests(testsForStage(p, 0), starter, 'ts');
+    if (s.compileError) fail(`stages/starter.ts: ${s.compileError}`);
+    else if (s.passed === s.total) fail('stages/starter.ts passes stage 1');
+    else ok(`stage-1 starter fails stage 1 as expected (${s.passed}/${s.total})`);
+  }
+
+  for (let k = 0; k < n; k++) {
+    const file = k === n - 1 ? 'solution.ts' : `stages/${k + 1}.solution.ts`;
+    if (!existsSync(join(dir, file))) { fail(`missing ${file}`); continue; }
+    const src = readFileSync(join(dir, file), 'utf8');
+    const tests = testsForStage(p, k);
+    for (const [label, code, lang] of [['ts', src, 'ts'], ['js', stripTypes(src), 'js']] as const) {
+      const s = await runTests(tests, code, lang);
+      if (s.passed === s.total && !s.compileError) ok(`stage ${k + 1}: ${file} [${label}] passes ${s.passed}/${s.total}`);
+      else fail(`stage ${k + 1}: ${file} [${label}] passed only ${s.passed}/${s.total}\n${describeFailures(s)}`);
+    }
+    if (k < n - 1) {
+      const next = await runTests(testsAddedBy(p, k + 1), src, 'ts');
+      if (!next.compileError && next.passed === next.total) fail(`stage ${k + 1} reference already passes everything stage ${k + 2} adds`);
+      else ok(`stage ${k + 1} reference fails stage ${k + 2}'s new tests (${next.total - next.passed}/${next.total})`);
+    }
+  }
+
+  const brokenDir = join(dir, 'broken');
+  const staged = existsSync(brokenDir) ? readdirSync(brokenDir).filter((f) => /^s\d+-.*\.ts$/.test(f)) : [];
+  for (const f of staged) {
+    const k = Number(f.match(/^s(\d+)-/)![1]);
+    if (k < 1 || k > n) { fail(`broken/${f}: stage ${k} does not exist`); continue; }
+    const s = await runTests(testsForStage(p, k - 1), readFileSync(join(brokenDir, f), 'utf8'), 'ts');
+    if (s.compileError) fail(`broken/${f} does not compile: ${s.compileError}`);
+    else if (s.passed === s.total) fail(`broken/${f} passes stage ${k}: its tests miss this bug`);
+    else ok(`broken/${f} caught at stage ${k}: ${s.total - s.passed} failing`);
   }
 }
 
