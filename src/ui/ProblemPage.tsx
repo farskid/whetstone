@@ -78,6 +78,8 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     setRun({ phase: 'running', results: [] });
     setJustUnlocked(null);
     const stage = staged ? viewStage : undefined;
+    // Stay on this stage when the run unlocks the next one; the banner offers to continue.
+    if (staged && !full) setPicked(viewStage);
     const h = runInWorker(problem.id, titles, source, lang, (r) => {
       partial.push(r);
       setRun({ phase: 'running', results: [...partial] });
