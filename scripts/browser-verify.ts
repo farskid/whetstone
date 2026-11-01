@@ -1,6 +1,6 @@
 /**
  * npm run verify:browser  (run `npm run build` first)
- * Runs every problem's reference solution (TS, and stripped-to-JS) through the real
+ * Pass problem ids to check only those. Runs every problem's reference solution (TS, and stripped-to-JS) through the real
  * in-browser worker of the built site and checks that all tests pass.
  */
 import { spawn } from 'node:child_process';
@@ -15,7 +15,8 @@ const PORT = 4790;
 const BASE = `http://localhost:${PORT}/`;
 const CHROME = process.env.CHROME_PATH ?? '/usr/bin/google-chrome';
 const problemsDir = join(root, 'src', 'problems');
-const ids = readdirSync(problemsDir).filter((d) => existsSync(join(problemsDir, d, 'solution.ts')));
+const only = process.argv.slice(2);
+const ids = readdirSync(problemsDir).filter((d) => existsSync(join(problemsDir, d, 'solution.ts')) && (only.length === 0 || only.includes(d)));
 
 const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { cwd: root, stdio: 'pipe' });
 process.on('exit', () => { try { server.kill('SIGTERM'); } catch { /* gone */ } });
@@ -41,7 +42,7 @@ async function main() {
       await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 60000 });
       const passed = await page.$('[data-testid="all-passed"]');
       if (passed) console.log(`  ✓ ${id} [${lang}] ${await passed.textContent()}`);
-      else { failed++; console.log(`  ✗ ${id} [${lang}] ${(await page.textContent('.results, main'))?.slice(0, 300)}`); }
+      else { failed++; console.log(`  ✗ ${id} [${lang}] ${(await page.textContent('.results, main'))?.slice(0, Number(process.env.VERIFY_DETAIL ?? 300))}`); }
       await ctx.close();
     }
   }

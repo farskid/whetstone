@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: './',
   plugins: [react()],
-  worker: { format: 'es' },
-  build: { chunkSizeWarningLimit: 8000 },
+  // Tests assert on class and function names (error types, DI tokens), so keep them through minification.
+  worker: { format: 'es', rolldownOptions: { output: { keepNames: true } } },
+  build: { chunkSizeWarningLimit: 8000, rolldownOptions: { output: { keepNames: true } } },
 });

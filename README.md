@@ -68,7 +68,15 @@ The two Easy warm-ups come first. F10 (plain trailing debounce) and A9 aren't in
 | B5 | Sorted set / leaderboard | Data/Caches | Medium | 13 |
 | B6 | Piece table text buffer | Data/Caches | Hard | 14 |
 | B7 | Memoization family | Data/Caches | Medium | 13 |
+| B8 | In-memory table with indexes | Data/Caches | Hard | 14 |
+| C1 | Express router with error middleware | Middleware | Medium | 12 |
+| C2 | Hook system | Middleware | Hard | 12 |
 | C3 | HTTP interceptors + token refresh | Middleware | Hard | 16 |
+| C4 | EventEmitter | Middleware | Medium | 12 |
+| C5 | DI container | Middleware | Hard | 12 |
+| C6 | Loader chain with pitching | Middleware | Hard | 11 |
+| C7 | Structured logger | Middleware | Medium | 12 |
+| C8 | Mini bundler with plugins | Middleware | Hard | 11 |
 | D6 | Route matching | Parsing | Medium | 15 |
 | E2 | Signals | State | Hard | 19 |
 | E6 | Query cache | Data/Caches | Hard | 15 |

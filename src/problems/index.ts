@@ -33,8 +33,24 @@ import { meta as b6Meta } from './b6-piece-table/meta';
 import { tests as b6Tests } from './b6-piece-table/tests';
 import { meta as b7Meta } from './b7-memoization/meta';
 import { tests as b7Tests } from './b7-memoization/tests';
+import { meta as b8Meta } from './b8-indexed-table/meta';
+import { tests as b8Tests } from './b8-indexed-table/tests';
+import { meta as c1Meta } from './c1-express-router/meta';
+import { tests as c1Tests } from './c1-express-router/tests';
+import { meta as c2Meta } from './c2-hook-system/meta';
+import { tests as c2Tests } from './c2-hook-system/tests';
 import { meta as c3Meta } from './c3-http-interceptors/meta';
 import { tests as c3Tests } from './c3-http-interceptors/tests';
+import { meta as c4Meta } from './c4-event-emitter/meta';
+import { tests as c4Tests } from './c4-event-emitter/tests';
+import { meta as c5Meta } from './c5-di-container/meta';
+import { tests as c5Tests } from './c5-di-container/tests';
+import { meta as c6Meta } from './c6-loader-chain/meta';
+import { tests as c6Tests } from './c6-loader-chain/tests';
+import { meta as c7Meta } from './c7-structured-logger/meta';
+import { tests as c7Tests } from './c7-structured-logger/tests';
+import { meta as c8Meta } from './c8-mini-bundler/meta';
+import { tests as c8Tests } from './c8-mini-bundler/tests';
 import { meta as d6Meta } from './d6-route-matching/meta';
 import { tests as d6Tests } from './d6-route-matching/tests';
 import { meta as e2Meta } from './e2-signals/meta';
@@ -69,7 +85,15 @@ export const problems: Problem[] = [
   { ...b5Meta, tests: b5Tests },
   { ...b6Meta, tests: b6Tests },
   { ...b7Meta, tests: b7Tests },
+  { ...b8Meta, tests: b8Tests },
+  { ...c1Meta, tests: c1Tests },
+  { ...c2Meta, tests: c2Tests },
   { ...c3Meta, tests: c3Tests },
+  { ...c4Meta, tests: c4Tests },
+  { ...c5Meta, tests: c5Tests },
+  { ...c6Meta, tests: c6Tests },
+  { ...c7Meta, tests: c7Tests },
+  { ...c8Meta, tests: c8Tests },
   { ...d6Meta, tests: d6Tests },
   { ...e2Meta, tests: e2Tests },
   { ...e6Meta, tests: e6Tests },
