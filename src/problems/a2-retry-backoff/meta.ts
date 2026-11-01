@@ -15,9 +15,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Retry a flaky async call with exponential backoff, jitter, shouldRetry, AbortError, onFailedAttempt and an AbortSignal.',
   stages: [
-    { title: 'Retry until success', summary: 'retry(fn, { retries }) calls fn(attempt) until it resolves, or rejects with the last error.' },
-    { title: 'Exponential backoff', summary: 'minTimeout, factor, maxTimeout and optional full jitter with an injectable random.' },
-    { title: 'Stopping early', summary: 'shouldRetry(err), and throwing AbortError stops right away with the original error.' },
-    { title: 'Abort and hooks', summary: 'signal cancels during a backoff wait; onFailedAttempt({ error, attempt, retriesLeft }), and if it throws, stop.' },
+    { title: 'Retry until success', summary: 'retry(fn, { retries }) calls fn(attempt) until it resolves, or rejects with the last error.', groups: ['Retry until success'] },
+    { title: 'Exponential backoff', summary: 'minTimeout, factor, maxTimeout and optional full jitter with an injectable random.', groups: ['Exponential backoff'] },
+    { title: 'Stopping early', summary: 'shouldRetry(err), and throwing AbortError stops right away with the original error.', groups: ['Stopping early'] },
+    { title: 'Abort and hooks', summary: 'signal cancels during a backoff wait; onFailedAttempt({ error, attempt, retriesLeft }), and if it throws, stop.', groups: ['Abort and hooks'] },
   ],
 };

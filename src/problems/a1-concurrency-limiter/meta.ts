@@ -16,9 +16,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Run async tasks with at most N in flight, with priorities, abort signals, live concurrency changes and onIdle().',
   stages: [
-    { title: 'Limit in-flight tasks', summary: 'run(fn) returns fn’s result; at most N run at once, FIFO.' },
-    { title: 'Introspection', summary: 'activeCount, pendingCount and onIdle().' },
-    { title: 'Priorities and clearQueue', summary: 'Higher priority starts first; clearQueue() rejects everything still queued.' },
-    { title: 'Abort and live concurrency', summary: 'AbortSignal per task and a settable concurrency.' },
+    { title: 'Limit in-flight tasks', summary: 'run(fn) returns fn’s result; at most N run at once, FIFO.', groups: ['Limit in-flight tasks'] },
+    { title: 'Introspection', summary: 'activeCount, pendingCount and onIdle().', groups: ['Introspection'] },
+    { title: 'Priorities and clearQueue', summary: 'Higher priority starts first; clearQueue() rejects everything still queued.', groups: ['Priorities and clearQueue'] },
+    { title: 'Abort and live concurrency', summary: 'AbortSignal per task and a settable concurrency.', groups: ['Abort and live concurrency'] },
   ],
 };

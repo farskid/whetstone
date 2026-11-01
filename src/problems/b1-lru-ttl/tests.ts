@@ -1,6 +1,11 @@
 import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
 
+const G1 = 'Bounded LRU';
+const G2 = 'TTL';
+const G3 = 'Eviction callbacks';
+const G4 = 'Size-based limits';
+
 type Ev = [unknown, unknown, string];
 const recorder = () => {
   const events: Ev[] = [];
@@ -9,6 +14,7 @@ const recorder = () => {
 
 export const tests: TestCase<M>[] = [
   {
+    group: G1,
     title: 'set / get / has / delete basics',
     run({ LRUCache }, { expect }) {
       const c = new LRUCache<string, number>({ max: 3 });
@@ -23,6 +29,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'evicts the least recently used entry at max',
     input: 'max 3: set a b c, set d',
     run({ LRUCache }, { expect }) {
@@ -34,6 +41,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'get() refreshes recency, peek() and has() do not',
     input: 'max 3: set a b c, get a, peek b, has b, set d',
     run({ LRUCache }, { expect }) {
@@ -47,6 +55,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'set() on an existing key updates it and makes it most recent',
     run({ LRUCache }, { expect }) {
       const c = new LRUCache<string, number>({ max: 2 });
@@ -56,6 +65,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'stores falsy values and non-string keys',
     input: 'keys: 0, {}, NaN; values: 0, "", undefined, null',
     run({ LRUCache }, { expect }) {
@@ -71,6 +81,35 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
+    title: 'an invalid max throws TypeError',
+    run({ LRUCache }, { expect }) {
+      for (const max of [0, -1, 2.5, NaN]) {
+        let err: unknown;
+        try { new LRUCache({ max }); } catch (e) { err = e; }
+        expect(err, `max ${max}`).toBeInstanceOf(TypeError);
+      }
+    },
+  },
+  {
+    group: G1,
+    title: 'O(1) operations: 50k mixed ops stay fast',
+    input: 'max 1000, 50,000 set/get with a cycling key space of 2000',
+    run({ LRUCache }, { expect }) {
+      const c = new LRUCache<number, number>({ max: 1000 });
+      const start = Date.now();
+      for (let i = 0; i < 50_000; i++) {
+        c.set(i % 2000, i);
+        c.get((i * 7) % 2000);
+        c.has(i % 1500);
+      }
+      const ms = Date.now() - start;
+      expect(c.size).toBe(1000);
+      expect(ms, 'elapsed ms (an O(n) list scan takes seconds)').toBeLessThan(400);
+    },
+  },
+  {
+    group: G2,
     title: 'default ttl: entries expire at exactly setAt + ttl',
     input: 'ttl 100, set at t=0; read at 99 and 100',
     run({ LRUCache }, { expect, clock }) {
@@ -86,6 +125,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'per-entry ttl overrides the default; ttl 0 never expires',
     run({ LRUCache }, { expect, clock }) {
       const clk = clock(1000);
@@ -98,6 +138,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'setting a key again resets its TTL; get() does not',
     run({ LRUCache }, { expect, clock }) {
       const clk = clock();
@@ -111,6 +152,19 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
+    title: 'expired entries do not count towards size or keys()',
+    run({ LRUCache }, { expect, clock }) {
+      const clk = clock();
+      const c = new LRUCache<number, number>({ max: 10, clock: clk });
+      for (let i = 0; i < 5; i++) c.set(i, i, { ttl: i % 2 ? 10 : 0 });
+      clk.tick(10);
+      expect(c.size).toBe(3);
+      expect(c.keys()).toEqual([4, 2, 0]);
+    },
+  },
+  {
+    group: G3,
     title: 'onEvict reasons: evict, expire, delete, overwrite',
     run({ LRUCache }, { expect, clock }) {
       const clk = clock();
@@ -126,6 +180,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'purgeStale() removes and reports expired entries',
     run({ LRUCache }, { expect, clock }) {
       const clk = clock();
@@ -140,6 +195,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'clear() fires delete for every entry',
     run({ LRUCache }, { expect }) {
       const r = recorder();
@@ -152,17 +208,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    title: 'expired entries do not count towards size or keys()',
-    run({ LRUCache }, { expect, clock }) {
-      const clk = clock();
-      const c = new LRUCache<number, number>({ max: 10, clock: clk });
-      for (let i = 0; i < 5; i++) c.set(i, i, { ttl: i % 2 ? 10 : 0 });
-      clk.tick(10);
-      expect(c.size).toBe(3);
-      expect(c.keys()).toEqual([4, 2, 0]);
-    },
-  },
-  {
+    group: G4,
     title: 'maxSize evicts LRU entries until the new one fits',
     input: 'maxSize 10, sizeOf = string length',
     run({ LRUCache }, { expect }) {
@@ -179,6 +225,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'an item bigger than maxSize is not stored (and drops the old value)',
     run({ LRUCache }, { expect }) {
       const r = recorder();
@@ -193,35 +240,15 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    title: 'invalid options and sizes throw TypeError',
+    group: G4,
+    title: 'a non-positive size from sizeOf throws TypeError',
     run({ LRUCache }, { expect }) {
-      for (const max of [0, -1, 2.5, NaN]) {
-        let err: unknown;
-        try { new LRUCache({ max }); } catch (e) { err = e; }
-        expect(err, `max ${max}`).toBeInstanceOf(TypeError);
-      }
       const c = new LRUCache<string, number>({ max: 5, maxSize: 10, sizeOf: (v) => v });
       for (const bad of [0, -3, NaN]) {
         let err: unknown;
         try { c.set('k', bad); } catch (e) { err = e; }
         expect(err, `size ${bad}`).toBeInstanceOf(TypeError);
       }
-    },
-  },
-  {
-    title: 'O(1) operations: 50k mixed ops stay fast',
-    input: 'max 1000, 50,000 set/get with a cycling key space of 2000',
-    run({ LRUCache }, { expect }) {
-      const c = new LRUCache<number, number>({ max: 1000 });
-      const start = Date.now();
-      for (let i = 0; i < 50_000; i++) {
-        c.set(i % 2000, i);
-        c.get((i * 7) % 2000);
-        c.has(i % 1500);
-      }
-      const ms = Date.now() - start;
-      expect(c.size).toBe(1000);
-      expect(ms, 'elapsed ms (an O(n) list scan takes seconds)').toBeLessThan(400);
     },
   },
 ];

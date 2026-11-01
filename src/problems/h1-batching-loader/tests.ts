@@ -156,14 +156,12 @@ export const tests: TestCase<M>[] = [
       const l = new Loader<number, number>(r.fn, { cache: false });
       expect(await Promise.all([l.load(1), l.load(1)])).toEqual([10, 10]);
       expect(await l.load(1)).toBe(10);
-      l.prime(9, 0);
-      expect(await l.load(9), 'prime does nothing without a cache').toBe(90);
-      expect(r.calls).toEqual([[1, 1], [1], [9]]);
+      expect(r.calls).toEqual([[1, 1], [1]]);
     },
   },
   {
     group: 'Cache control',
-    title: 'clear, clearAll and prime',
+    title: 'clear, clearAll and prime (prime is a no-op with cache: false)',
     async run({ Loader }, { expect }) {
       const r = recorder();
       const l = new Loader<number, number>(r.fn);
@@ -176,6 +174,11 @@ export const tests: TestCase<M>[] = [
       l.clearAll();
       await Promise.all([l.load(1), l.load(3)]);
       expect(r.calls).toEqual([[1, 2], [1], [1, 3]]);
+      const off = recorder();
+      const lo = new Loader<number, number>(off.fn, { cache: false });
+      lo.prime(9, 0);
+      expect(await lo.load(9), 'prime does nothing without a cache').toBe(90);
+      expect(off.calls).toEqual([[9]]);
     },
   },
   {

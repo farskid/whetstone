@@ -1,10 +1,16 @@
 import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
 
+const G1 = 'Limit in-flight tasks';
+const G2 = 'Introspection';
+const G3 = 'Priorities and clearQueue';
+const G4 = 'Abort and live concurrency';
+
 const isAbort = (e: unknown) => e instanceof Error && e.name === 'AbortError';
 
 export const tests: TestCase<M>[] = [
   {
+    group: G1,
     title: 'run() resolves with the task result (sync or async)',
     input: 'run(() => 42), run(async () => "x")',
     async run({ createLimiter }, { expect }) {
@@ -14,6 +20,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'never more than `concurrency` tasks in flight',
     input: 'concurrency 2, 6 tasks resolved by hand',
     async run({ createLimiter }, { expect, deferred, flush }) {
@@ -31,6 +38,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'a free slot starts the task synchronously',
     async run({ createLimiter }, { expect }) {
       const l = createLimiter(1);
@@ -40,6 +48,44 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
+    title: 'FIFO order within the same priority',
+    async run({ createLimiter }, { expect }) {
+      const l = createLimiter(1);
+      const order: number[] = [];
+      await Promise.all([1, 2, 3, 4, 5].map((n) => l.run(async () => { order.push(n); })));
+      expect(order).toEqual([1, 2, 3, 4, 5]);
+    },
+  },
+  {
+    group: G1,
+    title: 'errors reject that run() and free the slot',
+    input: 'concurrency 1: throwing task, rejecting task, then a normal one',
+    async run({ createLimiter }, { expect }) {
+      const l = createLimiter(1);
+      const a = l.run(() => { throw new Error('sync boom'); });
+      const b = l.run(() => Promise.reject(new Error('async boom')));
+      const c = l.run(() => 'ok');
+      await expect(a).toReject('sync boom');
+      await expect(b).toReject('async boom');
+      expect(await c).toBe('ok');
+    },
+  },
+  {
+    group: G1,
+    title: 'invalid concurrency throws TypeError',
+    input: 'createLimiter(0 | -1 | 1.5 | NaN)',
+    run({ createLimiter }, { expect }) {
+      for (const bad of [0, -1, 1.5, NaN]) {
+        let err: unknown;
+        try { createLimiter(bad); } catch (e) { err = e; }
+        expect(err, `createLimiter(${bad})`).toBeInstanceOf(TypeError);
+      }
+      expect(() => createLimiter(Infinity)).not.toThrow();
+    },
+  },
+  {
+    group: G2,
     title: 'activeCount and pendingCount',
     input: 'concurrency 2, 5 pending tasks',
     async run({ createLimiter }, { expect, deferred, flush }) {
@@ -54,29 +100,40 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    title: 'FIFO order within the same priority',
-    async run({ createLimiter }, { expect }) {
-      const l = createLimiter(1);
-      const order: number[] = [];
-      await Promise.all([1, 2, 3, 4, 5].map((n) => l.run(async () => { order.push(n); })));
-      expect(order).toEqual([1, 2, 3, 4, 5]);
-    },
-  },
-  {
-    title: 'errors reject that run() and free the slot',
-    input: 'concurrency 1: throwing task, rejecting task, then a normal one',
-    async run({ createLimiter }, { expect }) {
+    group: G2,
+    title: 'a failed task frees its slot before run() rejects',
+    async run({ createLimiter }, { expect, deferred }) {
       const l = createLimiter(1);
       const a = l.run(() => { throw new Error('sync boom'); });
-      const b = l.run(() => Promise.reject(new Error('async boom')));
-      const c = l.run(() => 'ok');
-      await expect(a).toReject('sync boom');
-      await expect(b).toReject('async boom');
-      expect(await c).toBe('ok');
-      expect(l.activeCount).toBe(0);
+      const b = deferred<void>();
+      l.run(() => b.promise);
+      let counts: number[] = [];
+      await a.catch(() => { counts = [l.activeCount, l.pendingCount]; });
+      expect(counts, '[activeCount, pendingCount] when a rejects: b already started').toEqual([1, 0]);
+      const c = l.run(() => Promise.reject(new Error('async boom')));
+      b.resolve();
+      await c.catch(() => { counts = [l.activeCount, l.pendingCount]; });
+      expect(counts, '[activeCount, pendingCount] when c rejects').toEqual([0, 0]);
     },
   },
   {
+    group: G2,
+    title: 'onIdle() waits for running and queued work',
+    async run({ createLimiter }, { expect, deferred, flush }) {
+      const l = createLimiter(1);
+      const a = deferred<void>(), b = deferred<void>();
+      l.run(() => a.promise); l.run(() => b.promise);
+      let idle = false;
+      l.onIdle().then(() => { idle = true; });
+      a.resolve(); await flush();
+      expect(idle, 'still one task left').toBe(false);
+      b.resolve(); await flush(); await flush();
+      expect(idle).toBe(true);
+      await l.onIdle(); // already idle: resolves
+    },
+  },
+  {
+    group: G3,
     title: 'higher priority jumps the queue; ties stay FIFO',
     input: 'concurrency 1; queue a(0) b(5) c(0) d(5) e(10)',
     async run({ createLimiter }, { expect, deferred }) {
@@ -92,6 +149,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'clearQueue() rejects queued tasks with AbortError, running ones finish',
     async run({ createLimiter }, { expect, deferred }) {
       const l = createLimiter(1);
@@ -110,6 +168,23 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
+    title: 'onIdle() after clearQueue() resolves once the running task ends',
+    async run({ createLimiter }, { expect, deferred, flush }) {
+      const l = createLimiter(1);
+      const a = deferred<void>();
+      l.run(() => a.promise);
+      l.run(() => undefined).catch(() => {});
+      let idle = false;
+      l.onIdle().then(() => { idle = true; });
+      l.clearQueue(); await flush();
+      expect(idle).toBe(false);
+      a.resolve(); await flush(); await flush();
+      expect(idle).toBe(true);
+    },
+  },
+  {
+    group: G4,
     title: 'already-aborted signal: rejects and never calls fn',
     async run({ createLimiter }, { expect }) {
       const l = createLimiter(3);
@@ -121,6 +196,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'aborting a queued task removes it from the queue',
     async run({ createLimiter }, { expect, deferred, flush }) {
       const l = createLimiter(1);
@@ -138,6 +214,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'aborting a running task does not reject it',
     async run({ createLimiter }, { expect, deferred }) {
       const l = createLimiter(1);
@@ -150,6 +227,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'raising concurrency starts queued tasks immediately',
     async run({ createLimiter }, { expect, deferred }) {
       const l = createLimiter(1);
@@ -162,6 +240,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'lowering concurrency never interrupts running tasks',
     async run({ createLimiter }, { expect, deferred, flush }) {
       const l = createLimiter(3);
@@ -177,50 +256,15 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    title: 'invalid concurrency throws TypeError',
-    input: 'createLimiter(0 | -1 | 1.5 | NaN), limiter.concurrency = 0',
+    group: G4,
+    title: 'the concurrency setter rejects invalid values too',
+    input: 'limiter.concurrency = 0',
     run({ createLimiter }, { expect }) {
-      for (const bad of [0, -1, 1.5, NaN]) {
-        let err: unknown;
-        try { createLimiter(bad); } catch (e) { err = e; }
-        expect(err, `createLimiter(${bad})`).toBeInstanceOf(TypeError);
-      }
-      expect(() => createLimiter(Infinity)).not.toThrow();
       const l = createLimiter(2);
       let err: unknown;
       try { l.concurrency = 0; } catch (e) { err = e; }
       expect(err, 'setter').toBeInstanceOf(TypeError);
       expect(l.concurrency).toBe(2);
-    },
-  },
-  {
-    title: 'onIdle() waits for running and queued work',
-    async run({ createLimiter }, { expect, deferred, flush }) {
-      const l = createLimiter(1);
-      const a = deferred<void>(), b = deferred<void>();
-      l.run(() => a.promise); l.run(() => b.promise);
-      let idle = false;
-      l.onIdle().then(() => { idle = true; });
-      a.resolve(); await flush();
-      expect(idle, 'still one task left').toBe(false);
-      b.resolve(); await flush(); await flush();
-      expect(idle).toBe(true);
-      await l.onIdle(); // already idle: resolves
-    },
-  },
-  {
-    title: 'onIdle() after clearQueue() resolves once the running task ends',
-    async run({ createLimiter }, { expect, deferred, flush }) {
-      const l = createLimiter(1);
-      const a = deferred<void>();
-      l.run(() => a.promise);
-      l.run(() => undefined).catch(() => {});
-      let idle = false;
-      l.onIdle().then(() => { idle = true; });
-      l.clearQueue(); await flush();
-      expect(idle).toBe(false);
-      a.resolve(); await flush(); await flush();
-      expect(idle).toBe(true);
     },
   },
 ];

@@ -159,10 +159,11 @@ export const tests: TestCase<M>[] = [
     async run({ retry, AbortError }, { expect, clock }) {
       const c = clock();
       const original = new Error('404');
-      let hookCalls = 0;
-      await expect(retry(() => { throw new AbortError(original); }, { clock: c, onFailedAttempt: () => { hookCalls++; } }))
+      let calls = 0;
+      await expect(retry(() => { calls++; throw new AbortError(original); }, { clock: c }))
         .toReject((e) => e === original);
-      expect(hookCalls, 'onFailedAttempt calls').toBe(0);
+      expect(calls, 'calls').toBe(1);
+      expect(c.pendingTimers(), 'timers left').toBe(0);
     },
   },
   {
@@ -185,6 +186,18 @@ export const tests: TestCase<M>[] = [
       await c.runAll();
       await expect(p).toReject('fail 3');
       expect(info).toEqual([['fail 1', 1, 2], ['fail 2', 2, 1], ['fail 3', 3, 0]]);
+    },
+  },
+  {
+    group: G4,
+    title: 'AbortError skips onFailedAttempt',
+    async run({ retry, AbortError }, { expect, clock }) {
+      const c = clock();
+      const original = new Error('404');
+      let hookCalls = 0;
+      await expect(retry(() => { throw new AbortError(original); }, { clock: c, onFailedAttempt: () => { hookCalls++; } }))
+        .toReject((e) => e === original);
+      expect(hookCalls, 'onFailedAttempt calls').toBe(0);
     },
   },
   {

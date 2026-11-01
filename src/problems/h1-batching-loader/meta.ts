@@ -15,9 +15,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Collect load(key) calls into one batch call, cache per key without caching errors, split by maxBatchSize, take a custom schedule, and support clear, prime, cacheKeyFn and loadMany.',
   stages: [
-    { title: 'Batching', summary: 'load() calls in the same synchronous run become one batchFn(keys) call.' },
-    { title: 'Cache and errors', summary: 'A per-key cache; Error values reject one key; a length mismatch is an error.' },
-    { title: 'Scheduling', summary: 'maxBatchSize and a custom batchScheduleFn (for example a 10 ms window).' },
-    { title: 'Cache control', summary: 'clear, clearAll, prime, cacheKeyFn for object keys, and loadMany with mixed results.' },
+    { title: 'Batching', summary: 'load() calls in the same synchronous run become one batchFn(keys) call.', groups: ['Batching'] },
+    { title: 'Cache and errors', summary: 'A per-key cache; Error values reject one key; a length mismatch is an error.', groups: ['Cache and errors'] },
+    { title: 'Scheduling', summary: 'maxBatchSize and a custom batchScheduleFn (for example a 10 ms window).', groups: ['Scheduling'] },
+    { title: 'Cache control', summary: 'clear, clearAll, prime, cacheKeyFn for object keys, and loadMany with mixed results.', groups: ['Cache control'] },
   ],
 };
