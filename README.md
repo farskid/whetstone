@@ -10,12 +10,24 @@ You write TypeScript or JavaScript in Monaco, which gives you full types and aut
 npm install
 npm run dev              # dev server with hot reload (http://localhost:5173)
 npm run build            # tsc --noEmit + vite build → dist/ (static, hash routing; host anywhere)
+npm run build:pages      # same, with base /whetstone/ for GitHub Pages
 npm run preview          # serve dist/ locally
 npm run verify           # Node: every reference solution passes, the starter fails, and every broken/ solution fails ≥1 test
 npm run verify:browser   # after build: every reference solution (TS and JS) passes in the real browser worker
+VERIFY_BASE=/whetstone/ npm run verify:browser   # after build:pages: the same, served under /whetstone/
 npm run screenshots      # after build: writes screenshots/*.png (needs Chrome; set CHROME_PATH if not /usr/bin/google-chrome)
 npm run verify -- e2-signals   # verify only one problem
 ```
+
+## Deploy (GitHub Pages)
+
+`.github/workflows/deploy.yml` publishes the site to https://farskid.github.io/whetstone/ on every push to `main`, and on demand from the Actions tab (`workflow_dispatch`). It runs `npm ci` and `npm run build` with `BASE_PATH=/whetstone/` on Node 22, uploads `dist/` with `upload-pages-artifact`, and publishes it with `deploy-pages`.
+
+One-time setup: in the repo, go to Settings → Pages → Build and deployment and set Source to **GitHub Actions**.
+
+- **Base path**: `vite.config.ts` uses `BASE_PATH` for builds, or `./` when it isn't set, so a plain `npm run build` still works from any folder. The dev server always runs at `/`. Monaco's workers, the test-runner worker and every asset follow the base.
+- **Refresh**: routes live in the hash (`#/p/<id>`, `#/?tag=<name>`), so reloading any page loads `index.html`. The build also writes `dist/404.html` (a copy of `index.html`), so a mistyped path under `/whetstone/` opens the app instead of GitHub's 404 page.
+- **Check locally**: `npm run build:pages && VERIFY_BASE=/whetstone/ npm run verify:browser -- <id> <id>`. This serves `dist/` with `vite preview --base /whetstone/` and fails on any request that 404s. To browse it yourself, run `npx vite preview --base /whetstone/` and open http://localhost:4173/whetstone/.
 
 ## How it works
 

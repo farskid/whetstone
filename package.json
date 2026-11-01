@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "build:pages": "BASE_PATH=/whetstone/ npm run build",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "verify": "tsx scripts/verify.ts",

@@ -18,8 +18,9 @@ const BASE = `http://localhost:${PORT}/`;
 const CHROME = process.env.CHROME_PATH ?? '/usr/bin/google-chrome';
 const PROBLEM = process.argv[2] ?? 'e2-signals';
 
-const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { cwd: root, stdio: 'pipe' });
-const stopServer = () => { try { server.kill('SIGTERM'); } catch { /* already gone */ } };
+// Own process group, so stopping it also stops the vite child that npx starts (otherwise a stale preview keeps the port).
+const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { cwd: root, stdio: 'pipe', detached: true });
+const stopServer = () => { try { process.kill(-server.pid!, 'SIGTERM'); } catch { /* already gone */ } };
 process.on('exit', stopServer);
 
 async function waitForServer() {
