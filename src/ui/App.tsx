@@ -15,7 +15,7 @@ export function App() {
     <div className="app">
       <header className="topbar">
         <a className="brand" href={href.list()}>
-          <span className="brand-mark">{'{ }'}</span> Practical
+          <span className="brand-mark">{'{ }'}</span> Whetstone
         </a>
         <span className="brand-sub">library-style coding practice</span>
         <div className="spacer" />

@@ -21,6 +21,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   const starter = (l: Language) => (l === 'ts' ? sources.starterTs : toJs(sources.starterTs));
   const solution = lang === 'ts' ? sources.solutionTs : toJs(sources.solutionTs);
   const titles = useMemo(() => problem.tests.map((t) => t.title), [problem]);
+  const groups = useMemo(() => problem.tests.map((t) => t.group), [problem]);
 
   const [tab, setTab] = useState<'statement' | 'solution'>('statement');
   const [run, setRun] = useState<RunState>({ phase: 'idle' });
@@ -165,7 +166,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
           </div>
           <Splitter direction="vertical" getStart={() => -(resultsRef.current?.offsetHeight ?? resultsH)} onResize={(h) => setResultsH(Math.max(120, Math.min(window.innerHeight - 220, -h)))} />
           <div className="results-wrap" ref={resultsRef} style={{ height: resultsH }}>
-            <Results titles={titles} state={run} />
+            <Results titles={titles} groups={groups} state={run} />
           </div>
         </section>
       </div>

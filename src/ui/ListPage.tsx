@@ -33,7 +33,7 @@ export function ListPage() {
     const blob = new Blob([actions.exportJson()], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `practical-progress-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `whetstone-progress-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -51,7 +51,7 @@ export function ListPage() {
     <main className="list-page">
       <section className="hero">
         <div>
-          <h1>Practical problems</h1>
+          <h1>Whetstone problems</h1>
           <p className="muted">Rebuild the core of libraries you use every day: signals, query caches, task runners, interceptors. Every problem runs a real test suite in your browser.</p>
         </div>
         <div className="progress-card">

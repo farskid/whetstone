@@ -27,7 +27,7 @@ function Detail({ r }: { r: TestResult }) {
   );
 }
 
-export function Results({ titles, state }: { titles: string[]; state: RunState }) {
+export function Results({ titles, groups, state }: { titles: string[]; groups?: (string | undefined)[]; state: RunState }) {
   const [open, setOpen] = useState<Record<number, boolean>>({});
   const results: (TestResult | undefined)[] =
     state.phase === 'done' ? state.summary.results : state.phase === 'running' ? state.results : [];
@@ -60,7 +60,10 @@ export function Results({ titles, state }: { titles: string[]; state: RunState }
           const status = r?.status ?? (state.phase === 'running' && i === results.length ? 'running' : 'idle');
           const failed = r && r.status !== 'pass';
           const isOpen = open[i] ?? (failed && i === firstFail);
-          return (
+          const group = groups?.[i];
+          const header = group && group !== groups?.[i - 1]
+            ? <li key={`g${i}`} className="t-group" aria-hidden="true">{group}</li> : null;
+          return [header,
             <li key={i} className={`test ${r ? r.status : ''}`} data-status={r?.status ?? 'idle'}>
               <button className="t-row" onClick={() => r && setOpen((o) => ({ ...o, [i]: !isOpen }))} disabled={!r} aria-expanded={!!isOpen}>
                 <Icon status={status} />
@@ -69,8 +72,8 @@ export function Results({ titles, state }: { titles: string[]; state: RunState }
                 {r && <span className="t-caret muted">{isOpen ? '▾' : '▸'}</span>}
               </button>
               {r && isOpen && <Detail r={r} />}
-            </li>
-          );
+            </li>,
+          ];
         })}
       </ol>
     </div>

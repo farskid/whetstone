@@ -22,6 +22,8 @@ export interface Deferred<T> {
 
 export interface TestCase<M = any> {
   title: string;
+  /** The feature/requirement this test belongs to (one catalog stage). Tests are listed grouped by it, and a staged mode can pick groups. */
+  group?: string;
   /** Short human description of the input/scenario, shown on failure. */
   input?: string;
   run(mod: M, t: TestContext): void | Promise<void>;
