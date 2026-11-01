@@ -73,12 +73,32 @@ import { meta as d10Meta } from './d10-query-string/meta';
 import { tests as d10Tests } from './d10-query-string/tests';
 import { meta as d11Meta } from './d11-env-parser/meta';
 import { tests as d11Tests } from './d11-env-parser/tests';
+import { meta as e1Meta } from './e1-redux-store/meta';
+import { tests as e1Tests } from './e1-redux-store/tests';
 import { meta as e2Meta } from './e2-signals/meta';
 import { tests as e2Tests } from './e2-signals/tests';
+import { meta as e3Meta } from './e3-immutable-produce/meta';
+import { tests as e3Tests } from './e3-immutable-produce/tests';
+import { meta as e4Meta } from './e4-undo-redo/meta';
+import { tests as e4Tests } from './e4-undo-redo/tests';
+import { meta as e5Meta } from './e5-state-machine/meta';
+import { tests as e5Tests } from './e5-state-machine/tests';
 import { meta as e6Meta } from './e6-query-cache/meta';
 import { tests as e6Tests } from './e6-query-cache/tests';
+import { meta as e7Meta } from './e7-form-state/meta';
+import { tests as e7Tests } from './e7-form-state/tests';
+import { meta as e8Meta } from './e8-tiny-store/meta';
+import { tests as e8Tests } from './e8-tiny-store/tests';
 import { meta as f1Meta } from './f1-debounce/meta';
 import { tests as f1Tests } from './f1-debounce/tests';
+import { meta as f2Meta } from './f2-deep-clone/meta';
+import { tests as f2Tests } from './f2-deep-clone/tests';
+import { meta as f3Meta } from './f3-deep-diff/meta';
+import { tests as f3Tests } from './f3-deep-diff/tests';
+import { meta as f4Meta } from './f4-text-diff/meta';
+import { tests as f4Tests } from './f4-text-diff/tests';
+import { meta as f5Meta } from './f5-fuzzy-search/meta';
+import { tests as f5Tests } from './f5-fuzzy-search/tests';
 import { meta as f6Meta } from './f6-schema-validation/meta';
 import { tests as f6Tests } from './f6-schema-validation/tests';
 import { meta as g1Meta } from './g1-virtual-list/meta';
@@ -125,9 +145,19 @@ export const problems: Problem[] = [
   { ...d9Meta, tests: d9Tests },
   { ...d10Meta, tests: d10Tests },
   { ...d11Meta, tests: d11Tests },
+  { ...e1Meta, tests: e1Tests },
   { ...e2Meta, tests: e2Tests },
+  { ...e3Meta, tests: e3Tests },
+  { ...e4Meta, tests: e4Tests },
+  { ...e5Meta, tests: e5Tests },
   { ...e6Meta, tests: e6Tests },
+  { ...e7Meta, tests: e7Tests },
+  { ...e8Meta, tests: e8Tests },
   { ...f1Meta, tests: f1Tests },
+  { ...f2Meta, tests: f2Tests },
+  { ...f3Meta, tests: f3Tests },
+  { ...f4Meta, tests: f4Tests },
+  { ...f5Meta, tests: f5Tests },
   { ...f6Meta, tests: f6Tests },
   { ...g1Meta, tests: g1Tests },
   { ...h6Meta, tests: h6Tests },

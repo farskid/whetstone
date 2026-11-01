@@ -88,9 +88,19 @@ The two Easy warm-ups come first. F10 (plain trailing debounce) and A9 aren't in
 | D9 | CSV parser | Parsing | Medium | 11 |
 | D10 | Query string codec | Parsing | Medium | 10 |
 | D11 | .env parser | Parsing | Easy | 10 |
+| E1 | Redux store | State | Medium | 11 |
 | E2 | Signals | State | Hard | 19 |
+| E3 | Immutable produce | State | Hard | 11 |
+| E4 | Undo/redo history | State | Medium | 11 |
+| E5 | State machine interpreter | State | Hard | 11 |
 | E6 | Query cache | Data/Caches | Hard | 15 |
+| E7 | Form state manager | State | Medium | 11 |
+| E8 | Tiny store + persist | State | Medium | 11 |
 | F1 | Debounce | Utilities | Medium | 13 |
+| F2 | Deep clone | Utilities | Medium | 11 |
+| F3 | Deep diff & patch | Utilities | Hard | 12 |
+| F4 | Text diff | Utilities | Hard | 12 |
+| F5 | Fuzzy search | Utilities | Medium | 11 |
 | F6 | Schema validation | Parsing | Medium | 16 |
 | G1 | Virtual list | Browser/UI | Hard | 15 |
 | H6 | Offline mutation queue | API/Network | Hard | 15 |
