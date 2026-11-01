@@ -1,0 +1,17 @@
+import type { ProblemMeta } from '../types';
+
+export const meta: ProblemMeta = {
+  id: 'h7-webhooks',
+  catalogId: 'H7',
+  title: 'Webhook verify & idempotency',
+  theme: 'API/Network',
+  difficulty: 'Medium',
+  inspiredBy: 'Stripe webhooks',
+  summary: 'Verify Stripe-style t=…,v1=… signatures with HMAC-SHA256 and a timing-safe compare, reject replays, and process events idempotently: duplicates share one result, failures stay retryable, and stale out-of-order events are skipped.',
+  stages: [
+    { title: 'Signatures', summary: 'Parse the header and verify HMAC-SHA256 over `${t}.${rawBody}` with a timing-safe compare.' },
+    { title: 'Replay protection', summary: 'Reject timestamps older than the tolerance, using an injected clock.' },
+    { title: 'Idempotency', summary: 'A repeated event id returns the stored result; concurrent duplicates wait for the first.' },
+    { title: 'Rotation and ordering', summary: 'Several secrets and v1 values, and per-object ordering that skips stale versions.' },
+  ],
+};

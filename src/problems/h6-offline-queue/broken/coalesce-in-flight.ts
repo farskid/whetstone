@@ -1,5 +1,4 @@
-// Broken: coalesces into the mutation that is already being sent (that write is lost)
-// and keeps the retry timer running while offline.
+// Bug: Coalesces into the mutation that's already being sent, so that write is lost.
 export interface Mutation {
   id: number;
   type: string;
@@ -135,6 +134,7 @@ export function createOfflineQueue(options: QueueOptions) {
       if (next === online) return;
       online = next;
       if (!online) {
+        if (retryTimer !== undefined) { clock.clearTimeout(retryTimer); retryTimer = undefined; }
       } else {
         waitingForRetry = false;
         kick();

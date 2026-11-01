@@ -18,6 +18,7 @@ const httpError = (status: number) => Object.assign(new Error(`HTTP ${status}`),
 
 export const tests: TestCase<M>[] = [
   {
+    group: 'FIFO while online',
     title: 'online: sends one at a time in FIFO order',
     async run({ createOfflineQueue }, { expect, deferred, flush }) {
       const s = manualSend(deferred);
@@ -38,6 +39,23 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'FIFO while online',
+    title: 'pending() and send() get copies, including the in-flight mutation',
+    async run({ createOfflineQueue }, { expect, deferred, flush }) {
+      const s = manualSend(deferred);
+      const q = createOfflineQueue({ send: s.send, storage: memoryStorage() });
+      q.enqueue('a', { x: 1 }, { dedupeKey: 'k' });
+      await flush();
+      const p = q.pending();
+      expect(p).toEqual([{ id: 1, type: 'a', payload: { x: 1 }, dedupeKey: 'k', attempts: 0 }]);
+      p[0].type = 'hacked';
+      expect(q.pending()[0].type).toBe('a');
+      s.calls[0].m.type = 'changed by send';
+      expect(q.pending()[0].type, 'send gets a copy too').toBe('a');
+    },
+  },
+  {
+    group: 'Offline and persistence',
     title: 'offline: nothing is sent until setOnline(true), then order is kept',
     async run({ createOfflineQueue }, { expect, flush }) {
       const sent: string[] = [];
@@ -53,19 +71,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    title: 'pending() returns copies, including the in-flight mutation',
-    async run({ createOfflineQueue }, { expect, deferred, flush }) {
-      const s = manualSend(deferred);
-      const q = createOfflineQueue({ send: s.send, storage: memoryStorage() });
-      q.enqueue('a', { x: 1 }, { dedupeKey: 'k' });
-      await flush();
-      const p = q.pending();
-      expect(p).toEqual([{ id: 1, type: 'a', payload: { x: 1 }, dedupeKey: 'k', attempts: 0 }]);
-      p[0].type = 'hacked';
-      expect(q.pending()[0].type).toBe('a');
-    },
-  },
-  {
+    group: 'Offline and persistence',
     title: 'persists after every change and restores on startup',
     input: 'queue offline, "reload", come online',
     async run({ createOfflineQueue }, { expect, flush }) {
@@ -85,6 +91,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'Offline and persistence',
     title: 'restored queue is sent at startup when online; custom storageKey',
     async run({ createOfflineQueue }, { expect, flush }) {
       const storage = memoryStorage({ q: JSON.stringify([{ id: 41, type: 'x', payload: 'p', attempts: 1 }]) });
@@ -96,6 +103,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'Retries',
     title: 'retryable failure: backs off on the clock and blocks the queue',
     input: 'default delays 1000, 2000',
     async run({ createOfflineQueue }, { expect, deferred, flush, clock }) {
@@ -108,6 +116,9 @@ export const tests: TestCase<M>[] = [
       s.calls[0].d.reject(httpError(503));
       await flush();
       expect(q.pending()[0].attempts).toBe(1);
+      q.enqueue('c', 3);
+      await flush();
+      expect(s.sent(), 'a new enqueue does not jump the queue').toEqual(['1:1']);
       await clk.advance(999);
       expect(s.sent(), 'b must wait behind a').toEqual(['1:1']);
       await clk.advance(1);
@@ -124,6 +135,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'Retries',
     title: 'non-retryable (4xx) errors drop immediately; onSettled reports outcomes',
     async run({ createOfflineQueue }, { expect, flush }) {
       const settled: string[] = [];
@@ -139,6 +151,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'Retries',
     title: 'maxRetries: dropped after attempts exceed it',
     input: 'maxRetries 2, retryDelay 10 → 3 sends total',
     async run({ createOfflineQueue }, { expect, clock }) {
@@ -158,6 +171,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'Retries',
     title: 'attempts are persisted, so a reload does not reset the retry budget',
     async run({ createOfflineQueue }, { expect, flush, clock }) {
       const storage = memoryStorage();
@@ -167,6 +181,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'Retries',
     title: 'going offline cancels a pending retry; online resends right away',
     async run({ createOfflineQueue }, { expect, deferred, flush, clock }) {
       const clk = clock();
@@ -187,6 +202,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'Retries',
     title: 'a send in flight when going offline: failure waits for online, no timer',
     async run({ createOfflineQueue }, { expect, deferred, flush, clock }) {
       const clk = clock();
@@ -212,6 +228,20 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'Retries',
+    title: 'a send that throws synchronously is treated as a failure',
+    async run({ createOfflineQueue }, { expect, clock }) {
+      const clk = clock();
+      let n = 0;
+      const q = createOfflineQueue({ send: (() => { n++; if (n === 1) throw new Error('sync'); return Promise.resolve(); }) as never, storage: memoryStorage(), clock: clk, retryDelay: () => 5 });
+      q.enqueue('a', 0);
+      await clk.advance(5);
+      expect(n).toBe(2);
+      expect(q.pending()).toEqual([]);
+    },
+  },
+  {
+    group: 'Coalescing',
     title: 'coalescing: dedupeKey replaces a queued payload in place',
     async run({ createOfflineQueue }, { expect, flush }) {
       const sent: string[] = [];
@@ -227,6 +257,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'Coalescing',
     title: 'coalescing never touches the in-flight mutation',
     async run({ createOfflineQueue }, { expect, deferred, flush }) {
       const s = manualSend(deferred);
@@ -242,6 +273,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: 'Coalescing',
     title: 'coalescing keeps attempts and persists the new payload',
     async run({ createOfflineQueue }, { expect, flush, clock }) {
       const clk = clock();
@@ -256,18 +288,6 @@ export const tests: TestCase<M>[] = [
       fail = false;
       await clk.advance(100);
       expect(sent).toEqual([['v1', 0], ['v2', 1]]);
-    },
-  },
-  {
-    title: 'a send that throws synchronously is treated as a failure',
-    async run({ createOfflineQueue }, { expect, clock }) {
-      const clk = clock();
-      let n = 0;
-      const q = createOfflineQueue({ send: (() => { n++; if (n === 1) throw new Error('sync'); return Promise.resolve(); }) as never, storage: memoryStorage(), clock: clk, retryDelay: () => 5 });
-      q.enqueue('a', 0);
-      await clk.advance(5);
-      expect(n).toBe(2);
-      expect(q.pending()).toEqual([]);
     },
   },
 ];

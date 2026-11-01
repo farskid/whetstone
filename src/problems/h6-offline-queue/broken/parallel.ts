@@ -1,5 +1,4 @@
-// Broken: doesn't block the queue behind the in-flight/retrying mutation, and
-// doesn't persist attempts after a failure.
+// Bug: Doesn't wait for the in-flight mutation before sending the next.
 export interface Mutation {
   id: number;
   type: string;
@@ -94,6 +93,7 @@ export function createOfflineQueue(options: QueueOptions) {
           process();
           return;
         }
+        persist();
         waitingForRetry = true;
         if (online) scheduleRetry(m.attempts);
       },

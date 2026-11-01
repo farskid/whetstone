@@ -113,7 +113,16 @@ The two Easy warm-ups come first. F10 (plain trailing debounce) and A9 aren't in
 | G6 | Toast queue | Browser/UI | Medium | 11 |
 | G7 | Router history | Browser/UI | Medium | 10 |
 | G8 | Popover positioning | Browser/UI | Hard | 12 |
+| G9 | Rich-text marks | Browser/UI | Hard | 11 |
+| H1 | Batching loader | API/Network | Medium | 11 |
+| H2 | Rate limiter | API/Network | Medium | 10 |
+| H3 | Fetch wrapper | API/Network | Medium | 11 |
+| H4 | Cursor pagination | API/Network | Medium | 11 |
+| H5 | Circuit breaker | API/Network | Medium | 11 |
 | H6 | Offline mutation queue | API/Network | Hard | 15 |
+| H7 | Webhook verify & idempotency | API/Network | Medium | 11 |
+| H8 | HTTP response cache | API/Network | Hard | 11 |
+| H9 | Reconnecting socket client | API/Network | Hard | 11 |
 <!-- problems:end -->
 
 ## Known gaps
@@ -122,5 +131,6 @@ The two Easy warm-ups come first. F10 (plain trailing debounce) and A9 aren't in
 - The main chunk is about 4.7 MB (1.2 MB gzip), mostly Monaco. It isn't code-split yet.
 - Stages are recorded in metadata only. There is no step-by-step staged mode yet.
 - F6 is runtime only: no `Infer<typeof schema>` type inference.
+- H2 keeps its counters in memory. There is no pluggable (Redis-style) store interface.
 - Several problems (for example B1, B4 to B6, D6 and G1) include perf tests with time limits that could be flaky on very slow machines.
 - No linter is set up.
