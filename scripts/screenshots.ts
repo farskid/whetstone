@@ -2,7 +2,7 @@
  * npm run screenshots  (run `npm run build` first)
  * Serves dist/ with `vite preview`, drives it with headless Chrome via playwright-core,
  * and writes PNGs to screenshots/. Also asserts that the reference solution passes in the
- * real browser worker and that an infinite loop is stopped by the watchdog.
+ * real browser worker, that an infinite loop is stopped by the watchdog, and that passing a stage unlocks the next one.
  */
 import { spawn } from 'node:child_process';
 import { readFileSync, mkdirSync } from 'node:fs';
@@ -109,6 +109,25 @@ async function main() {
     const page = await open(browser, `#/p/b1-lru-ttl`, baseState({ theme: 'light', lang: 'js' }));
     await waitEditor(page);
     await shot(page, '06-light-js.png');
+    await page.context().close();
+  }
+
+  // 6. A staged problem (F1): stage 1 passes and unlocks stage 2, then stage 2 runs stages 1 + 2
+  {
+    const s1 = readFileSync(join(root, 'src', 'problems', 'f1-debounce', 'stages', '1.solution.ts'), 'utf8');
+    const page = await open(browser, '#/p/f1-debounce', baseState({ code: { 'f1-debounce': { ts: s1 } } }));
+    await waitEditor(page);
+    await page.click('[data-testid="run"]');
+    await page.waitForSelector('[data-testid="stage-unlocked"]', { timeout: 30000 });
+    console.log('  ✓ stage 1 passes and unlocks stage 2:', await page.textContent('[data-testid="all-passed"]'));
+    await page.waitForTimeout(300);
+    await shot(page, '07-stage1-passed.png');
+    await page.click('[data-testid="next-stage"]');
+    await page.waitForTimeout(500);
+    await page.click('[data-testid="run"]');
+    await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 30000 });
+    await page.waitForTimeout(300);
+    await shot(page, '08-stage2.png');
     await page.context().close();
   }
 
