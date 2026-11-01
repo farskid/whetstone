@@ -12,8 +12,8 @@ npm run dev              # dev server with hot reload (http://localhost:5173)
 npm run build            # tsc --noEmit + vite build → dist/ (static, hash routing; host anywhere)
 npm run build:pages      # same, with base /whetstone/ for GitHub Pages
 npm run preview          # serve dist/ locally
-npm run verify           # Node: every reference solution passes, the starter fails, and every broken/ solution fails ≥1 test
-npm run verify:browser   # after build: every reference solution (TS and JS) passes in the real browser worker
+npm run verify           # Node: every reference solution passes, the starter fails, every broken/ solution fails ≥1 test; plus the stage checks
+npm run verify:browser   # after build: every reference solution (TS and JS) passes in the real browser worker, staged ones per stage too, plus a clicked-through stage 1 → 2 flow
 VERIFY_BASE=/whetstone/ npm run verify:browser   # after build:pages: the same, served under /whetstone/
 npm run screenshots      # after build: writes screenshots/*.png (needs Chrome; set CHROME_PATH if not /usr/bin/google-chrome)
 npm run verify -- e2-signals   # verify only one problem
@@ -39,22 +39,40 @@ One-time setup: in the repo, go to Settings → Pages → Build and deployment a
   - Reset, and Run as often as you like with Ctrl/⌘+Enter.
   - The test list is visible before you run anything. When a test fails, it shows the input, expected value, actual value, the error with a line in your code, and console output.
   - The solution tab unlocks once you have solved the problem, or after you confirm.
+  - **Staged problems** (F1, A1 to A4, B1, E1, H1) show a stage bar. Stage 1 starts with a small starter and statement. Each run runs that stage's tests plus every earlier stage's tests. Passing a stage saves a snapshot of your code and unlocks the next stage. Your editor buffer carries over, and "Restart stage" goes back to the snapshot. Each stage has its own reference solution, revealed separately. The final stage runs every test, and passing it solves the problem. The "Full problem" toggle skips the stages: it shows the whole statement and runs everything at once. The list shows a stage pill (for example "1/3 stages") on staged rows.
 - **Runner** (`src/runner/`):
   - Sucrase strips the types from your code. The code is then loaded as an ES module inside a Web Worker. A 5s watchdog kills the worker on infinite loops.
   - Time-based problems use a `FakeClock` passed into your code, so the tests are deterministic.
   - The same core runs under Node for `npm run verify`.
-- **Persistence**: everything is kept in `localStorage` under `practical:v1` (the key predates the Whetstone name and is kept so saved progress survives): code per problem and language, solved state, attempts, theme and language.
+- **Persistence**: everything is kept in `localStorage` under `practical:v2`. This covers code per problem and language, solved state, attempts, theme and language, plus for staged problems the unlocked stage, when each stage passed, the code snapshot per passed stage, revealed stage references and the full-problem toggle. On first load, `practical:v1` progress (and old v1 exports on import) is migrated:
+  - A problem solved in v1 counts as fully passed, with every stage unlocked.
+  - Progress on the old F10 warm-up counts towards F1 stage 1.
+  - `#/p/f10-debounce-basic` redirects to F1.
+  - The v1 key is left in place.
 
 ## Add a problem
 
 1. Create `src/problems/<id>/`, where `<id>` is the URL slug (for example `x1-thing`), with these files:
-   - `meta.ts`: `export const meta: ProblemMeta = { id, catalogId, title, theme, difficulty, inspiredBy, tags, summary, stages }`. `stages` lists the catalog's staged chain. v1 shows the **final stage** as the whole problem.
+   - `meta.ts`: `export const meta: ProblemMeta = { id, catalogId, title, theme, difficulty, inspiredBy, tags, summary, stages }`. `stages` lists the catalog's staged chain, as `{ title, summary, groups? }`. Only problems that have the `stages/` files below are staged; the rest show the final stage as one problem.
    - `tags` in `meta.ts`: a flat list of `{ kind, name }`, where `kind` is `'library'` (a package or tool), `'framework'`, `'company'` or `'pattern'`. Take them from the problem's "inspired by" sources and the catalog, and only tag real relations: a company only when the referenced work comes from it (for example Stripe for Stripe webhooks, Meta for DataLoader and Relay). A tag name must keep the same kind in every problem; `npm run verify` checks that and that each problem has at least one tag.
    - `statement.md`: the problem statement, written against the final stage. State exact error messages and orders whenever the tests check them.
    - `starter.ts`: the exported API, with types and `throw new Error('Not implemented')` bodies. The JS starter is generated from it.
    - `solution.ts`: the reference solution. It's shown in the Solution tab.
    - `tests.ts`: `export const tests: TestCase<typeof import('./solution')>[]`. Each test is `{ group?, title, input?, run(mod, { expect, clock, flush, deferred }) }`. `group` names the feature or requirement the test covers (usually the catalog stage). The results list shows a header for each group, in first-seen order. Use `clock()` and inject it into the code under test rather than relying on real timers. Give `expect(value, 'label')` a label wherever a bare value would be ambiguous. A test that runs synchronously can't be interrupted by the 2 s per-test timeout, so a perf test should check `performance.now()` inside its loop and bail out early once it's over budget.
    - `broken/*.ts`: at least one plausible wrong solution, which must fail at least one test. Broken files must be **self-contained**. They are loaded as standalone modules, so a runtime `import` from `../solution` does not work, although `import type` is fine. Copy the solution and change it.
+   - **To stage a problem** with N stages:
+     - Give each `stages[k]` its `groups`, and tag every test with one of them. Stage k runs its own groups plus all earlier ones.
+     - Add `stages/1.md` … `stages/N.md`. Stage 1 is a full statement for that stage; later ones describe what the stage adds. `statement.md` is still the full-problem statement.
+     - Add `stages/starter.ts`, the stage-1 starter.
+     - Add `stages/1.solution.ts` … `stages/(N-1).solution.ts`. The last stage uses `solution.ts`.
+     - Optionally add `broken/s<k>-*.ts`, which must fail stage k.
+     - An early-stage test must not call anything a later stage introduces.
+     - `npm run verify` checks all of this:
+       - every test has a group, and each group belongs to exactly one stage;
+       - each stage adds tests;
+       - the stage-1 starter fails stage 1;
+       - each stage reference passes its stage (TS and JS) and fails some test that the next stage adds;
+       - each `s<k>-` broken fails stage k.
 2. Run `python3 scripts/gen-index.py`. It regenerates `src/problems/index.ts` from the folders (warm-ups first, then catalog order) and the Problems table below. Statement, starter and solution are picked up automatically with `import.meta.glob`.
 3. Run `npm run verify -- <id>`, `npx tsc --noEmit`, then `npm run build && npm run verify:browser`.
 
@@ -141,8 +159,9 @@ The two warm-ups come first. F1 is the catalog's F1 without `maxWait`, `flush()`
 ## Known gaps
 
 - Reference solutions ship in the JS bundle, so the "locked" Solution tab is a UX nudge, not a secret.
-- The main chunk is about 4.7 MB (1.2 MB gzip), mostly Monaco. It isn't code-split yet.
-- Stages are recorded in metadata only. There is no step-by-step staged mode yet.
+- The main chunk is about 6.3 MB (1.6 MB gzip), mostly Monaco. It isn't code-split yet.
+- Only 8 problems are staged so far (F1 with the old F10 folded in, A1 to A4, B1, E1, H1). The other 63 still show the final stage as one problem. Their `stages` metadata already lists their stage chains. Only F1 has per-stage broken solutions (`broken/s1-*`). The other staged problems keep their full-problem brokens, which verify checks against all the tests.
+- In `npm run verify`, the check that the A2 stage-3 reference fails stage 4 makes several stage-4 tests wait out their 2 s timeout. That adds about 15 s.
 - F6 is runtime only: no `Infer<typeof schema>` type inference.
 - H2 keeps its counters in memory. There is no pluggable (Redis-style) store interface.
 - Several problems (for example B1, B4 to B6, D6 and G1) include perf tests with time limits that could be flaky on very slow machines.
