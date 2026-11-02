@@ -39,7 +39,7 @@ One-time setup: in the repo, go to Settings → Pages → Build and deployment a
   - Reset, and Run as often as you like with Ctrl/⌘+Enter.
   - The test list is visible before you run anything. When a test fails, it shows the input, expected value, actual value, the error with a line in your code, and console output.
   - The solution tab unlocks once you have solved the problem, or after you confirm.
-  - **Staged problems** (F1, A1 to A4, B1, E1, H1) show a stage bar. Stage 1 starts with a small starter and statement. Each run runs that stage's tests plus every earlier stage's tests. Passing a stage saves a snapshot of your code and unlocks the next stage. Your editor buffer carries over, and "Restart stage" goes back to the snapshot. Each stage has its own reference solution, revealed separately. The final stage runs every test, and passing it solves the problem. The "Full problem" toggle skips the stages: it shows the whole statement and runs everything at once. The list shows a stage pill (for example "1/3 stages") on staged rows.
+  - **Staged problems** (F1, A1 to A4, B1, E1, H1) show a stage bar. Stage 1 starts with a small starter and statement. Each run runs that stage's tests plus every earlier stage's tests. Passing a stage saves a snapshot of your code and unlocks the next stage. Your editor buffer carries over, and "Restart stage" goes back to the snapshot. The editor shows two files side by side: a read-only `types.ts` with the stage's types on the left (each stage replaces it and highlights what it added), and your `solution.ts` on the right, which imports them with `import type { … } from './types'`. A narrow editor area stacks them. Code saved before the types had their own file still runs; the editor offers to swap its own copies of the types for the import (Ctrl/⌘+Z undoes it), or to keep them. Each stage has its own reference solution, revealed separately. The final stage runs every test, and passing it solves the problem. The "Full problem" toggle skips the stages: it shows the whole statement and runs everything at once. The list shows a stage pill (for example "1/3 stages") on staged rows.
 - **Runner** (`src/runner/`):
   - Sucrase strips the types from your code. The code is then loaded as an ES module inside a Web Worker. A 5s watchdog kills the worker on infinite loops.
   - Time-based problems use a `FakeClock` passed into your code, so the tests are deterministic.
@@ -62,9 +62,11 @@ One-time setup: in the repo, go to Settings → Pages → Build and deployment a
    - `broken/*.ts`: at least one plausible wrong solution, which must fail at least one test. Broken files must be **self-contained**. They are loaded as standalone modules, so a runtime `import` from `../solution` does not work, although `import type` is fine. Copy the solution and change it.
    - **To stage a problem** with N stages:
      - Give each `stages[k]` its `groups`, and tag every test with one of them. Stage k runs its own groups plus all earlier ones.
-     - Add `stages/1.md` … `stages/N.md`. Stage 1 is a full statement for that stage; later ones describe what the stage adds. `statement.md` is still the full-problem statement.
-     - Add `stages/starter.ts`, the stage-1 starter.
-     - Add `stages/1.solution.ts` … `stages/(N-1).solution.ts`. The last stage uses `solution.ts`.
+     - Add `stages/1/statement.md` … `stages/N/statement.md`. Stage 1 is a full statement for that stage; later ones describe what the stage adds. `statement.md` is still the full-problem statement.
+     - Put the exported types (interfaces and type aliases only, all exported) in their own file: `stages/1/types.ts` … `stages/(N-1)/types.ts`, and `types.ts` for the last stage. The UI shows the stage's file read-only beside the solution, and the runner links it as `./types`. Runtime values (error classes, constants) and private helper types stay in the solution.
+     - Add `stages/1/starter.ts`, the stage-1 starter.
+     - Add `stages/1/solution.ts` … `stages/(N-1)/solution.ts`. The last stage uses `solution.ts`.
+     - Starters and solutions import the types with `import type { … } from './types'` and never redeclare them. The root `starter.ts` and `solution.ts` (full-problem mode) import the root `types.ts`.
      - Optionally add `broken/s<k>-*.ts`, which must fail stage k.
      - An early-stage test must not call anything a later stage introduces.
      - `npm run verify` checks all of this:
@@ -72,6 +74,7 @@ One-time setup: in the repo, go to Settings → Pages → Build and deployment a
        - each stage adds tests;
        - the stage-1 starter fails stage 1;
        - each stage reference passes its stage (TS and JS) and fails some test that the next stage adds;
+       - each types file holds only exported types, no starter or reference redeclares them, and code that does (saved before the split) passes both as is and after the editor's "Import from types.ts";
        - each `s<k>-` broken fails stage k.
 2. Run `python3 scripts/gen-index.py`. It regenerates `src/problems/index.ts` from the folders (warm-ups first, then catalog order) and the Problems table below. Statement, starter and solution are picked up automatically with `import.meta.glob`.
 3. Run `npm run verify -- <id>`, `npx tsc --noEmit`, then `npm run build && npm run verify:browser`.
