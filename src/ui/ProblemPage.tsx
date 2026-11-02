@@ -13,6 +13,7 @@ import { href } from './router';
 import { Markdown } from './Markdown';
 import { Results, type RunState } from './Results';
 import { Splitter } from './Splitter';
+import { useEditorSplit } from './editorSplit';
 import { CodeView } from './CodeView';
 import { useResolvedTheme, type ResolvedTheme } from '../theme';
 
@@ -62,6 +63,8 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   const handleRef = useRef<RunHandle | null>(null);
   const leftRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const editorWrapRef = useRef<HTMLDivElement>(null);
+  const typesColRef = useRef<HTMLDivElement>(null);
 
   const solved = !!progress.solved[problem.id];
   const revealed = staged && !full
@@ -191,6 +194,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
 
   const running = run.phase === 'running';
   const monacoTheme = theme === 'dark' ? 'vs-dark' : 'vs';
+  const split = useEditorSplit(editorWrapRef, typesTs !== undefined);
 
   return (
     <main className="problem-page">
@@ -271,7 +275,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
             )}
           </div>
         </section>
-        <Splitter direction="horizontal" getStart={() => leftRef.current?.offsetWidth ?? leftW} onResize={(w) => setLeftW(Math.max(260, Math.min(window.innerWidth - 360, w)))} />
+        <Splitter direction="horizontal" label="Resize statement and editor" getStart={() => leftRef.current?.offsetWidth ?? leftW} onResize={(w) => setLeftW(Math.max(260, Math.min(window.innerWidth - 360, w)))} />
         <section className="right-pane">
           <div className="editor-bar">
             <div className="seg" role="group" aria-label="Language">
@@ -295,9 +299,9 @@ export function ProblemPage({ problem }: { problem: Problem }) {
               <button className="btn ghost small" onClick={() => actions.keepOwnTypes(problem.id)}>Keep mine</button>
             </div>
           )}
-          <div className={`editor-wrap ${typesTs !== undefined ? 'split' : ''}`}>
+          <div className={`editor-wrap ${typesTs !== undefined ? 'split' : ''} ${split.stacked ? 'stacked' : ''}`} ref={editorWrapRef}>
             {typesTs !== undefined && (
-              <div className="editor-col types-col" data-testid="types-editor">
+              <div className="editor-col types-col" data-testid="types-editor" ref={typesColRef} style={{ flexBasis: `${split.fraction * 100}%` }}>
                 <div className="file-tab">
                   <span className="file-name">types.ts</span>
                   <span className="muted small">read-only{full ? '' : ` · stage ${viewStage + 1}`}</span>
@@ -323,6 +327,15 @@ export function ProblemPage({ problem }: { problem: Problem }) {
                 </div>
               </div>
             )}
+            {typesTs !== undefined && (
+              <Splitter
+                direction={split.stacked ? 'vertical' : 'horizontal'}
+                label="Resize types.ts and solution"
+                testId="editor-splitter"
+                getStart={() => (split.stacked ? typesColRef.current?.offsetHeight : typesColRef.current?.offsetWidth) ?? 0}
+                onResize={split.resize}
+              />
+            )}
             <div className="editor-col solution-col" data-testid="solution-editor">
               {typesTs !== undefined && (
                 <div className="file-tab"><span className="file-name">solution.{lang}</span><span className="muted small">yours · carries over between stages</span></div>
@@ -342,7 +355,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
               </div>
             </div>
           </div>
-          <Splitter direction="vertical" getStart={() => -(resultsRef.current?.offsetHeight ?? resultsH)} onResize={(h) => setResultsH(Math.max(120, Math.min(window.innerHeight - 220, -h)))} />
+          <Splitter direction="vertical" label="Resize editor and tests" getStart={() => -(resultsRef.current?.offsetHeight ?? resultsH)} onResize={(h) => setResultsH(Math.max(120, Math.min(window.innerHeight - 220, -h)))} />
           <div className="results-wrap" ref={resultsRef} style={{ height: resultsH }}>
             {justUnlocked !== null && (
               <div className="stage-unlocked" data-testid="stage-unlocked">

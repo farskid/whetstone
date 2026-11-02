@@ -7,7 +7,9 @@
  * stage 2's (typing into it does nothing), then pass stage 2. Code saved with its own copies of the types gets the
  * "Import from types.ts" offer, and a narrow window stacks the two editors. Screenshots go to SHOTS_DIR
  * (default /workspace) as whetstone-two-editors-*.png. The header theme picker is checked too (Dark/Light/System, System
- * following an emulated OS colour scheme live, Monaco following along); its screenshots are whetstone-theme-*.png. Any request that 404s (a worker, chunk or asset
+ * following an emulated OS colour scheme live, Monaco following along); its screenshots are whetstone-theme-*.png.
+ * The divider between types.ts and the solution is dragged and moved by keyboard, side by side and stacked, and must persist
+ * across a reload (whetstone-editor-split-*.png). Any request that 404s (a worker, chunk or asset
  * resolved outside the base) fails the run too.
  * VERIFY_BASE=/whetstone/ serves dist/ under that base, to check a build made with BASE_PATH=/whetstone/.
  */
@@ -284,6 +286,83 @@ async function main() {
       await old.close();
     }
     await ctx.close();
+  }
+  // The divider between types.ts and the solution: drag and arrow keys resize, Monaco relayouts, the size survives a reload.
+  if (ids.includes('f1-debounce')) {
+    const check = (ok: boolean, what: string) => (ok ? console.log(`  ✓ editor split: ${what}`) : fail(`editor split: ${what}`));
+    const box = async (page: Page, sel: string) => (await page.locator(sel).boundingBox())!;
+    const TC = '[data-testid="types-editor"]', SC = '[data-testid="solution-editor"]', DIV = '[data-testid="editor-splitter"]';
+    const monacoW = (page: Page, col: string) => page.$eval(`${col} .monaco-editor`, (e) => (e as HTMLElement).getBoundingClientRect().width);
+    const monacoH = (page: Page, col: string) => page.$eval(`${col} .monaco-editor`, (e) => (e as HTMLElement).getBoundingClientRect().height);
+    const layout = (page: Page) => page.evaluate(() => JSON.parse(localStorage.getItem('practical:layout') ?? '{}'));
+    async function drag(page: Page, dx: number, dy: number) {
+      const d = await box(page, DIV);
+      const [x, y] = [d.x + d.width / 2, d.y + d.height / 2];
+      await page.mouse.move(x, y);
+      await page.mouse.down();
+      await page.mouse.move(x + dx / 2, y + dy / 2, { steps: 4 });
+      await page.mouse.move(x + dx, y + dy, { steps: 4 });
+      await page.mouse.up();
+      await page.waitForTimeout(300); // Monaco's automaticLayout catches up
+    }
+
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    await page.goto(`${BASE}#/p/f1-debounce`);
+    await page.waitForSelector(TYPES, { timeout: 20000 });
+    await page.waitForTimeout(300);
+    const [t0, s0] = [await box(page, TC), await box(page, SC)];
+    check(await page.getAttribute(DIV, 'aria-orientation') === 'vertical' && await page.getAttribute(DIV, 'role') === 'separator', 'a vertical separator sits between the editors');
+    await page.screenshot({ path: join(SHOTS, 'whetstone-editor-split-0-default.png') });
+    await drag(page, 150, 0);
+    const [t1, s1] = [await box(page, TC), await box(page, SC)];
+    check(Math.abs(t1.width - t0.width - 150) <= 3 && Math.abs(s0.width - s1.width - 150) <= 3, `dragging 150px right: types ${Math.round(t0.width)}→${Math.round(t1.width)}px, solution ${Math.round(s0.width)}→${Math.round(s1.width)}px`);
+    check(Math.abs(await monacoW(page, TC) - t1.width) <= 3 && Math.abs(await monacoW(page, SC) - s1.width) <= 3, 'both Monaco editors relayout to their new widths');
+    await page.screenshot({ path: join(SHOTS, 'whetstone-editor-split-1-dragged.png') });
+    await page.focus(DIV);
+    await page.keyboard.press('ArrowLeft');
+    await page.waitForTimeout(100);
+    const t2 = await box(page, TC);
+    check(Math.abs(t1.width - t2.width - 16) <= 2, `ArrowLeft on the focused divider moves it 16px (${Math.round(t1.width)}→${Math.round(t2.width)}px)`);
+    await drag(page, -2000, 0);
+    check(Math.abs((await box(page, TC)).width - 160) <= 2, 'types.ts stops at its 160px minimum');
+    await drag(page, 2000, 0);
+    check(Math.abs((await box(page, SC)).width - 240) <= 2, 'the solution stops at its 240px minimum');
+    await drag(page, -2000, 0);
+    await drag(page, t2.width - 160, 0); // back to the keyboard-moved width
+    const saved = (await layout(page)).typesW;
+    await page.reload();
+    await page.waitForSelector(TYPES, { timeout: 20000 });
+    await page.waitForTimeout(300);
+    const t3 = await box(page, TC);
+    check(typeof saved === 'number' && Math.abs(t3.width - t2.width) <= 3, `the width survives a reload (${Math.round(t3.width)}px, saved fraction ${saved?.toFixed?.(3)})`);
+    await ctx.close();
+
+    // Narrow: stacked, the divider resizes heights and keeps its own fraction.
+    const nctx = await browser.newContext({ viewport: { width: 760, height: 900 } });
+    const narrow = await nctx.newPage();
+    await narrow.goto(`${BASE}#/p/f1-debounce`);
+    await narrow.waitForSelector(TYPES, { timeout: 20000 });
+    await narrow.waitForTimeout(300);
+    check(await narrow.getAttribute(DIV, 'aria-orientation') === 'horizontal', 'stacked: the divider is horizontal');
+    const [nt0, ns0] = [await box(narrow, TC), await box(narrow, SC)];
+    await drag(narrow, 0, 60);
+    const [nt1, ns1] = [await box(narrow, TC), await box(narrow, SC)];
+    check(Math.abs(nt1.height - nt0.height - 60) <= 3 && Math.abs(ns0.height - ns1.height - 60) <= 3, `stacked: dragging 60px down: types ${Math.round(nt0.height)}→${Math.round(nt1.height)}px tall, solution ${Math.round(ns0.height)}→${Math.round(ns1.height)}px`);
+    check(Math.abs(await monacoH(narrow, TC) - (nt1.height - 25)) <= 30, 'stacked: Monaco relayouts to the new height');
+    await narrow.focus(DIV);
+    await narrow.keyboard.press('ArrowUp');
+    await narrow.waitForTimeout(100);
+    check(Math.abs(nt1.height - (await box(narrow, TC)).height - 16) <= 2, 'stacked: ArrowUp moves the divider 16px up');
+    await narrow.screenshot({ path: join(SHOTS, 'whetstone-editor-split-2-stacked.png') });
+    const nl = await layout(narrow);
+    check(typeof nl.typesH === 'number' && Math.abs(nl.typesH - 0.4) > 0.01 && nl.typesW === 0.38, `stacked saves its own fraction (${nl.typesH?.toFixed?.(3)}); the side-by-side one stays at its default`);
+    const nt2 = await box(narrow, TC);
+    await narrow.reload();
+    await narrow.waitForSelector(TYPES, { timeout: 20000 });
+    await narrow.waitForTimeout(300);
+    check(Math.abs((await box(narrow, TC)).height - nt2.height) <= 3, 'stacked: the height survives a reload');
+    await nctx.close();
   }
   await browser.close();
   console.log(failed ? `browser verify FAILED: ${failed}` : `browser verify OK: ${ids.length} problems × ts/js (staged ones also per stage, plus the staged flow)`);
