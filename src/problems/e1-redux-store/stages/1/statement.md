@@ -17,12 +17,12 @@ interface Store<S> {
 function createStore<S>(reducer: Reducer<S>, preloadedState?: S): Store<S>;
 ```
 
-- **On creation** the store dispatches `{ type: ActionTypes.INIT }`, so the reducer fills in its default. A preloaded state wins over the default.
-- **`getState()`** returns the current state.
-- **`dispatch(action)`** runs the reducer, then calls the listeners, and returns the action.
-- **`subscribe(listener)`** returns an `unsubscribe` function. Calling it twice is harmless.
+- **On creation** the store dispatches `{ type: ActionTypes.INIT }`, so the reducer fills in its default. A preloaded state wins over the default. <!-- tests: getState, dispatch returns the action, init fills defaults -->
+- **`getState()`** returns the current state. <!-- tests: getState, dispatch returns the action, init fills defaults -->
+- **`dispatch(action)`** runs the reducer, then calls the listeners, and returns the action. <!-- tests: getState, dispatch returns the action, init fills defaults | subscribe, unsubscribe and invalid actions -->
+- **`subscribe(listener)`** returns an `unsubscribe` function. Calling it twice is harmless. <!-- tests: subscribe, unsubscribe and invalid actions -->
 
 | Situation | Error message |
 | --- | --- |
-| The action isn't a plain object (its prototype is neither `Object.prototype` nor `null`) | `Actions must be plain objects` |
-| `type` isn't a string | `Actions must have a string type` |
+| The action isn't a plain object (its prototype is neither `Object.prototype` nor `null`) | `Actions must be plain objects` <!-- tests: subscribe, unsubscribe and invalid actions --> |
+| `type` isn't a string | `Actions must have a string type` <!-- tests: subscribe, unsubscribe and invalid actions --> |
