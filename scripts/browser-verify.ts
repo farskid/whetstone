@@ -82,7 +82,9 @@ async function main() {
   async function runAndCheck(label: string, page: Page, bad: string[]) {
     await page.click('[data-testid="run"]');
     await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 60000 });
-    const passed = await page.$('[data-testid="all-passed"]');
+    // A first pass of a stage that isn't the last moves on to the next stage at once (its tests start fresh), so the
+    // "Stage k passed — now on stage k+1" notice counts as passing too.
+    const passed = (await page.$('[data-testid="all-passed"]')) ?? (await page.$('[data-testid="stage-unlocked"]'));
     if (bad.length) fail(`${label} bad requests:\n    ${bad.join('\n    ')}`);
     if (passed) console.log(`  ✓ ${label} ${await passed.textContent()}`);
     else fail(`${label} ${(await page.textContent((await page.$('.results')) ? '.results' : 'main'))?.slice(0, Number(process.env.VERIFY_DETAIL ?? 300))}`);
@@ -138,9 +140,10 @@ async function main() {
     await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-0-readonly.png') });
     await paste(page, s1);
     check(await runAndCheck(`flow: ${flowId} stage 1 typed in the editor`, page, bad), 'stage 1 passes');
-    check(!!(await page.waitForSelector('[data-testid="stage-unlocked"]', { timeout: 5000 }).catch(() => null)), 'stage 2 unlocked banner');
+    // A first pass moves straight on to stage 2, with a notice saying stage 1 passed.
+    const notice = await page.waitForSelector('[data-testid="stage-unlocked"]', { timeout: 5000 }).catch(() => null);
+    check(!!notice && /Stage 1 passed.*now on stage 2/.test((await notice.textContent()) ?? ''), '"Stage 1 passed — now on stage 2" notice');
     await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-1-stage1-passed.png') });
-    await page.click('[data-testid="next-stage"]');
     check(await page.getAttribute('[data-testid="stage-tab-2"]', 'aria-selected') === 'true', 'stage 2 tab selected');
     check(!(await page.isDisabled('[data-testid="stage-tab-2"]')), 'stage 2 tab enabled');
     check(await page.isDisabled('[data-testid="stage-tab-3"]'), 'stage 3 still locked');
@@ -168,7 +171,10 @@ async function main() {
     check(!(await page.$('[data-testid="all-passed"]')), 'the stage-1 code does not pass stage 2');
     await paste(page, s2);
     check(await runAndCheck(`flow: ${flowId} stage 2 reference in the editor`, page, bad), 'stage 2 passes with the stage-2 solution');
+    check((await page.textContent('.stage-label'))?.trim() === 'Stage 3 of 3', 'passing stage 2 moves on to stage 3');
     await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-3-stage2-passed.png') });
+    await page.click('[data-testid="stage-tab-2"]');
+    await page.waitForTimeout(200);
     // Statement borders: passed stages are the pass colour, the stage being viewed is the accent (even when passed).
     const border = (k: number) => page.$eval(`[data-testid="stage-section-${k}"]`, (e) => getComputedStyle(e).borderLeftColor);
     const cssVar = (v: string) => page.evaluate((name) => {
@@ -205,6 +211,9 @@ async function main() {
     const banner = await old.page.waitForSelector('[data-testid="own-types"]', { timeout: 5000 }).catch(() => null);
     check(!!banner && ((await banner.textContent()) ?? '').includes(t1Names.join(', ')), `legacy code gets the "Import from types.ts" offer, naming ${t1Names.join(', ')}`);
     check(await runAndCheck('flow: legacy code with its own types', old.page, old.bad), 'legacy code still passes stage 1');
+    // That first pass moved on to stage 2; back on stage 1, re-passing it stays put.
+    await old.page.click('[data-testid="stage-tab-1"]');
+    await old.page.waitForTimeout(300);
     await old.page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-4-legacy-offer.png') });
     await old.page.click('[data-testid="use-types-file"]');
     await old.page.waitForTimeout(400);
@@ -212,6 +221,7 @@ async function main() {
     check(!(await old.page.$('[data-testid="own-types"]')), 'the offer goes away after importing');
     check(adopted.startsWith(`import type { ${t1Names.join(', ')} } from './types';`) && !/^export interface/m.test(adopted), 'the saved code imports the types instead of declaring them');
     check(await runAndCheck('flow: legacy code after importing types.ts', old.page, old.bad), 'it still passes after importing');
+    check((await old.page.textContent('.stage-label'))?.trim() === 'Stage 1 of 3' && !!(await old.page.$('[data-testid="all-passed"]')), 're-passing stage 1 stays on stage 1 with its results');
     await old.page.click(SOL);
     await old.page.keyboard.press('ControlOrMeta+Z');
     check(!!(await old.page.waitForSelector('[data-testid="own-types"]', { timeout: 3000 }).catch(() => null)), 'Ctrl/⌘+Z brings the old declarations (and the offer) back');

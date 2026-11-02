@@ -58,8 +58,8 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     const rs = run.phase === 'done' ? run.summary.results : run.phase === 'running' ? run.results : [];
     return new Map<string, TestStatus>(rs.map((r) => [r.title, r.status]));
   }, [run]);
-  /** Set when a run just passed a stage that unlocked the next one. */
-  const [justUnlocked, setJustUnlocked] = useState<number | null>(null);
+  /** Set (to the stage just passed) when a run passed a stage for the first time and moved on to the next one. */
+  const [justPassed, setJustPassed] = useState<number | null>(null);
   const [leftW, setLeftW] = useState(() => Math.round(window.innerWidth * 0.4));
   const [resultsH, setResultsH] = useState(() => Math.round(window.innerHeight * 0.36));
   const editorRef = useRef<Ed | null>(null);
@@ -127,12 +127,12 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   const [runEpoch, setRunEpoch] = useState(0);
   /**
    * Forgets the last run: cancels one in flight, empties the test list and summary (which also returns the painted
-   * rules to neutral), closes the "stage unlocked" banner and collapses the results. Saved progress is untouched.
+   * rules to neutral), drops the "stage passed" notice and collapses the results. Saved progress is untouched.
    */
   const clearRun = () => {
     handleRef.current?.cancel();
     handleRef.current = null;
-    setJustUnlocked(null);
+    setJustPassed(null);
     setRun({ phase: 'idle' });
     setRunEpoch((e) => e + 1);
   };
@@ -150,9 +150,9 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     actions.setCode(problem.id, lang, source);
     const partial: TestResult[] = [];
     setRun({ phase: 'running', results: [] });
-    setJustUnlocked(null);
+    setJustPassed(null);
     const stage = staged ? viewStage : undefined;
-    // Stay on this stage when the run unlocks the next one; the banner offers to continue.
+    // Pin the stage being run, so unlocking the next one doesn't move the view mid-run.
     if (staged && !full) setPicked(viewStage);
     const h = runInWorker(problem.id, titles, source, lang, (r) => {
       if (handleRef.current !== h) return;
@@ -167,7 +167,12 @@ export function ProblemPage({ problem }: { problem: Problem }) {
         const passedAll = !summary.compileError && summary.passed === summary.total;
         const before = unlockedStage(progressNow(), problem.id);
         actions.recordAttempt(problem.id, passedAll, lang, stage, source);
-        if (passedAll && staged && !full && stage !== undefined && stage < n - 1 && stage === before) setJustUnlocked(stage + 1);
+        // A first pass of a stage that isn't the last moves straight on; the code carries over (it is the saved code).
+        if (passedAll && staged && !full && stage !== undefined && stage < n - 1 && stage === before) {
+          handleRef.current = null;
+          goStage(stage + 1);
+          setJustPassed(stage);
+        }
       }
     });
   }, [problem.id, titles, lang, staged, viewStage, full, n, typesTs]);
@@ -375,10 +380,10 @@ export function ProblemPage({ problem }: { problem: Problem }) {
           </div>
           <Splitter direction="vertical" label="Resize editor and tests" getStart={() => -(resultsRef.current?.offsetHeight ?? resultsH)} onResize={(h) => setResultsH(Math.max(120, Math.min(window.innerHeight - 220, -h)))} />
           <div className="results-wrap" ref={resultsRef} style={{ height: resultsH }}>
-            {justUnlocked !== null && (
-              <div className="stage-unlocked" data-testid="stage-unlocked">
-                <span>🎉 Stage {justUnlocked} passed. <strong>Stage {justUnlocked + 1}: {problem.stages[justUnlocked].title}</strong> is unlocked. Your code carries over.</span>
-                <button className="btn primary small" onClick={() => goStage(justUnlocked)} data-testid="next-stage">Continue to stage {justUnlocked + 1} →</button>
+            {justPassed !== null && justPassed + 1 === viewStage && (
+              <div className="stage-unlocked" role="status" data-testid="stage-unlocked">
+                <span>Stage {justPassed + 1} passed 🎉 — now on <strong>stage {justPassed + 2}: {problem.stages[justPassed + 1].title}</strong>. Your code carried over.</span>
+                <button className="btn ghost small" onClick={() => setJustPassed(null)} aria-label="Dismiss" data-testid="stage-unlocked-dismiss">✕</button>
               </div>
             )}
             <Results key={runEpoch} titles={titles} groups={groups} state={run} />

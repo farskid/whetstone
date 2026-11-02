@@ -119,11 +119,9 @@ async function main() {
     await waitEditor(page);
     await page.click('[data-testid="run"]');
     await page.waitForSelector('[data-testid="stage-unlocked"]', { timeout: 30000 });
-    console.log('  ✓ stage 1 passes and unlocks stage 2:', await page.textContent('[data-testid="all-passed"]'));
-    await page.waitForTimeout(300);
-    await shot(page, '07-stage1-passed.png');
-    await page.click('[data-testid="next-stage"]');
+    console.log('  ✓ stage 1 passes and moves on to stage 2:', await page.textContent('[data-testid="stage-unlocked"]'));
     await page.waitForTimeout(500);
+    await shot(page, '07-stage1-passed.png');
     await page.click('[data-testid="run"]');
     await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 30000 });
     await page.waitForTimeout(300);
