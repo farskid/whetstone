@@ -1,0 +1,31 @@
+name: Request a problem
+description: Suggest a problem, a library or a pattern you would like to practice on Whetstone.
+title: "Problem request: "
+labels: ["problem-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping shape Whetstone. A rough idea is enough. We read every request and will dig into the ones that fit.
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to practice?
+      description: A problem you ran into, a library or API (for example "TanStack Query's retry logic"), or a pattern (for example "an LRU cache").
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is it a good exercise?
+      description: Optional. What makes it tricky or worth learning, and any link to the library's docs or source.
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language
+      options:
+        - TypeScript
+        - JavaScript
+        - Other (say which in the description)
+    validations:
+      required: false
