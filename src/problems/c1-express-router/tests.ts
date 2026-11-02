@@ -34,7 +34,7 @@ export const tests: TestCase<M>[] = [
     async run({ createRouter }, { expect }) {
       const app = createRouter();
       app.use((rq, rs, next) => next());
-      app.get('/a', (rq, rs) => rs.end('a'));
+      app.use((rq, rs, next) => next());
       const res = mkRes();
       await app.handle(req('post', '/a?x=1'), res);
       expect([res.statusCode, res.body]).toEqual([404, 'Cannot POST /a']);

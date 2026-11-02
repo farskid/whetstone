@@ -1,6 +1,6 @@
 import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
-type Transport = import('./solution').Transport;
+type Transport = import('./types').Transport;
 
 const G1 = 'JSON lines';
 const G2 = 'Child loggers';

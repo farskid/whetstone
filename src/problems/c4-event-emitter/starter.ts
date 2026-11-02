@@ -1,4 +1,5 @@
-export type EventMap = Record<string, unknown[]>;
+import type { EventMap } from './types';
+
 type AnyMap = Record<string, any[]>;
 type Listener<A extends unknown[]> = (...args: A) => void;
 type Wildcard<E extends EventMap> = (name: keyof E & string, ...args: any[]) => void;

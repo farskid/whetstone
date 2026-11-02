@@ -1,6 +1,6 @@
 import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
-type Loader = import('./solution').Loader;
+type Loader = import('./types').Loader;
 
 const G1 = 'Loader chain';
 const G2 = 'Async and options';

@@ -1,10 +1,4 @@
-export type TapOptions = string | { name: string; stage?: number; before?: string | string[] };
-export type TapType = 'sync' | 'promise';
-export interface TapInfo { name: string; type: TapType; stage: number; fn: (...args: any[]) => any }
-export interface Interceptor {
-  call?: (...args: any[]) => void;
-  tap?: (tap: TapInfo) => void;
-}
+import type { TapOptions, Interceptor } from './types';
 
 abstract class Hook<A extends unknown[], R> {
   tap(options: TapOptions, fn: (...args: A) => R): void {

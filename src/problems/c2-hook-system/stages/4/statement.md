@@ -1,0 +1,19 @@
+Add tap ordering and interceptors to every hook.
+
+```ts
+type TapOptions = string | { name: string; stage?: number; before?: string | string[] };
+interface TapInfo { name: string; type: 'sync' | 'promise'; stage: number; fn: Function }
+interface Interceptor { call?(...args: any[]): void; tap?(tap: TapInfo): void }
+
+// every hook, plus:
+intercept(interceptor: Interceptor): void;
+```
+
+**Ordering**
+- Taps run in ascending `stage` (default 0). Taps with the same stage run in registration order.
+- `before: 'x'` or `before: ['x', 'y']` places the new tap just before the earliest of the named taps already registered, if that is earlier than its stage position. Names that aren't registered (yet) are ignored.
+
+**Interceptors**
+- `call(...args)` runs once at the start of each call, before any tap.
+- `tap(tapInfo)` runs just before each tap runs. `type` is `'sync'` for `tap` and `'promise'` for `tapPromise`.
+- Interceptors run in the order they were added. An interceptor added after some taps still sees them.

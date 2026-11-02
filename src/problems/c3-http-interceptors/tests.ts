@@ -1,6 +1,6 @@
 import type { TestCase, Deferred } from '../../runner/types';
 type M = typeof import('./solution');
-type RequestConfig = import('./solution').RequestConfig;
+type RequestConfig = import('./types').RequestConfig;
 
 /** Adapter that echoes the request and records it. */
 const echo = () => {
@@ -34,8 +34,14 @@ function authWorld(deferred: <T>() => Deferred<T>) {
 
 const settle = <T>(p: Promise<T>) => p.then((v) => ({ ok: true as const, v }), (e) => ({ ok: false as const, e }));
 
+const G1 = 'Client + adapter';
+const G2 = 'Interceptors';
+const G3 = 'Auth header + 401 retry';
+const G4 = 'Single-flight refresh';
+
 export const tests: TestCase<M>[] = [
   {
+    group: G1,
     title: 'request() calls the adapter and builds the response',
     async run({ createClient }, { expect }) {
       const { calls, adapter } = echo();
@@ -49,6 +55,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'baseURL joining',
     async run({ createClient }, { expect }) {
       const { calls, adapter } = echo();
@@ -62,6 +69,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'non-2xx rejects with HttpError; adapter errors pass through',
     async run({ createClient, HttpError }, { expect }) {
       const api = createClient({ adapter: async (c) => (c.url === '/net' ? Promise.reject(new TypeError('Failed to fetch')) : { status: 404, data: 'nope' }) });
@@ -75,6 +83,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: "the caller's config is never mutated",
     async run({ createClient }, { expect }) {
       const api = createClient({ adapter: echo().adapter });
@@ -85,6 +94,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'request interceptors run last-added-first; response interceptors in order',
     async run({ createClient }, { expect }) {
       const log: string[] = [];
@@ -99,6 +109,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'eject removes an interceptor',
     async run({ createClient }, { expect }) {
       const api = createClient({ adapter: echo().adapter });
@@ -111,6 +122,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'errors skip fulfilled handlers (and the adapter); onRejected can recover',
     async run({ createClient }, { expect }) {
       const log: string[] = [];
@@ -128,6 +140,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'HTTP errors reach response onRejected handlers',
     async run({ createClient, HttpError }, { expect }) {
       const api = createClient({ adapter: async () => ({ status: 503, data: 'down' }) });
@@ -138,6 +151,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'auth: adds the bearer token (and nothing when there is none)',
     async run({ createClient, installAuthRefresh }, { expect }) {
       const { calls, adapter } = echo();
@@ -151,6 +165,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'auth: a 401 refreshes and retries once with the new token',
     async run({ createClient, installAuthRefresh }, { expect, deferred, flush }) {
       const w = authWorld(deferred);
@@ -166,6 +181,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'auth: concurrent 401s share ONE refresh',
     input: '5 parallel requests with an expired token',
     async run({ createClient, installAuthRefresh }, { expect, deferred, flush }) {
@@ -183,6 +199,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'auth: requests started during a refresh wait for it',
     async run({ createClient, installAuthRefresh }, { expect, deferred, flush }) {
       const w = authWorld(deferred);
@@ -199,6 +216,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'auth: a late 401 from an old token retries without refreshing again',
     input: 'slow request sent with t0 returns 401 after the refresh to t1 already finished',
     async run({ createClient, installAuthRefresh }, { expect, deferred, flush }) {
@@ -218,6 +236,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'auth: never loops; a 401 after the retry rejects',
     async run({ createClient, installAuthRefresh, HttpError }, { expect, deferred, flush }) {
       const w = authWorld(deferred);
@@ -234,6 +253,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'auth: refresh failure rejects every waiter; a later 401 can refresh again',
     async run({ createClient, installAuthRefresh }, { expect, deferred, flush }) {
       const w = authWorld(deferred);
@@ -255,6 +275,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'auth: non-401 errors pass through; uninstall removes both interceptors',
     async run({ createClient, installAuthRefresh }, { expect }) {
       let refreshed = 0;

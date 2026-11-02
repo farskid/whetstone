@@ -15,9 +15,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'A dependency injection container with value/factory/class providers, singleton/transient/scoped lifetimes, child scopes, captive and circular dependency errors, async factories and dispose.',
   stages: [
-    { title: 'Values and factories', summary: 'register(token, { useValue | useFactory }) and resolve(token).' },
-    { title: 'Classes and lifetimes', summary: 'useClass with static inject deps; singleton vs transient.' },
-    { title: 'Child containers', summary: 'Children override or fall back to the parent; scoped instances are per child.' },
-    { title: 'Safety, async, dispose', summary: 'Circular and captive dependency errors, resolveAsync, dispose in reverse creation order.' },
+    { title: 'Values and factories', summary: 'register(token, { useValue | useFactory }) and resolve(token).', groups: ['Values and factories'] },
+    { title: 'Classes and lifetimes', summary: 'useClass with static inject deps; singleton vs transient.', groups: ['Classes and lifetimes'] },
+    { title: 'Child containers', summary: 'Children override or fall back to the parent; scoped instances are per child.', groups: ['Child containers'] },
+    { title: 'Safety, async, dispose', summary: 'Circular and captive dependency errors, resolveAsync, dispose in reverse creation order.', groups: ['Safety, async, dispose'] },
   ],
 };

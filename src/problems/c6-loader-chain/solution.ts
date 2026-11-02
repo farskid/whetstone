@@ -1,24 +1,4 @@
-export interface LoaderContext {
-  resourcePath: string;
-  options: Record<string, unknown>;
-  data: Record<string, unknown>;
-  async(): (err?: unknown, result?: unknown) => void;
-  addDependency(file: string): void;
-}
-export interface Loader {
-  (this: LoaderContext, source: unknown): unknown;
-  pitch?: (this: LoaderContext, remainingRequest: string, precedingRequest: string, data: Record<string, unknown>) => unknown;
-}
-export interface RunOptions {
-  resource: string;
-  loaders: string[];
-  registry: Record<string, Loader>;
-  readResource(path: string): unknown;
-}
-export interface RunResult {
-  result: unknown;
-  dependencies: string[];
-}
+import type { LoaderContext, RunOptions, RunResult } from './types';
 
 export function parseLoader(request: string): { name: string; options: Record<string, unknown> } {
   const q = request.indexOf('?');

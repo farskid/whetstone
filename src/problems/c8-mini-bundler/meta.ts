@@ -16,9 +16,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Bundle a virtual file system of ES modules: dependency order, resolveId/load/transform plugin hooks, circular imports, a define() registry output, virtual modules and dynamic-import code splitting.',
   stages: [
-    { title: 'Dependency order', summary: 'Resolve relative imports and list modules dependencies-first, each once.' },
-    { title: 'Plugin hooks', summary: 'resolveId and load: first non-null wins; transform chains.' },
-    { title: 'Cycles and output', summary: 'Allow and report circular imports; wrap modules in define() calls.' },
-    { title: 'Virtual modules and chunks', summary: '\\0virtual ids and a separate chunk per dynamic import(), in a deterministic order.' },
+    { title: 'Dependency order', summary: 'Resolve relative imports and list modules dependencies-first, each once.', groups: ['Dependency order'] },
+    { title: 'Plugin hooks', summary: 'resolveId and load: first non-null wins; transform chains.', groups: ['Plugin hooks'] },
+    { title: 'Cycles and output', summary: 'Allow and report circular imports; wrap modules in define() calls.', groups: ['Cycles and output'] },
+    { title: 'Virtual modules and chunks', summary: '\\0virtual ids and a separate chunk per dynamic import(), in a deterministic order.', groups: ['Virtual modules and chunks'] },
   ],
 };

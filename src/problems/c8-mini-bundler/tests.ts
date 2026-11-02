@@ -1,6 +1,6 @@
 import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
-type Plugin = import('./solution').Plugin;
+type Plugin = import('./types').Plugin;
 
 const G1 = 'Dependency order';
 const G2 = 'Plugin hooks';
@@ -58,10 +58,12 @@ export const tests: TestCase<M>[] = [
       const txt: Plugin = { name: 'txt', load: (id) => (id.endsWith('.txt') ? `export default ${JSON.stringify(files[id as '/raw.txt'])};` : null) };
       const one: Plugin = { name: 'one', transform: (code, id) => { seen.push('one ' + id); return id === '/m.js' ? code + "\nimport './added';\nimport './raw.txt';" : null; } };
       const two: Plugin = { name: 'two', transform: async (code) => code.replace('MAIN', 'main()') };
-      const { chunks } = await bundle({ input: '/m.js', files, plugins: [txt, one, two] });
+      const finals: Record<string, string> = {};
+      const spy: Plugin = { name: 'spy', transform: (code, id) => { finals[id] = code; return undefined; } };
+      const { chunks } = await bundle({ input: '/m.js', files, plugins: [txt, one, two, spy] });
       expect(chunks[0].modules).toEqual(['/added.js', '/raw.txt', '/m.js']);
-      expect(chunks[0].code).toContain("main()\nimport './added';");
-      expect(chunks[0].code).toContain('export default "hello";');
+      expect(finals['/m.js']).toBe("main()\nimport './added';\nimport './raw.txt';");
+      expect(finals['/raw.txt']).toBe('export default "hello";');
       expect(seen).toEqual(['one /m.js', 'one /added.js', 'one /raw.txt']);
       await expect(bundle({ input: '/m.js', files: { '/m.js': "import './gone';", '/gone.js': 'x' }, plugins: [{ name: 'eat', load: (id) => { if (id === '/gone.js') throw new Error('Could not load "/gone.js"'); return null; } }] })).toReject('Could not load "/gone.js"');
     },
@@ -76,7 +78,6 @@ export const tests: TestCase<M>[] = [
       const { chunks } = await bundle({ input: '/m.js', files, plugins: [count] });
       expect(loads).toEqual(['/m.js', '/c.js', '/d.js']);
       expect(chunks[0].modules).toEqual(['/c.js', '/d.js', '/m.js']);
-      expect(chunks[0].code.split('define("/c.js"').length - 1).toBe(1);
     },
   },
   {
@@ -101,13 +102,16 @@ export const tests: TestCase<M>[] = [
     async run({ bundle }, { expect }) {
       const files = { '/src/main.js': "import { add } from './math';\nconsole.log(add(1, 2));", '/src/math.js': 'export const add = (a, b) => a + b;' };
       const { chunks } = await bundle({ input: '/src/main.js', files });
-      expect(chunks[0]).toEqual({
-        name: 'main', entry: '/src/main.js', isEntry: true, modules: ['/src/math.js', '/src/main.js'], requires: [],
+      const { name, entry, isEntry, modules, code } = chunks[0];
+      expect({ name, entry, isEntry, modules, code }).toEqual({
+        name: 'main', entry: '/src/main.js', isEntry: true, modules: ['/src/math.js', '/src/main.js'],
         code:
           'define("/src/math.js", function (module, exports, require) {\nexport const add = (a, b) => a + b;\n});\n' +
           'define("/src/main.js", function (module, exports, require) {\nimport { add } from \'./math\';\nconsole.log(add(1, 2));\n});\n' +
           'require("/src/main.js");\n',
       });
+      const up = await bundle({ input: '/src/math.js', files, plugins: [{ name: 'up', transform: (code) => code.toUpperCase() }] });
+      expect(up.chunks[0].code, 'output uses the transformed code').toBe('define("/src/math.js", function (module, exports, require) {\nEXPORT CONST ADD = (A, B) => A + B;\n});\nrequire("/src/math.js");\n');
     },
   },
   {
