@@ -3,7 +3,7 @@ type M = typeof import('./solution');
 
 const G1 = 'Values and dirty';
 const G2 = 'Validation';
-const G3 = 'Async validation and submit';
+const G3 = 'Debounce and submit';
 const G4 = 'Field arrays';
 
 const required = (v: unknown) => (v ? undefined : 'Required');

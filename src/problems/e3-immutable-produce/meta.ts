@@ -16,9 +16,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Write produce(base, recipe) with Proxy drafts: copy-on-write with structural sharing, arrays, Map and Set, frozen output, revoked drafts, and patches with inverses.',
   stages: [
-    { title: 'Flat drafts', summary: 'produce for flat objects; the base is never touched; no-op edits return the base.' },
-    { title: 'Nested drafts and sharing', summary: 'Nested Proxy drafts; untouched subtrees stay ===; output is frozen.' },
-    { title: 'Arrays, Map, Set, return values', summary: 'push/splice, Map and Set drafts, returning a new value or nothing.' },
-    { title: 'Patches', summary: 'produceWithPatches with inverse patches, and applyPatches.' },
+    { title: 'Drafts and copy-on-write', summary: 'produce over nested objects and arrays; the base is never touched; no-op edits return the base.', groups: ['Drafts and copy-on-write'] },
+    { title: 'Sharing, freezing and revoking', summary: 'Untouched subtrees stay ===; output is frozen; drafts are revoked; moved drafts are finalized.', groups: ['Sharing, freezing and revoking'] },
+    { title: 'Arrays, Map, Set, return values', summary: 'push/splice, Map and Set drafts, returning a new value or nothing.', groups: ['Arrays, Map, Set, return values'] },
+    { title: 'Patches', summary: 'produceWithPatches with inverse patches, and applyPatches.', groups: ['Patches'] },
   ],
 };

@@ -1,40 +1,4 @@
-export type Values = Record<string, any>;
-export type Errors = Record<string, string>;
-export interface Clock {
-  now(): number;
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(handle: unknown): void;
-}
-export interface FieldConfig {
-  validate?: (value: any, values: Values) => string | undefined;
-  asyncValidate?: (value: any, values: Values) => Promise<string | undefined>;
-  debounceMs?: number;
-}
-export interface FormOptions {
-  initialValues: Values;
-  validate?: (values: Values) => Errors;
-  fields?: Record<string, FieldConfig>;
-  clock?: Clock;
-}
-export interface SubmitResult { ok: boolean; errors: Errors }
-
-export interface Form {
-  readonly values: Values;
-  getValue(path: string): any;
-  setValue(path: string, value: any): void;
-  touch(path: string): void;
-  isTouched(path: string): boolean;
-  isDirty(path?: string): boolean;
-  readonly errors: Errors;
-  readonly isValid: boolean;
-  readonly isValidating: boolean;
-  submit(onSubmit?: (values: Values) => unknown): Promise<SubmitResult>;
-  reset(values?: Values): void;
-  append(path: string, item: any): void;
-  remove(path: string, index: number): void;
-  move(path: string, from: number, to: number): void;
-  ids(path: string): string[];
-}
+import type { Errors, Clock, FieldConfig, FormOptions, Form } from './types';
 
 const split = (path: string) => (path === '' ? [] : path.split('.'));
 const isContainer = (v: unknown): v is Record<string, any> => typeof v === 'object' && v !== null;
@@ -82,7 +46,7 @@ function allPaths(v: any, prefix: string, out: string[]) {
 }
 
 export function createForm(options: FormOptions): Form {
-  const clock: Clock = options.clock ?? { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms), clearTimeout: (h) => clearTimeout(h as any) };
+  const clock: Clock = options.clock ?? { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms) as unknown as number, clearTimeout: (h) => clearTimeout(h) };
   const fields = options.fields ?? {};
   let initial = options.initialValues;
   let values = initial;
@@ -90,7 +54,7 @@ export function createForm(options: FormOptions): Form {
   let arrayIds = new Map<string, string[]>(); // stable array path -> ids
   let touched = new Set<string>();
   let asyncErrors = new Map<string, string>();
-  interface Pending { token: number; timer?: unknown; promise?: Promise<void>; run(): void }
+  interface Pending { token: number; timer?: number; promise?: Promise<void>; run(): void }
   let pending = new Map<string, Pending>();
   let tokenSeq = 0;
 
@@ -127,7 +91,7 @@ export function createForm(options: FormOptions): Form {
   function cancelUnder(stablePrefix: string) {
     for (const [key, p] of pending) {
       if (isUnder(key, stablePrefix)) {
-        clock.clearTimeout(p.timer);
+        if (p.timer !== undefined) clock.clearTimeout(p.timer);
         pending.delete(key);
       }
     }
@@ -139,7 +103,7 @@ export function createForm(options: FormOptions): Form {
     if (!cfg?.asyncValidate) return;
     const key = stable(path);
     const old = pending.get(key);
-    if (old) clock.clearTimeout(old.timer);
+    if (old?.timer !== undefined) clock.clearTimeout(old.timer);
     const token = ++tokenSeq;
     const entry: Pending = {
       token,
@@ -230,7 +194,7 @@ export function createForm(options: FormOptions): Form {
       return { ok, errors };
     },
     reset(next) {
-      for (const p of pending.values()) clock.clearTimeout(p.timer);
+      for (const p of pending.values()) if (p.timer !== undefined) clock.clearTimeout(p.timer);
       initial = next ?? initial;
       values = initial;
       arrayIds = new Map();

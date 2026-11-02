@@ -1,8 +1,8 @@
 import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
 
-const G1 = 'Flat drafts';
-const G2 = 'Nested drafts and sharing';
+const G1 = 'Drafts and copy-on-write';
+const G2 = 'Sharing, freezing and revoking';
 const G3 = 'Arrays, Map, Set, return values';
 const G4 = 'Patches';
 

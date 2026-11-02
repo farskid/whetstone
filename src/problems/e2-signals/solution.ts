@@ -1,11 +1,4 @@
-export interface ReadonlySignal<T> {
-  readonly value: T;
-  peek(): T;
-}
-
-export interface Signal<T> extends ReadonlySignal<T> {
-  value: T;
-}
+import type { ReadonlySignal, Signal } from './types';
 
 // Every reactive thing is a node. Sources (signals, computeds) have a version that
 // bumps only when their value really changes. Observers (computeds, effects) remember

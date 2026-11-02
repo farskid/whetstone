@@ -1,28 +1,4 @@
-export type QueryKey = readonly unknown[];
-export type QueryFn<T> = (ctx: { queryKey: QueryKey; signal: AbortSignal }) => Promise<T>;
-
-export interface QueryState<T> {
-  status: 'pending' | 'success' | 'error';
-  fetchStatus: 'fetching' | 'idle';
-  data: T | undefined;
-  error: unknown;
-  updatedAt: number;
-  isStale: boolean;
-}
-
-export interface Clock {
-  now(): number;
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
-}
-
-export interface QueryClientOptions {
-  staleTime?: number;
-  gcTime?: number;
-  retry?: number;
-  retryDelay?: (failureCount: number) => number;
-  clock?: Clock;
-}
+import type { QueryKey, QueryFn, QueryState, QueryClientOptions } from './types';
 
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && Object.getPrototypeOf(v) === Object.prototype;
@@ -51,7 +27,7 @@ interface Entry {
   fetchId: number;
   controller: AbortController | null;
   waiters: Waiter[];
-  gcTimer: unknown;
+  gcTimer: number | undefined;
 }
 
 export function createQueryClient(options: QueryClientOptions = {}) {
@@ -60,7 +36,7 @@ export function createQueryClient(options: QueryClientOptions = {}) {
     gcTime = 300_000,
     retry = 0,
     retryDelay = (n: number) => 1000 * 2 ** (n - 1),
-    clock = { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms), clearTimeout: (id) => clearTimeout(id as never) },
+    clock = { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms) as unknown as number, clearTimeout: (id) => clearTimeout(id) },
   } = options;
   const cache = new Map<string, Entry>();
   let invalidationSeq = 0;

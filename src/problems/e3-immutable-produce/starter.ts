@@ -1,6 +1,4 @@
-export type PatchPath = (string | number)[];
-export interface Patch { op: 'add' | 'remove' | 'replace'; path: PatchPath; value?: unknown }
-export type Recipe<T> = (draft: T) => T | void | typeof nothing;
+import type { Patch, Recipe } from './types';
 
 /** Return this from a recipe to produce `undefined`. */
 export const nothing: unique symbol = Symbol('nothing');

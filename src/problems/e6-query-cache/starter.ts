@@ -1,28 +1,4 @@
-export type QueryKey = readonly unknown[];
-export type QueryFn<T> = (ctx: { queryKey: QueryKey; signal: AbortSignal }) => Promise<T>;
-
-export interface QueryState<T> {
-  status: 'pending' | 'success' | 'error';
-  fetchStatus: 'fetching' | 'idle';
-  data: T | undefined;
-  error: unknown;
-  updatedAt: number;
-  isStale: boolean;
-}
-
-export interface Clock {
-  now(): number;
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
-}
-
-export interface QueryClientOptions {
-  staleTime?: number;
-  gcTime?: number;
-  retry?: number;
-  retryDelay?: (failureCount: number) => number;
-  clock?: Clock;
-}
+import type { QueryKey, QueryFn, QueryState, QueryClientOptions } from './types';
 
 export function hashKey(key: QueryKey): string {
   throw new Error('Not implemented');

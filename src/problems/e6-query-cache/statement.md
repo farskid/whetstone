@@ -32,7 +32,7 @@ function createQueryClient(options?: {
   gcTime?: number;                             // default 300_000
   retry?: number;                              // extra attempts after a failure, default 0
   retryDelay?: (failureCount: number) => number; // default n => 1000 * 2 ** (n - 1)
-  clock?: { now(): number; setTimeout(fn: () => void, ms: number): unknown; clearTimeout(id: unknown): void };
+  clock?: { now(): number; setTimeout(fn: () => void, ms: number): number; clearTimeout(id: number): void };
 }): {
   fetchQuery<T>(key: QueryKey, fn: QueryFn<T>): Promise<T>;
   watch<T>(key: QueryKey, fn: QueryFn<T>, listener: (state: QueryState<T>) => void): () => void;

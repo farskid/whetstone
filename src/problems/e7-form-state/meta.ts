@@ -16,9 +16,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Nested form values with dirty/touched tracking, sync, debounced async and form-level validation, submit that waits for pending checks, and field arrays whose items keep stable ids.',
   stages: [
-    { title: 'Values and dirty', summary: 'Nested get/set by path, dirty compared to the initial values, touched.' },
-    { title: 'Validation', summary: 'Field and form validators with a fixed precedence.' },
-    { title: 'Async validation and submit', summary: 'Debounced async checks, stale results dropped, submit awaits them.' },
-    { title: 'Field arrays', summary: 'append/remove/move with stable ids that keep errors and touched state.' },
+    { title: 'Values and dirty', summary: 'Nested get/set by path, dirty compared to the initial values, touched.', groups: ['Values and dirty'] },
+    { title: 'Validation', summary: 'Field, async and form validators with a fixed precedence; stale results dropped.', groups: ['Validation'] },
+    { title: 'Debounce and submit', summary: 'Async checks debounced on a clock, isValidating, and submit that awaits them.', groups: ['Debounce and submit'] },
+    { title: 'Field arrays', summary: 'append/remove/move with stable ids that keep errors and touched state.', groups: ['Field arrays'] },
   ],
 };

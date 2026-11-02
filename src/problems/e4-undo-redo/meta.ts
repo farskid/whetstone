@@ -15,9 +15,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'An undo/redo stack with typing coalescing, a capacity limit, nestable transactions, selection restore and a command-pattern variant.',
   stages: [
-    { title: 'Snapshot stack', summary: 'push/undo/redo; a push after undo clears redo.' },
-    { title: 'Coalescing and capacity', summary: 'Group rapid pushes with the same groupKey; drop the oldest steps.' },
-    { title: 'Transactions', summary: 'begin/commit/rollback, nestable, as one undo step.' },
-    { title: 'Selection and commands', summary: 'Restore selection with each step; a do/undo command history.' },
+    { title: 'Snapshot stack', summary: 'push/undo/redo; a push after undo clears redo.', groups: ['Snapshot stack'] },
+    { title: 'Coalescing and capacity', summary: 'Group rapid pushes with the same groupKey; drop the oldest steps.', groups: ['Coalescing and capacity'] },
+    { title: 'Transactions', summary: 'begin/commit/rollback, nestable, as one undo step.', groups: ['Transactions'] },
+    { title: 'Selection and commands', summary: 'Restore selection with each step; a do/undo command history.', groups: ['Selection and commands'] },
   ],
 };

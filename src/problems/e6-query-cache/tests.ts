@@ -1,6 +1,6 @@
 import type { TestCase, Deferred } from '../../runner/types';
 type M = typeof import('./solution');
-type QueryFn<T> = import('./solution').QueryFn<T>;
+import type { QueryFn } from './types';
 
 /** A query function whose calls you resolve by hand. */
 function manualFn<T>(deferred: <X>() => Deferred<X>) {
@@ -19,8 +19,14 @@ const counting = <T>(make: (n: number) => T) => {
   return { fn, count: () => n };
 };
 
+const G1 = 'Keyed cache and dedupe';
+const G2 = 'Staleness and setQueryData';
+const G3 = 'Observers and invalidation';
+const G4 = 'Retries and garbage collection';
+
 export const tests: TestCase<M>[] = [
   {
+    group: G1,
     title: 'hashKey sorts object keys at every depth',
     run({ hashKey }, { expect }) {
       expect(hashKey(['todos', { a: 1, b: { y: 2, x: 1 } }])).toBe(hashKey(['todos', { b: { x: 1, y: 2 }, a: 1 }]));
@@ -30,6 +36,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'fetchQuery caches by key and resolves data',
     async run({ createQueryClient }, { expect, clock }) {
       const c = createQueryClient({ staleTime: 1000, clock: clock() });
@@ -42,6 +49,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'concurrent fetches of the same key are deduped',
     async run({ createQueryClient }, { expect, deferred, clock }) {
       const c = createQueryClient({ clock: clock() });
@@ -57,6 +65,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'staleTime: fresh data is served, stale data is refetched',
     input: 'staleTime 1000; fetch at t=0, t=999, t=1000',
     async run({ createQueryClient }, { expect, clock }) {
@@ -75,6 +84,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'default staleTime 0 refetches every time',
     async run({ createQueryClient }, { expect, clock }) {
       const c = createQueryClient({ clock: clock() });
@@ -85,6 +95,22 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
+    title: 'setQueryData seeds the cache and clears an error',
+    async run({ createQueryClient }, { expect, clock }) {
+      const clk = clock(500);
+      const c = createQueryClient({ staleTime: 100, clock: clk });
+      await c.fetchQuery(['k'], async () => { throw new Error('x'); }).catch(() => {});
+      c.setQueryData(['k'], { id: 1 });
+      const s = c.getState(['k'])!;
+      expect([s.status, s.error, s.updatedAt, s.isStale]).toEqual(['success', undefined, 500, false]);
+      let called = false;
+      expect(await c.fetchQuery(['k'], async () => { called = true; return null; })).toEqual({ id: 1 });
+      expect(called).toBe(false);
+    },
+  },
+  {
+    group: G3,
     title: 'watch fetches, then notifies on every state change',
     async run({ createQueryClient }, { expect, deferred, clock, flush }) {
       const c = createQueryClient({ staleTime: 5000, clock: clock() });
@@ -101,6 +127,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'watch on fresh cached data does not refetch',
     async run({ createQueryClient }, { expect, clock }) {
       const c = createQueryClient({ staleTime: 5000, clock: clock() });
@@ -112,6 +139,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'invalidateQueries matches by prefix and refetches only observed queries',
     async run({ createQueryClient }, { expect, clock }) {
       const c = createQueryClient({ staleTime: Infinity, clock: clock() });
@@ -132,6 +160,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'invalidation aborts the in-flight fetch; the stale response is ignored',
     input: 'fetch #1 in flight → invalidate → fetch #2 resolves, then #1 resolves late',
     async run({ createQueryClient }, { expect, deferred, clock, flush }) {
@@ -151,6 +180,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'invalidating while a fetch is in flight keeps the result stale',
     input: 'unobserved fetch in flight, invalidate, then it resolves',
     async run({ createQueryClient }, { expect, deferred, clock }) {
@@ -164,6 +194,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'retries with backoff on the clock, then succeeds',
     input: 'retry 2, default delays 1000ms then 2000ms',
     async run({ createQueryClient }, { expect, clock, flush }) {
@@ -186,6 +217,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'final failure: status error, old data kept, promise rejects',
     async run({ createQueryClient }, { expect, clock }) {
       const clk = clock();
@@ -201,20 +233,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    title: 'setQueryData seeds the cache and clears an error',
-    async run({ createQueryClient }, { expect, clock }) {
-      const clk = clock(500);
-      const c = createQueryClient({ staleTime: 100, clock: clk });
-      await c.fetchQuery(['k'], async () => { throw new Error('x'); }).catch(() => {});
-      c.setQueryData(['k'], { id: 1 });
-      const s = c.getState(['k'])!;
-      expect([s.status, s.error, s.updatedAt, s.isStale]).toEqual(['success', undefined, 500, false]);
-      let called = false;
-      expect(await c.fetchQuery(['k'], async () => { called = true; return null; })).toEqual({ id: 1 });
-      expect(called).toBe(false);
-    },
-  },
-  {
+    group: G4,
     title: 'garbage collection after the last observer leaves',
     input: 'gcTime 1000',
     async run({ createQueryClient }, { expect, clock, flush }) {
@@ -238,6 +257,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'unobserved fetchQuery results are collected too, but not mid-fetch',
     async run({ createQueryClient }, { expect, clock, deferred }) {
       const clk = clock();

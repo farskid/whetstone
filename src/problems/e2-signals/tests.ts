@@ -1,8 +1,14 @@
 import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
 
+const G1 = 'Signal and computed';
+const G2 = 'Effects';
+const G3 = 'Batching and glitch-free';
+const G4 = 'Dynamic deps, untracked, errors, cycles';
+
 export const tests: TestCase<M>[] = [
   {
+    group: G1,
     title: 'signal reads and writes .value',
     input: 'const s = signal(1); s.value = 5',
     run({ signal }, { expect }) {
@@ -14,6 +20,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'computed derives from signals',
     input: 'a=2, b=3, sum = computed(a + b); then a = 10',
     run({ signal, computed }, { expect }) {
@@ -25,6 +32,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'computed is lazy: fn does not run until read',
     run({ signal, computed }, { expect }) {
       let calls = 0;
@@ -38,6 +46,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'computed is cached between reads',
     run({ signal, computed }, { expect }) {
       let calls = 0;
@@ -53,6 +62,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'effect runs immediately and re-runs on change',
     run({ signal, effect }, { expect }) {
       const s = signal('a');
@@ -64,6 +74,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'writing an equal value does not notify',
     input: 's = signal(NaN); s.value = NaN; s.value = NaN',
     run({ signal, effect }, { expect }) {
@@ -76,6 +87,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'dispose stops the effect and runs its cleanup',
     run({ signal, effect }, { expect }) {
       const s = signal(0);
@@ -88,6 +100,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'cleanup runs before each re-run',
     run({ signal, effect }, { expect }) {
       const s = signal(0);
@@ -99,6 +112,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'batch runs effects once, after the outermost batch',
     run({ signal, effect, batch }, { expect }) {
       const a = signal(1), b = signal(1);
@@ -115,6 +129,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'reads inside a batch see fresh values',
     run({ signal, computed, batch }, { expect }) {
       const a = signal(1);
@@ -127,6 +142,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'diamond: computes once, never shows inconsistent state',
     input: 'a → b = a+1, a → c = a*2, d = b + c; effect logs d',
     run({ signal, computed, effect }, { expect }) {
@@ -144,6 +160,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'equality cutoff: unchanged computed does not re-run dependents',
     input: 'parity = computed(n % 2); n: 1 → 3 → 5',
     run({ signal, computed, effect }, { expect }) {
@@ -159,6 +176,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'dynamic dependencies: a branch switch drops old deps',
     run({ signal, effect }, { expect }) {
       const useA = signal(true), a = signal('a1'), b = signal('b1');
@@ -171,6 +189,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'untracked() and peek() do not create dependencies',
     run({ signal, effect, untracked }, { expect }) {
       const tracked = signal(0), quiet = signal(0), quiet2 = signal(0);
@@ -185,6 +204,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'a computed that throws re-throws on read, then recovers',
     run({ signal, computed }, { expect }) {
       const s = signal(0);
@@ -196,6 +216,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'a computed reading itself throws a Cycle error',
     run({ computed }, { expect }) {
       const a: { value: number } = computed((): number => b.value + 1);
@@ -204,6 +225,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'an effect writing to a signal it reads settles',
     input: 'effect(() => { if (s.value < 5) s.value++ })',
     run({ signal, effect }, { expect }) {
@@ -215,6 +237,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'a runaway effect throws a Cycle error instead of hanging',
     input: 'effect(() => { s.value = s.value + 1 })',
     run({ signal, effect }, { expect }) {
@@ -223,6 +246,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'effects depending on computeds update after nested changes',
     run({ signal, computed, effect, batch }, { expect }) {
       const first = signal('Ada'), last = signal('Lovelace');

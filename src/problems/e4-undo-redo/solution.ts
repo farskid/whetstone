@@ -1,28 +1,4 @@
-export interface Clock { now(): number }
-export interface HistoryOptions { capacity?: number; coalesceMs?: number; clock?: Clock }
-export interface PushOptions<Sel> { groupKey?: string; selection?: Sel }
-
-export interface History<S, Sel = unknown> {
-  readonly state: S;
-  readonly selection: Sel | undefined;
-  push(state: S, options?: PushOptions<Sel>): void;
-  undo(): boolean;
-  redo(): boolean;
-  canUndo(): boolean;
-  canRedo(): boolean;
-  begin(): void;
-  commit(): void;
-  rollback(): void;
-}
-
-export interface Command { do(): void; undo(): void }
-export interface CommandHistory {
-  execute(command: Command): void;
-  undo(): boolean;
-  redo(): boolean;
-  canUndo(): boolean;
-  canRedo(): boolean;
-}
+import type { HistoryOptions, History, Command, CommandHistory } from './types';
 
 interface Entry<S, Sel> { state: S; selection: Sel | undefined }
 

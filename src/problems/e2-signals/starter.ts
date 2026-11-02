@@ -1,11 +1,4 @@
-export interface ReadonlySignal<T> {
-  readonly value: T;
-  peek(): T;
-}
-
-export interface Signal<T> extends ReadonlySignal<T> {
-  value: T;
-}
+import type { ReadonlySignal, Signal } from './types';
 
 export function signal<T>(initial: T): Signal<T> {
   throw new Error('Not implemented');

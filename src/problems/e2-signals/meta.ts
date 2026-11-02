@@ -16,9 +16,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Fine-grained reactivity: signal, lazy computed, effects, batching and glitch-free updates.',
   stages: [
-    { title: 'Signal and computed', summary: 'signal(v) with .value get/set and computed(fn) that is lazy and cached.' },
-    { title: 'Effects', summary: 'effect(fn) tracks deps automatically and re-runs on change, returning a dispose function.' },
-    { title: 'Batching and glitch-free', summary: 'batch(fn) and glitch-free updates: in a diamond, D computes once and never sees inconsistent state.' },
-    { title: 'Dynamic deps, cleanup, untracked, cycles', summary: 'Dynamic dependencies, effect cleanup functions, untracked(), and cycle detection.' },
+    { title: 'Signal and computed', summary: 'signal(v) with .value get/set and computed(fn) that is lazy and cached.', groups: ['Signal and computed'] },
+    { title: 'Effects', summary: 'effect(fn) tracks deps and re-runs on change; cleanup functions and a dispose function.', groups: ['Effects'] },
+    { title: 'Batching and glitch-free', summary: 'batch(fn) and glitch-free updates: in a diamond, D computes once and never sees inconsistent state.', groups: ['Batching and glitch-free'] },
+    { title: 'Dynamic deps, untracked, errors, cycles', summary: 'Dynamic dependencies, untracked(), computeds that throw, and cycle detection.', groups: ['Dynamic deps, untracked, errors, cycles'] },
   ],
 };
