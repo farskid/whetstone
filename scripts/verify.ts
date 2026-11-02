@@ -15,6 +15,7 @@
  *    stage has no types yet (`import type {} from './types'`), so no import appears out of nowhere at a later stage
  *  - legacy code that declares its own copies of the types still passes, and so does it after adoptTypesFile()
  *  - broken/s<k>-*.ts must fail stage k (stages 1..k); every broken still fails the full run
+ *  - every `<!-- tests: … -->` rule marker in a statement names tests that exist and run there (docs/rule-annotations.md)
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -24,6 +25,7 @@ import { runTests, stripTypes, compile } from '../src/runner/core';
 import { adoptTypesFile, exportedTypeNames, findTypeDecls, importsTypesFile, ownCopiesOfTypes, TYPES_IMPORT_RE } from '../src/problems/typesFile';
 import { isStaged, testsAddedBy, testsForStage } from '../src/problems/stages';
 import type { RunSummary } from '../src/runner/types';
+import { parseRuleMarks } from '../src/problems/ruleMarks';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'problems');
 // A test that fails early can leave a user promise rejected with no handler; that's not a crash.
@@ -61,6 +63,12 @@ for (const p of problems) {
   else if (new Set(p.tags.map((t) => t.name)).size !== p.tags.length) fail('tags[] has a duplicate name');
   const titles = new Set(p.tests.map((t) => t.title));
   if (titles.size !== p.tests.length) fail('test titles must be unique');
+
+  checkRuleMarks('statement.md', readIf(join(dir, 'statement.md')) ?? '', titles);
+  if (isStaged(p)) p.stages.forEach((_, k) => {
+    const md = readIf(join(dir, 'stages', `${k + 1}`, 'statement.md'));
+    if (md !== undefined) checkRuleMarks(`stages/${k + 1}/statement.md`, md, new Set(testsForStage(p, k).map((t) => t.title)), titles);
+  });
 
   const solution = readFileSync(join(dir, 'solution.ts'), 'utf8');
   const starter = readFileSync(join(dir, 'starter.ts'), 'utf8');
@@ -174,6 +182,20 @@ async function verifyStages(p: (typeof problems)[number], dir: string) {
     else if (s.passed === s.total) fail(`broken/${f} passes stage ${k}: its tests miss this bug`);
     else ok(`broken/${f} caught at stage ${k}: ${s.total - s.passed} failing`);
   }
+}
+
+/** Rule markers must name tests that exist and that run where the statement is shown (`runs`), else they never paint. */
+function checkRuleMarks(file: string, md: string, runs: Set<string>, all: Set<string> = runs) {
+  const marks = parseRuleMarks(md);
+  const before = failures;
+  marks.forEach((tests, i) => {
+    if (!tests.length) fail(`${file}: rule marker ${i + 1} names no tests`);
+    for (const t of tests) {
+      if (!all.has(t)) fail(`${file}: rule marker names a test that doesn't exist: "${t}"`);
+      else if (!runs.has(t)) fail(`${file}: rule marker names "${t}", which doesn't run in this stage`);
+    }
+  });
+  if (marks.length && failures === before) ok(`${file}: ${marks.length} rule marker(s) link to existing tests`);
 }
 
 function readIf(path: string) {
