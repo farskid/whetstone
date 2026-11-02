@@ -14,9 +14,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'An editor text buffer on a piece table: cheap inserts and deletes, line/column mapping with CRLF and surrogate pairs, and O(1) snapshots.',
   stages: [
-    { title: 'Piece table', summary: 'insert, delete and getText without copying the whole document per edit.' },
-    { title: 'Lines and positions', summary: 'offsetAt / positionAt and getLine with line starts tracked incrementally.' },
-    { title: 'CRLF and Unicode', summary: 'Mixed CRLF and LF; columns in UTF-16 code units; never split a surrogate pair.' },
-    { title: 'Snapshots', summary: 'snapshot() is O(1) and later edits do not affect it.' },
+    { title: 'Piece table', summary: 'insert, delete and getText without copying the whole document per edit.', groups: ['Piece table edits'] },
+    { title: 'Lines and positions', summary: 'offsetAt / positionAt and getLine with line starts tracked incrementally.', groups: ['Lines and positions'] },
+    { title: 'CRLF and Unicode', summary: 'Mixed CRLF and LF; columns in UTF-16 code units; never split a surrogate pair.', groups: ['CRLF and Unicode'] },
+    { title: 'Snapshots', summary: 'snapshot() is O(1) and later edits do not affect it.', groups: ['Snapshots', 'Performance'] },
   ],
 };

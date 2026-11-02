@@ -1,5 +1,4 @@
-export type Entry = { member: string; score: number };
-export type Bound = number | string;
+import type { Entry, Bound } from './types';
 
 type Node<K> = { key: K; pri: number; size: number; left: Node<K> | null; right: Node<K> | null };
 

@@ -1,5 +1,4 @@
-export type Id = string | number;
-export interface Entry<V, P> { id: Id; priority: P; value: V }
+import type { Id, Entry } from './types';
 
 export class IndexedPQ<V = undefined, P = number> {
   constructor(compare: (a: P, b: P) => number = (a: any, b: any) => a - b) {

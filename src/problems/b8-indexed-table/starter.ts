@@ -1,11 +1,4 @@
-export type Id = string | number;
-export type Row = { id: Id } & Record<string, unknown>;
-export type Range = { $gt?: unknown; $gte?: unknown; $lt?: unknown; $lte?: unknown };
-export type Query = Record<string, unknown>;
-export interface FindOptions {
-  orderBy?: string | [string, 'asc' | 'desc'];
-  limit?: number;
-}
+import type { Id, Row, Query, FindOptions } from './types';
 
 export class Table<T extends Row> {
   /** Rows examined by the most recent where(). */

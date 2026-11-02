@@ -32,11 +32,20 @@ export const tests: TestCase<M>[] = [
     title: 'empty window returns undefined; NaN is rejected',
     run({ RollingWindow }, { expect }) {
       const w = new RollingWindow(3);
-      expect([w.avg(), w.min(), w.max(), w.percentile(50), w.count()]).toEqual([undefined, undefined, undefined, undefined, 0]);
+      expect([w.avg(), w.count()]).toEqual([undefined, 0]);
       expect(() => w.push(NaN)).toThrow();
       let err: unknown; try { w.push(NaN); } catch (e) { err = e; }
       expect(err instanceof RangeError, 'RangeError').toBe(true);
       expect(w.count(), 'NaN not stored').toBe(0);
+    },
+  },
+  {
+    group: G2,
+    title: 'empty window: min, max and percentile return undefined',
+    run({ RollingWindow }, { expect }) {
+      const w = new RollingWindow(3);
+      expect([w.min(), w.max(), w.percentile(50), w.percentile(0), w.percentile(100)]).toEqual([undefined, undefined, undefined, undefined, undefined]);
+      expect(() => w.percentile(-1), 'p out of range still throws when empty').toThrow();
     },
   },
   {

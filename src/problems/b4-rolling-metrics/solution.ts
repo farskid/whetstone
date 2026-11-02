@@ -1,4 +1,4 @@
-export interface Clock { now(): number }
+import type { Clock } from './types';
 
 function checkValue(x: number) {
   if (typeof x !== 'number' || Number.isNaN(x)) throw new RangeError(`Expected a number, got ${String(x)}`);

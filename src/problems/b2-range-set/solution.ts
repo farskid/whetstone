@@ -1,4 +1,4 @@
-export type Range = [start: number, end: number];
+import type { Range, Person } from './types';
 
 export class RangeSet {
   // Disjoint, non-touching, sorted ranges kept as two parallel arrays.
@@ -80,8 +80,6 @@ export class RangeSet {
     return out.filter(([a, b]) => b - a >= minDuration && b > a);
   }
 }
-
-export interface Person { busy: Range[]; workingHours: Range[] }
 
 export function commonFreeSlots(people: Person[], window: Range, minDuration = 0): Range[] {
   const blocked = new RangeSet();

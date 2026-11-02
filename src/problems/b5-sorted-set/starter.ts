@@ -1,5 +1,4 @@
-export type Entry = { member: string; score: number };
-export type Bound = number | string;
+import type { Entry, Bound } from './types';
 
 export class SortedSet {
   get size(): number { throw new Error('Not implemented'); }

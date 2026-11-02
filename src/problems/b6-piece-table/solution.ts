@@ -1,4 +1,4 @@
-export type Position = { line: number; col: number };
+import type { Position } from './types';
 
 /** Immutable: never mutated after creation, so snapshots can share them. */
 type Piece = { add: boolean; start: number; length: number; breaks: number[] /* offsets of '\n' inside the piece */ };

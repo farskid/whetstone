@@ -1,4 +1,4 @@
-export type Position = { line: number; col: number };
+import type { Position } from './types';
 
 export class TextBuffer {
   constructor(initial = '') { throw new Error('Not implemented'); }

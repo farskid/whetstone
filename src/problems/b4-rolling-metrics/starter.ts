@@ -1,4 +1,4 @@
-export interface Clock { now(): number }
+import type { Clock } from './types';
 
 export class RollingWindow {
   constructor(size: number) { throw new Error('Not implemented'); }

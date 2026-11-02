@@ -1,4 +1,4 @@
-export type Range = [start: number, end: number];
+import type { Range, Person } from './types';
 
 export class RangeSet {
   add(range: Range): void { throw new Error('Not implemented'); }
@@ -8,8 +8,6 @@ export class RangeSet {
   toArray(): Range[] { throw new Error('Not implemented'); }
   freeSlots(window: Range, minDuration = 0): Range[] { throw new Error('Not implemented'); }
 }
-
-export interface Person { busy: Range[]; workingHours: Range[] }
 
 export function commonFreeSlots(people: Person[], window: Range, minDuration = 0): Range[] {
   throw new Error('Not implemented');

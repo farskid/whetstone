@@ -1,5 +1,4 @@
-export type Id = string | number;
-export interface Entry<V, P> { id: Id; priority: P; value: V }
+import type { Id, Entry } from './types';
 
 interface Node<V, P> extends Entry<V, P> { seq: number }
 

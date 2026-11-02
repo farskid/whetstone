@@ -16,9 +16,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'memoizeOne with custom equality and this-binding, a tuple-keyed memoize with LRU and WeakMap-held objects, and a reselect-style createSelector.',
   stages: [
-    { title: 'memoizeOne', summary: 'Cache the last args and result with shallow arg equality.' },
-    { title: 'Equality, this, throws', summary: 'Custom isEqual, keep the this binding, never cache a throw.' },
-    { title: 'memoize with LRU', summary: 'Key by the argument tuple with nested Maps (no JSON.stringify); evict least recently used past max.' },
-    { title: 'WeakMap and selectors', summary: 'Object args held weakly; createSelector recomputes only when inputs change.' },
+    { title: 'memoizeOne', summary: 'Cache the last args and result with shallow arg equality.', groups: ['memoizeOne'] },
+    { title: 'Equality, this, throws', summary: 'Custom isEqual, keep the this binding, never cache a throw.', groups: ['Equality, this, throws'] },
+    { title: 'memoize with LRU', summary: 'Key by the argument tuple with nested Maps (no JSON.stringify); evict least recently used past max.', groups: ['memoize with LRU'] },
+    { title: 'WeakMap and selectors', summary: 'Object args held weakly; createSelector recomputes only when inputs change.', groups: ['Selectors'] },
   ],
 };

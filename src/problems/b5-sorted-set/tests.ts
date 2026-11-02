@@ -28,8 +28,10 @@ export const tests: TestCase<M>[] = [
       const z = new SortedSet();
       z.add('a', 1); z.add('b', 2); z.add('c', 3);
       expect(z.add('a', 10), 'not new').toBe(false);
-      expect([z.size, z.rank('a'), z.rank('b')]).toEqual([3, 2, 0]);
-      expect(names(z.rangeByRank(0, -1))).toEqual(['b', 'c', 'a']);
+      expect([z.size, z.rank('a'), z.rank('b'), z.rank('c')]).toEqual([3, 2, 0, 1]);
+      expect(z.score('a')).toBe(10);
+      expect(z.add('a', 10), 'same score again').toBe(false);
+      expect(z.size).toBe(3);
     },
   },
   {
@@ -38,8 +40,9 @@ export const tests: TestCase<M>[] = [
     run({ SortedSet }, { expect }) {
       const z = new SortedSet();
       for (const m of ['mia', 'al', 'zed', 'bo']) z.add(m, 5);
-      expect(names(z.rangeByRank(0, -1))).toEqual(['al', 'bo', 'mia', 'zed']);
-      expect(z.rank('mia')).toBe(2);
+      expect(['al', 'bo', 'mia', 'zed'].map((m) => z.rank(m))).toEqual([0, 1, 2, 3]);
+      z.add('Zed', 5);
+      expect(z.rank('Zed'), 'code-unit order: uppercase first').toBe(0);
     },
   },
   {

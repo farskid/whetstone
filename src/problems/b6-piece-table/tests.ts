@@ -29,7 +29,7 @@ export const tests: TestCase<M>[] = [
     title: 'edits at 0 and at the end; empty buffer',
     run({ TextBuffer }, { expect }) {
       const b = new TextBuffer();
-      expect([b.getText(), b.length, b.lineCount, b.getLine(0)]).toEqual(['', 0, 1, '']);
+      expect([b.getText(), b.length]).toEqual(['', 0]);
       b.insert(0, 'b'); b.insert(0, 'a'); b.insert(2, 'c');
       expect(b.getText()).toBe('abc');
       b.delete(2, 1); b.delete(0, 1);
@@ -61,6 +61,16 @@ export const tests: TestCase<M>[] = [
       expect(rangeError(() => b.delete(5, 1)), 'delete past end').toBe(true);
       expect(rangeError(() => b.insert(1.5, 'x')), 'fraction').toBe(true);
       expect(b.getText()).toBe('abc');
+    },
+  },
+  {
+    group: G2,
+    title: 'an empty buffer has one empty line',
+    run({ TextBuffer }, { expect }) {
+      const b = new TextBuffer();
+      expect([b.lineCount, b.getLine(0), b.positionAt(0), b.offsetAt({ line: 0, col: 3 })]).toEqual([1, '', { line: 0, col: 0 }, 0]);
+      b.insert(0, 'x'); b.delete(0, 1);
+      expect([b.lineCount, b.getLine(0)]).toEqual([1, '']);
     },
   },
   {

@@ -16,9 +16,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'A row store with single, compound and unique indexes, range queries that pick the cheapest index, orderBy/limit, and live queries that fire only on real changes.',
   stages: [
-    { title: 'CRUD', summary: 'insert, get, update(id, patch), remove.' },
-    { title: 'Indexed lookups', summary: 'createIndex(field); where({ field: value }) reads only the matching index entries.' },
-    { title: 'Ranges, compound, ordering', summary: '$gt/$gte/$lt/$lte, compound and unique indexes, orderBy and limit.' },
-    { title: 'Live queries', summary: 'subscribe(query, cb) fires only when the result actually changes.' },
+    { title: 'CRUD', summary: 'insert, get, update(id, patch), remove, and where() by equality with a full scan.', groups: ['CRUD'] },
+    { title: 'Indexed lookups', summary: 'createIndex(field); where({ field: value }) reads only the matching index entries.', groups: ['Indexed lookups'] },
+    { title: 'Ranges, compound, ordering', summary: '$gt/$gte/$lt/$lte, compound and unique indexes, orderBy and limit.', groups: ['Ranges, compound, ordering'] },
+    { title: 'Live queries', summary: 'subscribe(query, cb) fires only when the result actually changes.', groups: ['Live queries'] },
   ],
 };

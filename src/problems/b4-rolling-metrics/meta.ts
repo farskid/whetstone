@@ -16,9 +16,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Count- and time-based sliding windows with avg, O(1) min/max, percentiles, and a bounded-memory histogram window.',
   stages: [
-    { title: 'Ring buffer', summary: 'Last N numbers with push, toArray (oldest first), count and avg.' },
-    { title: 'Percentiles and min/max', summary: 'percentile(p) over the window; min/max in amortized O(1) with a monotonic deque.' },
-    { title: 'Time window', summary: 'The same API over the last windowMs on an injected clock.' },
-    { title: 'Histogram window', summary: 'Fixed buckets per time slice for bounded memory and approximate percentiles.' },
+    { title: 'Ring buffer', summary: 'Last N numbers with push, toArray (oldest first), count and avg.', groups: ['Ring buffer'] },
+    { title: 'Percentiles and min/max', summary: 'percentile(p) over the window; min/max in amortized O(1) with a monotonic deque.', groups: ['Percentiles and min/max'] },
+    { title: 'Time window', summary: 'The same API over the last windowMs on an injected clock.', groups: ['Time window'] },
+    { title: 'Histogram window', summary: 'Fixed buckets per time slice for bounded memory and approximate percentiles.', groups: ['Histogram window'] },
   ],
 };
