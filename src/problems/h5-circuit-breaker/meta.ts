@@ -15,9 +15,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Wrap an async call so that repeated failures open the circuit and fail fast, with a timed half-open trial, a rolling error-rate window, timeouts, a fallback, events, and an error filter.',
   stages: [
-    { title: 'Failing fast', summary: 'fire(...args) wraps the call; N failures in a row open the circuit.' },
-    { title: 'Half-open', summary: 'After resetTimeout, a limited number of trial calls close or reopen it.' },
-    { title: 'Rolling window', summary: 'An error-percentage threshold with volumeThreshold; timeouts count as failures.' },
-    { title: 'Fallback and events', summary: 'fallback(fn), the open/halfOpen/close/reject events, and errorFilter.' },
+    { title: 'Failing fast', summary: 'fire(...args) wraps the call; N failures in a row open the circuit.', groups: ['Failing fast'] },
+    { title: 'Half-open', summary: 'After resetTimeout, a limited number of trial calls close or reopen it.', groups: ['Half-open'] },
+    { title: 'Rolling window', summary: 'An error-percentage threshold with volumeThreshold; timeouts count as failures.', groups: ['Rolling window'] },
+    { title: 'Fallback and events', summary: 'fallback(fn), the open/halfOpen/close/reject events, and errorFilter.', groups: ['Fallback and events'] },
   ],
 };

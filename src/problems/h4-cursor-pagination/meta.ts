@@ -16,9 +16,8 @@ export const meta: ProblemMeta = {
   ],
   summary: 'An async generator that walks cursor pages with dedupe, loop guards and resume, then a Relay-style feed that loads newer and older pages, evicts beyond a window, and applies live insert, update and delete events.',
   stages: [
-    { title: 'Paging', summary: 'paginate(fetchPage) yields items until hasNextPage is false; break stops fetching.' },
-    { title: 'Dedupe and guards', summary: 'Dedupe by id across pages, throw on a repeated cursor, and resume from .cursor after an error.' },
-    { title: 'Bidirectional feed', summary: 'loadOlder / loadNewer over Relay edges, with maxItems eviction and shared in-flight loads.' },
-    { title: 'Live updates', summary: 'Apply insert, update and delete events without refetching.' },
+    { title: 'Paging', summary: 'paginate(fetchPage) yields items until hasNextPage is false; break stops fetching.', groups: ['Paging'] },
+    { title: 'Dedupe and guards', summary: 'Dedupe by id across pages, throw on a repeated cursor, and resume from .cursor after an error.', groups: ['Dedupe and guards'] },
+    { title: 'Bidirectional feed', summary: 'loadOlder / loadNewer over Relay edges with maxItems eviction and shared in-flight loads, plus live insert, update and delete events.', groups: ['Bidirectional feed', 'Live updates'] },
   ],
 };

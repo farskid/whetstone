@@ -15,9 +15,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'A token bucket with fractional refill and a fair FIFO wait with AbortSignal, per-key buckets with idle eviction, and a sliding-window counter that reports remaining, resetAt and retryAfter.',
   stages: [
-    { title: 'Token bucket', summary: 'TokenBucket({ capacity, refillPerSec }) with tryRemove(n) on an injected clock.' },
-    { title: 'Per-key limiters', summary: 'Buckets created lazily per key and dropped when idle.' },
-    { title: 'Sliding window', summary: 'A sliding-window counter returning { allowed, remaining, resetAt, retryAfter }.' },
-    { title: 'Waiting in line', summary: 'removeTokens(n) waits in a fair FIFO queue and can be aborted.' },
+    { title: 'Token bucket', summary: 'TokenBucket({ capacity, refillPerSec }) with tryRemove(n) on an injected clock.', groups: ['Token bucket'] },
+    { title: 'Per-key limiters', summary: 'Buckets created lazily per key and dropped when idle.', groups: ['Per-key limiters'] },
+    { title: 'Sliding window', summary: 'A sliding-window counter returning { allowed, remaining, resetAt, retryAfter }.', groups: ['Sliding window'] },
+    { title: 'Waiting in line', summary: 'removeTokens(n) waits in a fair FIFO queue and can be aborted.', groups: ['Waiting in line'] },
   ],
 };

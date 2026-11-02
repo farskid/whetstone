@@ -1,8 +1,4 @@
-export interface Clock {
-  now(): number;
-}
-
-export type WebhookErrorCode = 'malformed' | 'no_match' | 'too_old';
+import type { WebhookErrorCode, ParsedSignature, VerifyOptions, ProcessResult, HandlerOptions } from './types';
 
 export class WebhookError extends Error {
   readonly code: WebhookErrorCode;
@@ -11,11 +7,6 @@ export class WebhookError extends Error {
     this.name = 'WebhookError';
     this.code = code;
   }
-}
-
-export interface ParsedSignature {
-  timestamp: number;
-  signatures: string[];
 }
 
 export function parseSignatureHeader(header: string): ParsedSignature {
@@ -53,16 +44,6 @@ async function hmacHex(secret: string, message: string): Promise<string> {
   return [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export interface VerifyOptions {
-  /** The raw request body, exactly as received. */
-  payload: string;
-  header: string;
-  secrets: string | string[];
-  /** Max age of the timestamp in seconds (default 300). */
-  toleranceSec?: number;
-  clock?: Clock;
-}
-
 export async function verifySignature(options: VerifyOptions): Promise<{ timestamp: number }> {
   const { timestamp, signatures } = parseSignatureHeader(options.header);
   const secrets = typeof options.secrets === 'string' ? [options.secrets] : options.secrets;
@@ -75,18 +56,6 @@ export async function verifySignature(options: VerifyOptions): Promise<{ timesta
   const nowSec = Math.floor((options.clock ?? Date).now() / 1000);
   if (nowSec - timestamp > (options.toleranceSec ?? 300)) throw new WebhookError('too_old', 'Timestamp outside the tolerance');
   return { timestamp };
-}
-
-export type ProcessResult<R> =
-  | { status: 'applied'; result: R; duplicate: boolean }
-  | { status: 'stale'; duplicate: boolean };
-
-export interface HandlerOptions<E, R> {
-  handle: (event: E) => Promise<R>;
-  /** Events with the same key run one at a time, in arrival order. */
-  getKey?: (event: E) => string;
-  /** With getKey: an event is applied only if its version is newer than the last applied one for its key. */
-  getVersion?: (event: E) => number;
 }
 
 type Outcome<R> = { status: 'applied'; result: R } | { status: 'stale' };

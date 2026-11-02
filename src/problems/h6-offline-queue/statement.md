@@ -26,7 +26,7 @@ function createOfflineQueue(options: {
   retryDelay?: (attempt: number) => number;         // default n => 1000 * 2 ** (n - 1)
   isRetryable?: (error: unknown) => boolean;        // default: true unless error.status is 400–499
   onSettled?: (m: Mutation, outcome: Outcome) => void;
-  clock?: { setTimeout(fn: () => void, ms: number): unknown; clearTimeout(id: unknown): void };
+  clock?: { setTimeout(fn: () => void, ms: number): number; clearTimeout(id: number): void };
 }): {
   enqueue(type: string, payload: unknown, opts?: { dedupeKey?: string }): number; // returns the id
   setOnline(online: boolean): void;

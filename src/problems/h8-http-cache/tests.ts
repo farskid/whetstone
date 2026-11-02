@@ -115,8 +115,8 @@ export const tests: TestCase<M>[] = [
       c.tick(23 * 3_600_000 - 120_000);
       expect(await settle(cache.fetch({ url: '/h' })), '10% of 10 days is 1 day').toBe('HIT 200 h');
       c.tick(3_600_000);
-      o.reply(304, {});
-      expect(await settle(cache.fetch({ url: '/h' }))).toBe('REVALIDATED 200 h');
+      o.reply(200, {}, 'h2');
+      expect(await settle(cache.fetch({ url: '/h' })), 'stale after 1 day').toBe('MISS 200 h2');
     },
   },
   {

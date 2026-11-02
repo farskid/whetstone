@@ -1,57 +1,9 @@
-export interface Clock {
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
-}
-
-/** The part of a WebSocket this needs. */
-export interface SocketLike {
-  send(data: string): void;
-  close(): void;
-  onopen: (() => void) | null;
-  onmessage: ((event: { data: string }) => void) | null;
-  onclose: (() => void) | null;
-}
-
-export interface HeartbeatOptions {
-  intervalMs: number;
-  timeoutMs: number;
-  ping: () => string;
-  isPong: (data: string) => boolean;
-}
-
-export interface ReconnectingOptions {
-  url: string;
-  createSocket: (url: string) => SocketLike;
-  clock?: Clock;
-  minDelay?: number;
-  maxDelay?: number;
-  factor?: number;
-  maxBuffer?: number;
-  heartbeat?: HeartbeatOptions;
-  stableAfterMs?: number;
-}
-
-export type SocketState = 'connecting' | 'open' | 'closed';
-
-export interface SocketEvents {
-  open: () => void;
-  message: (data: string) => void;
-  close: () => void;
-  reconnecting: (info: { attempt: number; delay: number }) => void;
-}
-
-export interface ReconnectingSocket {
-  readonly state: SocketState;
-  send(data: string): boolean;
-  subscribe(channel: string): () => void;
-  on<K extends keyof SocketEvents>(event: K, fn: SocketEvents[K]): () => void;
-  close(): void;
-}
+import type { Clock, SocketLike, ReconnectingOptions, SocketState, SocketEvents, ReconnectingSocket } from './types';
 
 export function createReconnectingSocket(options: ReconnectingOptions): ReconnectingSocket {
   const clock: Clock = options.clock ?? {
-    setTimeout: (fn, ms) => setTimeout(fn, ms),
-    clearTimeout: (id) => clearTimeout(id as ReturnType<typeof setTimeout>),
+    setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+    clearTimeout: (id) => clearTimeout(id),
   };
   const minDelay = options.minDelay ?? 1000;
   const maxDelay = options.maxDelay ?? 30000;
@@ -69,7 +21,7 @@ export function createReconnectingSocket(options: ReconnectingOptions): Reconnec
   const listeners: { [K in keyof SocketEvents]: Set<SocketEvents[K]> } = {
     open: new Set(), message: new Set(), close: new Set(), reconnecting: new Set(),
   };
-  const timers = { retry: undefined as unknown, stable: undefined as unknown, ping: undefined as unknown, pong: undefined as unknown };
+  const timers: Record<'retry' | 'stable' | 'ping' | 'pong', number | undefined> = { retry: undefined, stable: undefined, ping: undefined, pong: undefined };
 
   const emit = <K extends keyof SocketEvents>(event: K, ...args: Parameters<SocketEvents[K]>) => {
     for (const fn of [...listeners[event]]) (fn as (...a: unknown[]) => void)(...args);

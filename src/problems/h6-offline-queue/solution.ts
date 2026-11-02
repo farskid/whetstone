@@ -1,29 +1,4 @@
-export interface Mutation {
-  id: number;
-  type: string;
-  payload: unknown;
-  dedupeKey?: string;
-  attempts: number;
-}
-
-export type Outcome = { ok: true; value: unknown } | { ok: false; error: unknown };
-
-export interface StorageLike {
-  getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
-}
-
-export interface QueueOptions {
-  send(m: Mutation): Promise<unknown>;
-  storage: StorageLike;
-  storageKey?: string;
-  online?: boolean;
-  maxRetries?: number;
-  retryDelay?: (attempt: number) => number;
-  isRetryable?: (error: unknown) => boolean;
-  onSettled?: (m: Mutation, outcome: Outcome) => void;
-  clock?: { setTimeout(fn: () => void, ms: number): unknown; clearTimeout(id: unknown): void };
-}
+import type { Mutation, Outcome, QueueOptions } from './types';
 
 const defaultIsRetryable = (error: unknown) => {
   const status = (error as { status?: unknown } | null)?.status;
@@ -39,7 +14,7 @@ export function createOfflineQueue(options: QueueOptions) {
     retryDelay = (n: number) => 1000 * 2 ** (n - 1),
     isRetryable = defaultIsRetryable,
     onSettled,
-    clock = { setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (id) => clearTimeout(id as never) },
+    clock = { setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number, clearTimeout: (id) => clearTimeout(id) },
   } = options;
 
   let online = options.online ?? true;
@@ -53,7 +28,7 @@ export function createOfflineQueue(options: QueueOptions) {
   let nextId = queue.reduce((max, m) => Math.max(max, m.id), 0) + 1;
 
   let inFlight: Mutation | null = null;
-  let retryTimer: unknown = undefined;
+  let retryTimer: number | undefined = undefined;
   /** True after a failure until the retry delay has passed (or we come back online). */
   let waitingForRetry = false;
 

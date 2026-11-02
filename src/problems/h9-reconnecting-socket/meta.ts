@@ -16,9 +16,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Wrap a WebSocket so it reconnects with capped exponential backoff, buffers sends while down, resubscribes channels from their last event id, and detects dead connections with a ping/pong heartbeat, without leaking timers or listening to stale sockets.',
   stages: [
-    { title: 'Connecting and backoff', summary: 'Reconnect with capped exponential backoff that resets after a stable connection.' },
-    { title: 'Send buffer', summary: 'Queue sends while disconnected, flush in order, cap the queue, and close for good.' },
-    { title: 'Subscriptions', summary: 'Resubscribe channels on reconnect, resuming from the last event id.' },
-    { title: 'Heartbeat', summary: 'Ping on an interval and reconnect when a pong does not come back in time.' },
+    { title: 'Connecting and backoff', summary: 'Reconnect with capped exponential backoff that resets after a stable connection.', groups: ['Connecting and backoff'] },
+    { title: 'Send buffer', summary: 'Queue sends while disconnected, flush in order, cap the queue, and close for good.', groups: ['Send buffer'] },
+    { title: 'Subscriptions', summary: 'Resubscribe channels on reconnect, resuming from the last event id.', groups: ['Subscriptions'] },
+    { title: 'Heartbeat', summary: 'Ping on an interval and reconnect when a pong does not come back in time.', groups: ['Heartbeat'] },
   ],
 };

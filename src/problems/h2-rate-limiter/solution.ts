@@ -1,49 +1,9 @@
-export interface Clock {
-  now(): number;
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
-}
-
-export interface BucketOptions {
-  capacity: number;
-  refillPerSec: number;
-  /** Starting tokens (default: capacity). */
-  tokens?: number;
-  clock?: Clock;
-}
-
-export interface KeyedLimiterOptions extends BucketOptions {
-  /** Drop a key's bucket after this many ms without a call (default: the time a bucket takes to refill completely). */
-  idleMs?: number;
-}
-
-export interface KeyedLimiter {
-  tryRemove(key: string, n?: number): boolean;
-  /** Tokens the key has now (capacity for a key with no bucket). */
-  tokens(key: string): number;
-  /** Buckets currently kept. */
-  readonly size: number;
-}
-
-export interface WindowOptions {
-  limit: number;
-  windowMs: number;
-  clock?: Clock;
-}
-
-export interface RateResult {
-  allowed: boolean;
-  remaining: number;
-  /** When the current fixed window ends (ms). */
-  resetAt: number;
-  /** 0 when allowed; otherwise ms until the same request would be allowed. */
-  retryAfter: number;
-}
+import type { Clock, BucketOptions, KeyedLimiterOptions, KeyedLimiter, WindowOptions, RateResult } from './types';
 
 const realClock: Clock = {
   now: () => Date.now(),
-  setTimeout: (fn, ms) => setTimeout(fn, ms),
-  clearTimeout: (id) => clearTimeout(id as ReturnType<typeof setTimeout>),
+  setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+  clearTimeout: (id) => clearTimeout(id),
 };
 
 function checkCount(n: number, what = 'n'): void {
@@ -64,7 +24,7 @@ export class TokenBucket {
   private last: number;
   private readonly clock: Clock;
   private readonly queue: Waiter[] = [];
-  private timer: unknown = null;
+  private timer: number | null = null;
 
   constructor(options: BucketOptions) {
     checkCount(options.capacity, 'capacity');

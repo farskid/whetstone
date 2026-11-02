@@ -1,6 +1,6 @@
 import type { TestCase, Deferred } from '../../runner/types';
 type M = typeof import('./solution');
-type Mutation = import('./solution').Mutation;
+type Mutation = import('./types').Mutation;
 
 const memoryStorage = (initial: Record<string, string> = {}) => {
   const data = { ...initial };
@@ -44,10 +44,10 @@ export const tests: TestCase<M>[] = [
     async run({ createOfflineQueue }, { expect, deferred, flush }) {
       const s = manualSend(deferred);
       const q = createOfflineQueue({ send: s.send, storage: memoryStorage() });
-      q.enqueue('a', { x: 1 }, { dedupeKey: 'k' });
+      q.enqueue('a', { x: 1 });
       await flush();
       const p = q.pending();
-      expect(p).toEqual([{ id: 1, type: 'a', payload: { x: 1 }, dedupeKey: 'k', attempts: 0 }]);
+      expect(p).toEqual([{ id: 1, type: 'a', payload: { x: 1 }, attempts: 0 }]);
       p[0].type = 'hacked';
       expect(q.pending()[0].type).toBe('a');
       s.calls[0].m.type = 'changed by send';

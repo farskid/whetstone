@@ -1,5 +1,5 @@
 import type { TestCase } from '../../runner/types';
-import type { Page, FeedArgs, Connection } from './solution';
+import type { Page, FeedArgs, Connection } from './types';
 type M = typeof import('./solution');
 
 type Item = { id: number; v?: string };

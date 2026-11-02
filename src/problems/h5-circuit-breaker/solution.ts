@@ -1,36 +1,4 @@
-export interface Clock {
-  now(): number;
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
-}
-
-export type State = 'closed' | 'open' | 'halfOpen';
-
-export interface WindowOptions {
-  /** How far back the rolling window looks, in ms. */
-  durationMs: number;
-  /** Open when failures are at least this percentage of calls in the window. */
-  errorPercentage: number;
-  /** Minimum calls in the window before it can open (default 1). */
-  volumeThreshold?: number;
-}
-
-export interface BreakerOptions {
-  clock?: Clock;
-  /** Consecutive failures that open the circuit. Default 5, or off when a window is given. */
-  failureThreshold?: number;
-  /** ms to stay open before going half-open (default 30000). */
-  resetTimeout?: number;
-  /** ms before a call counts as failed (default: no timeout). */
-  timeout?: number;
-  window?: WindowOptions;
-  /** Trial calls allowed at once while half-open (default 1). */
-  halfOpenMax?: number;
-  /** Return true for errors that should not count as failures. */
-  errorFilter?: (error: unknown) => boolean;
-}
-
-export type BreakerEvent = 'open' | 'halfOpen' | 'close' | 'reject' | 'success' | 'failure' | 'timeout' | 'fallback';
+import type { Clock, State, BreakerOptions, BreakerEvent } from './types';
 
 export class OpenCircuitError extends Error {
   constructor() {
@@ -48,8 +16,8 @@ export class TimeoutError extends Error {
 
 const realClock: Clock = {
   now: () => Date.now(),
-  setTimeout: (fn, ms) => setTimeout(fn, ms),
-  clearTimeout: (id) => clearTimeout(id as ReturnType<typeof setTimeout>),
+  setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+  clearTimeout: (id) => clearTimeout(id),
 };
 
 type Outcome<R> = { ok: true; value: R } | { ok: false; error: unknown; timedOut: boolean };
@@ -64,7 +32,7 @@ export class CircuitBreaker<A extends unknown[], R> {
   private consecutive = 0;
   private calls: { at: number; ok: boolean }[] = [];
   private trials = 0;
-  private resetTimer: unknown = null;
+  private resetTimer: number | null = null;
   private fallbackFn: ((error: unknown, ...args: A) => R | Promise<R>) | null = null;
   private listeners = new Map<BreakerEvent, Set<(payload?: unknown) => void>>();
 
@@ -118,7 +86,7 @@ export class CircuitBreaker<A extends unknown[], R> {
   private run(args: A): Promise<Outcome<R>> {
     return new Promise((resolve) => {
       let done = false;
-      let timer: unknown = null;
+      let timer: number | null = null;
       const finish = (o: Outcome<R>) => {
         if (done) return;
         done = true;

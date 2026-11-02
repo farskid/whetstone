@@ -54,16 +54,14 @@ export const tests: TestCase<M>[] = [
     async run({ CircuitBreaker }, { expect, clock }) {
       const c = clock();
       const s = service();
-      const log: string[] = [];
       const b = new CircuitBreaker(s.fn, { clock: c, failureThreshold: 1, resetTimeout: 5000 });
-      for (const e of ['open', 'halfOpen', 'close'] as const) b.on(e, () => log.push(e));
       await settle(b.fire('fail'));
       c.tick(4999);
       expect(b.state).toBe('open');
       c.tick(1);
-      expect([b.state, log]).toEqual(['halfOpen', ['open', 'halfOpen']]);
+      expect(b.state).toBe('halfOpen');
       expect(await b.fire('ok', 'trial')).toBe('trial');
-      expect([b.state, log]).toEqual(['closed', ['open', 'halfOpen', 'close']]);
+      expect(b.state).toBe('closed');
       expect(c.pendingTimers()).toBe(0);
     },
   },
@@ -161,10 +159,7 @@ export const tests: TestCase<M>[] = [
     async run({ CircuitBreaker, TimeoutError }, { expect, clock }) {
       const c = clock();
       const s = service();
-      const log: string[] = [];
       const b = new CircuitBreaker(s.fn, { clock: c, timeout: 1000, failureThreshold: 2 });
-      b.on('timeout', (e) => log.push(`timeout:${(e as Error).name}`));
-      b.on('failure', () => log.push('failure'));
       await b.fire('ok');
       expect(c.pendingTimers(), 'timer cleared after success').toBe(0);
       let caught: unknown;
@@ -176,7 +171,7 @@ export const tests: TestCase<M>[] = [
       expect(caught).toBeInstanceOf(TimeoutError);
       s.pending[0].resolve('too late');
       await c.advance(0);
-      expect([b.state, log]).toEqual(['closed', ['timeout:TimeoutError', 'failure']]);
+      expect(b.state, 'one failure so far; the late result is ignored').toBe('closed');
       const q = settle(b.fire('hang'));
       await c.advance(1000);
       await q;
@@ -195,7 +190,10 @@ export const tests: TestCase<M>[] = [
         return 'cached';
       });
       const fb: unknown[] = [];
+      const ev: string[] = [];
       b.on('fallback', (v) => fb.push(v));
+      b.on('timeout', (e) => ev.push(`timeout:${(e as Error).name}`));
+      b.on('failure', () => ev.push('failure'));
       expect(await b.fire('ok', 'live')).toBe('live');
       expect(await b.fire('fail', 'a')).toBe('cached');
       const t = b.fire('hang', 'b');
@@ -205,6 +203,7 @@ export const tests: TestCase<M>[] = [
       expect(await b.fire('ok', 'c')).toBe('cached');
       expect(seen).toEqual(['Error:fail:a', 'TimeoutError:hang:b', 'OpenCircuitError:ok:c']);
       expect(fb).toEqual(['cached', 'cached', 'cached']);
+      expect(ev, 'timeout comes just before failure').toEqual(['failure', 'timeout:TimeoutError', 'failure']);
     },
   },
   {

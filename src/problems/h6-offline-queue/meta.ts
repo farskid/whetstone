@@ -19,9 +19,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Persisted FIFO queue of writes made offline: sent in order when back online, retried with backoff, coalesced by key, survives reloads.',
   stages: [
-    { title: 'FIFO while online', summary: 'enqueue() sends one mutation at a time, in order.' },
-    { title: 'Offline + persistence', summary: 'Nothing is sent while offline; the queue is saved to storage and restored on startup.' },
-    { title: 'Retries', summary: 'Retryable failures back off on the clock and block the queue; 4xx drops; max retries.' },
-    { title: 'Coalescing', summary: 'A dedupeKey replaces the payload of a queued (not yet sending) mutation.' },
+    { title: 'FIFO while online', summary: 'enqueue() sends one mutation at a time, in order.', groups: ['FIFO while online'] },
+    { title: 'Offline and persistence', summary: 'Nothing is sent while offline; the queue is saved to storage and restored on startup.', groups: ['Offline and persistence'] },
+    { title: 'Retries', summary: 'Retryable failures back off on the clock and block the queue; 4xx drops; max retries.', groups: ['Retries'] },
+    { title: 'Coalescing', summary: 'A dedupeKey replaces the payload of a queued (not yet sending) mutation.', groups: ['Coalescing'] },
   ],
 };
