@@ -14,6 +14,8 @@ export function runInWorker(
   onResult: (r: TestResult) => void,
   /** 0-based stage for staged problems: runs that stage's groups and every earlier one. Omit to run every test. */
   stage?: number,
+  /** Staged problems: the stage's read-only types file, importable from the solution as './types'. */
+  types?: string,
 ): RunHandle {
   const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
   const received: TestResult[] = [];
@@ -53,6 +55,6 @@ export function runInWorker(
   };
   worker.onerror = (e) => { e.preventDefault(); finish({ ...killed(`Runner crashed: ${e.message}`), aborted: `Runner crashed: ${e.message}` }); };
   arm();
-  worker.postMessage({ problemId, source, language, stage });
+  worker.postMessage({ problemId, source, language, stage, types });
   return { promise, cancel: () => finish(killed('Cancelled.')) };
 }

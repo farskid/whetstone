@@ -2,6 +2,7 @@ import { transform } from 'sucrase';
 import { createExpect, AssertionError } from './expect';
 import { FakeClock, macrotask } from './clock';
 import { format } from './format';
+import { TYPES_IMPORT_RE } from '../problems/typesFile';
 import type { Deferred, Language, RunSummary, TestCase, TestContext, TestError, TestResult } from './types';
 
 /**
@@ -53,6 +54,28 @@ export async function loadModule(compiled: string, consoleObj: unknown): Promise
   return import(/* @vite-ignore */ `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 }
 
+/** A URL the user's module can import: a blob: URL in the browser (revoke it when done), a data: URL in Node. */
+function moduleUrl(code: string): { url: string; revoke(): void } {
+  if (inBrowser) {
+    const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+    return { url, revoke: () => URL.revokeObjectURL(url) };
+  }
+  return { url: `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`, revoke() {} };
+}
+
+/**
+ * Staged problems: the solution imports the read-only types file with `import type { … } from './types'`. Types are
+ * erased, so compiled code normally has no import left. Anything that survives (a plain `import { … }` of a type, or
+ * `export * from './types'`) is pointed at the compiled types module, so it still loads. Throws a readable message
+ * when the code imports './types' and the problem has none.
+ */
+export function linkTypes(compiled: string, typesSource: string | undefined): { code: string; release(): void } {
+  if (!new RegExp(TYPES_IMPORT_RE.source).test(compiled)) return { code: compiled, release() {} };
+  if (typesSource === undefined) throw new Error("Your code imports './types', but this problem has no types file.");
+  const mod = moduleUrl(compile(typesSource, 'ts'));
+  return { code: compiled.replace(TYPES_IMPORT_RE, (_m, pre: string, q: string) => `${pre}${q}${mod.url}${q}`), release: mod.revoke };
+}
+
 function toError(e: unknown): TestError {
   if (e instanceof AssertionError) return { message: e.message, expected: e.expected, actual: e.actual };
   if (e instanceof Error) {
@@ -82,6 +105,8 @@ export interface RunOptions {
   onResult?: (r: TestResult) => void;
   /** Real timer used for per-test timeouts (keeps working even if user code patches globals). */
   realSetTimeout?: typeof setTimeout;
+  /** Staged problems: the stage's types file (TypeScript), which the solution may import as './types'. */
+  typesSource?: string;
 }
 
 /**
@@ -101,45 +126,56 @@ export async function runTests(tests: TestCase[], source: string, language: Lang
   } catch (e) {
     return { results: [], compileError: `Syntax error: ${e instanceof Error ? e.message : String(e)}`, moduleLogs: [], passed: 0, total: tests.length };
   }
+  let linked: ReturnType<typeof linkTypes>;
   try {
-    await loadModule(compiled, consoleObj); // surface top-level errors once, up front
+    linked = linkTypes(compiled, opts.typesSource);
   } catch (e) {
-    return { results: [], compileError: `Error while loading your code: ${e instanceof Error ? `${e.name}: ${e.message}` : String(e)}`, moduleLogs: moduleSink.lines, passed: 0, total: tests.length };
+    return { results: [], compileError: e instanceof Error ? e.message : String(e), moduleLogs: [], passed: 0, total: tests.length };
   }
-
-  const results: TestResult[] = [];
-  for (let i = 0; i < tests.length; i++) {
-    const test = tests[i];
-    const sink: Sink = { lines: [] };
-    sinkRef.current = sink;
-    const start = Date.now();
-    let status: TestResult['status'] = 'pass';
-    let error: TestError | undefined;
+  compiled = linked.code;
+  try {
     try {
-      const mod = await loadModule(compiled, consoleObj);
-      const ctx: TestContext = {
-        expect: createExpect(),
-        clock: (s?: number) => new FakeClock(s),
-        flush: macrotask,
-        deferred,
-      };
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      const timeout = new Promise<'timeout'>((res) => { timer = realSetTimeout(() => res('timeout'), perTest); });
-      const outcome = await Promise.race([Promise.resolve().then(() => test.run(mod, ctx)).then(() => 'done' as const), timeout]);
-      clearTimeout(timer);
-      if (outcome === 'timeout') {
-        status = 'timeout';
-        error = { message: `Timed out after ${perTest}ms. A promise never settled, or the test waited on something that never happened.` };
-      }
+      await loadModule(compiled, consoleObj); // surface top-level errors once, up front
     } catch (e) {
-      status = 'fail';
-      error = toError(e);
+      return { results: [], compileError: `Error while loading your code: ${e instanceof Error ? `${e.name}: ${e.message}` : String(e)}`, moduleLogs: moduleSink.lines, passed: 0, total: tests.length };
     }
-    const r: TestResult = { index: i, title: test.title, input: test.input, status, durationMs: Date.now() - start, error, logs: sink.lines };
-    results.push(r);
-    opts.onResult?.(r);
+
+    const results: TestResult[] = [];
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      const sink: Sink = { lines: [] };
+      sinkRef.current = sink;
+      const start = Date.now();
+      let status: TestResult['status'] = 'pass';
+      let error: TestError | undefined;
+      try {
+        const mod = await loadModule(compiled, consoleObj);
+        const ctx: TestContext = {
+          expect: createExpect(),
+          clock: (s?: number) => new FakeClock(s),
+          flush: macrotask,
+          deferred,
+        };
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const timeout = new Promise<'timeout'>((res) => { timer = realSetTimeout(() => res('timeout'), perTest); });
+        const outcome = await Promise.race([Promise.resolve().then(() => test.run(mod, ctx)).then(() => 'done' as const), timeout]);
+        clearTimeout(timer);
+        if (outcome === 'timeout') {
+          status = 'timeout';
+          error = { message: `Timed out after ${perTest}ms. A promise never settled, or the test waited on something that never happened.` };
+        }
+      } catch (e) {
+        status = 'fail';
+        error = toError(e);
+      }
+      const r: TestResult = { index: i, title: test.title, input: test.input, status, durationMs: Date.now() - start, error, logs: sink.lines };
+      results.push(r);
+      opts.onResult?.(r);
+    }
+    sinkRef.current = moduleSink;
+    const passed = results.filter((r) => r.status === 'pass').length;
+    return { results, moduleLogs: moduleSink.lines, passed, total: tests.length };
+  } finally {
+    linked.release(); // the types module's blob URL
   }
-  sinkRef.current = moduleSink;
-  const passed = results.filter((r) => r.status === 'pass').length;
-  return { results, moduleLogs: moduleSink.lines, passed, total: tests.length };
 }
