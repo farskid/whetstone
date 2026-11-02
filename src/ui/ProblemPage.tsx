@@ -162,7 +162,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   const snapshot = staged && !full && viewStage > 0 ? progress.stageCode[problem.id]?.[viewStage - 1]?.[lang] : undefined;
   const reset = () => {
     const what = snapshot !== undefined ? `the code that passed stage ${viewStage}` : 'the starter';
-    if (!confirm(`Reset your ${lang === 'ts' ? 'TypeScript' : 'JavaScript'} code to ${what}? Your current code for this language is lost.`)) return;
+    if (!confirm(`Reset your ${lang === 'ts' ? 'TypeScript' : 'JavaScript'} code to ${what}? Your stage progress and passed stages are kept. Your current code for this language is lost.`)) return;
     const ed = editorRef.current;
     const model = ed?.getModel();
     const text = snapshot ?? starter(lang);
