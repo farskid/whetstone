@@ -16,7 +16,7 @@ class Loader<K, V, C = K> {
 }
 ```
 
-- **`clear(key)`** removes one key from the cache. **`clearAll()`** removes everything. Both return the loader.
-- **`prime(key, value)`** puts a value in the cache, but only if the key isn't already there. It returns the loader. It does nothing when the cache is off.
-- **`cacheKeyFn(key)`** maps a key to the value the cache uses. Two different objects with the same `id` can then share an entry. `batchFn` still gets the original keys.
-- **`loadMany(keys)`** loads several keys. It resolves to an array that holds a value or an `Error` for each key, and never rejects.
+- **`clear(key)`** removes one key from the cache. **`clearAll()`** removes everything. Both return the loader. <!-- tests: clear, clearAll and prime (prime is a no-op with cache: false) -->
+- **`prime(key, value)`** puts a value in the cache, but only if the key isn't already there. It returns the loader. It does nothing when the cache is off. <!-- tests: clear, clearAll and prime (prime is a no-op with cache: false) -->
+- **`cacheKeyFn(key)`** maps a key to the value the cache uses. Two different objects with the same `id` can then share an entry. `batchFn` still gets the original keys. <!-- tests: cacheKeyFn lets object keys share a cache entry; loadMany never rejects -->
+- **`loadMany(keys)`** loads several keys. It resolves to an array that holds a value or an `Error` for each key, and never rejects. <!-- tests: cacheKeyFn lets object keys share a cache entry; loadMany never rejects -->

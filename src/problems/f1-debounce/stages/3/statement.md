@@ -10,5 +10,5 @@ interface Debounced<A extends unknown[]> {
 function debounce<A extends unknown[]>(fn: (...args: A) => unknown, wait: number, options?: DebounceOptions): Debounced<A>;
 ```
 
-- `cancel()` drops any scheduled trailing call and ends the current burst, so the next call starts a fresh burst.
-- `pending()` is `true` when a trailing call is scheduled and hasn't run yet.
+- `cancel()` drops any scheduled trailing call and ends the current burst, so the next call starts a fresh burst. <!-- tests: cancel() drops the scheduled call | after cancel() the next call starts a fresh burst -->
+- `pending()` is `true` when a trailing call is scheduled and hasn't run yet. <!-- tests: pending() tracks the scheduled trailing call -->
