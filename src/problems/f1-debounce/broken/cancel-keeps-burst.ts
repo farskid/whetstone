@@ -1,7 +1,7 @@
 // Bug: cancel() clears the timer but doesn't end the burst, so the next leading call is swallowed.
 export interface Clock {
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
+  setTimeout(fn: () => void, ms: number): number;
+  clearTimeout(id: number): void;
 }
 
 export interface DebounceOptions {
@@ -17,8 +17,8 @@ export interface Debounced<A extends unknown[]> {
 }
 
 const globalClock: Clock = {
-  setTimeout: (fn, ms) => setTimeout(fn, ms),
-  clearTimeout: (id) => clearTimeout(id as any),
+  setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+  clearTimeout: (id) => clearTimeout(id),
 };
 
 export function debounce<A extends unknown[]>(
@@ -27,7 +27,7 @@ export function debounce<A extends unknown[]>(
   options: DebounceOptions = {},
 ): Debounced<A> {
   const { leading = false, trailing = true, clock = globalClock } = options;
-  let timer: unknown = undefined;
+  let timer: number | undefined = undefined;
   let inBurst = false;
   let hasTrailing = false;
   let lastArgs: A | undefined;

@@ -7,8 +7,8 @@ input.addEventListener('input', (e) => save(e.target.value)); // saves once typi
 
 ```ts
 interface Clock {
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
+  setTimeout(fn: () => void, ms: number): number;
+  clearTimeout(id: number): void;
 }
 
 interface DebounceOptions {

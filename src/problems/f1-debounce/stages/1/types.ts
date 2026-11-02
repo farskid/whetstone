@@ -1,6 +1,6 @@
 export interface Clock {
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
+  setTimeout(fn: () => void, ms: number): number;
+  clearTimeout(id: number): void;
 }
 
 export interface DebounceOptions {

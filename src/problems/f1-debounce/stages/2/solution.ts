@@ -1,8 +1,8 @@
 import type { Clock, DebounceOptions } from './types';
 
 const globalClock: Clock = {
-  setTimeout: (fn, ms) => setTimeout(fn, ms),
-  clearTimeout: (id) => clearTimeout(id as any),
+  setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+  clearTimeout: (id) => clearTimeout(id),
 };
 
 export function debounce<A extends unknown[]>(
@@ -11,7 +11,7 @@ export function debounce<A extends unknown[]>(
   options: DebounceOptions = {},
 ): (...args: A) => void {
   const { leading = false, trailing = true, clock = globalClock } = options;
-  let timer: unknown = undefined;
+  let timer: number | undefined = undefined;
   let hasTrailing = false;
   let lastArgs: A | undefined;
   let lastThis: unknown;
