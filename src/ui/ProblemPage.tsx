@@ -123,12 +123,23 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     actions.setCode(problem.id, 'ts', code);
   };
 
-  const goStage = (k: number) => {
+  /** Bumped by clearRun so the results list remounts and drops which failures were expanded. */
+  const [runEpoch, setRunEpoch] = useState(0);
+  /**
+   * Forgets the last run: cancels one in flight, empties the test list and summary (which also returns the painted
+   * rules to neutral), closes the "stage unlocked" banner and collapses the results. Saved progress is untouched.
+   */
+  const clearRun = () => {
     handleRef.current?.cancel();
     handleRef.current = null;
-    setPicked(k);
     setJustUnlocked(null);
     setRun({ phase: 'idle' });
+    setRunEpoch((e) => e + 1);
+  };
+
+  const goStage = (k: number) => {
+    clearRun();
+    setPicked(k);
   };
 
   const doRun = useCallback(() => {
@@ -144,6 +155,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     // Stay on this stage when the run unlocks the next one; the banner offers to continue.
     if (staged && !full) setPicked(viewStage);
     const h = runInWorker(problem.id, titles, source, lang, (r) => {
+      if (handleRef.current !== h) return;
       partial.push(r);
       setRun({ phase: 'running', results: [...partial] });
     }, stage, typesTs);
@@ -183,6 +195,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     }
     if (snapshot !== undefined) actions.setCode(problem.id, lang, snapshot);
     else actions.resetCode(problem.id, lang);
+    clearRun(); // the last run tested code that is gone now
   };
 
   const reveal = () => {
@@ -287,7 +300,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
               <button className={lang === 'ts' ? 'on' : ''} onClick={() => actions.setLang('ts')}>TypeScript</button>
               <button className={lang === 'js' ? 'on' : ''} onClick={() => actions.setLang('js')}>JavaScript</button>
             </div>
-            <button className="btn ghost small" onClick={reset} title={snapshot !== undefined ? `Reset to the code that passed stage ${viewStage}` : 'Reset to starter code'}>↺ {snapshot !== undefined ? 'Restart stage' : 'Reset'}</button>
+            <button className="btn ghost small" onClick={reset} data-testid="reset" title={snapshot !== undefined ? `Reset to the code that passed stage ${viewStage}` : 'Reset to starter code'}>↺ {snapshot !== undefined ? 'Restart stage' : 'Reset'}</button>
             <div className="spacer" />
             <span className="muted small kbd-hint">Ctrl/⌘ + Enter</span>
             <button className="btn primary" onClick={doRun} disabled={running} data-testid="run">
@@ -368,7 +381,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
                 <button className="btn primary small" onClick={() => goStage(justUnlocked)} data-testid="next-stage">Continue to stage {justUnlocked + 1} →</button>
               </div>
             )}
-            <Results titles={titles} groups={groups} state={run} />
+            <Results key={runEpoch} titles={titles} groups={groups} state={run} />
           </div>
         </section>
       </div>

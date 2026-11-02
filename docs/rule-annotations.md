@@ -2,7 +2,7 @@
 
 A stage's `statement.md` can link a rule (a list item, paragraph or table row) to the tests that pin it. After a run,
 the rule turns green with ✓ when every linked test passed, and red with ✗ when any of them failed or timed out.
-Otherwise it stays neutral: before a run, after switching stage, or after a compile error. Hovering a rule lists its
+Otherwise it stays neutral: before a run, after switching stage, after resetting the code, or after a compile error. Hovering a rule lists its
 tests.
 
 ## Syntax
@@ -28,7 +28,7 @@ its parent's colour doesn't leak into it.
 - `npm run verify` checks every marker. Each title must belong to a test of this problem that runs in that stage (its
   own stage or an earlier one). An empty marker fails too.
 - `npm run verify:rules` opens F1 on stage 3 with the stage-1 code in a browser. It checks green, red and neutral
-  rules, icons and tooltips in both themes, and writes screenshots to `whetstone-rules-*.png`.
+  rules, icons and tooltips in both themes, then that Reset returns them to neutral while keeping saved progress, and writes screenshots to `whetstone-rules-*.png`.
 
 ## Code
 

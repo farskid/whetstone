@@ -1,7 +1,8 @@
 /**
  * npx tsx scripts/rules-paint-check.ts
  * Rendering check for painted rules: runs F1's stage-1 reference on stage 3 (in a vite dev server) and checks that
- * stage 1's linked rules are green, stage 3's are red, the rest neutral, and each rule's tooltip lists its tests.
+ * stage 1's linked rules are green, stage 3's are red, the rest neutral, and each rule's tooltip lists its tests. Then
+ * Reset must return the rules, test list and summary to neutral while keeping saved progress.
  * Screenshots (dark and light) go to SHOTS_DIR (default /workspace) as whetstone-rules-*.png.
  */
 import { spawn } from 'node:child_process';
@@ -52,6 +53,26 @@ async function main() {
     const burst = rules.find((r) => r.title.includes('a burst of calls fires once'));
     check(burst?.status === 'pass', `${theme}: the burst rule is green`);
     await page.screenshot({ path: join(SHOTS, `whetstone-rules-${theme}.png`), fullPage: true });
+
+    // Reset (to the starter here: no stage snapshot is seeded) forgets the run but keeps saved progress.
+    const saved = () => page.evaluate(() => { const s = JSON.parse(localStorage.getItem('practical:v2') ?? '{}'); return JSON.stringify([s.stagePassed, s.attempts, s.stage]); });
+    // Saves are debounced: wait for the run's submission to land before taking the "before" snapshot.
+    await page.waitForFunction((id) => JSON.parse(localStorage.getItem('practical:v2') ?? '{}').attempts?.[id] === 1, id, { timeout: 5000 });
+    const progressBefore = await saved();
+    const openBefore = await page.$$eval('.test-list [aria-expanded="true"]', (els) => els.length);
+    page.once('dialog', (d) => d.accept());
+    await page.click('[data-testid="reset"]');
+    await page.waitForFunction(() => [...document.querySelectorAll('.rule')].every((e) => e.getAttribute('data-rule-status') === 'idle'), null, { timeout: 5000 }).catch(() => {});
+    const after = await page.$$eval('.rule', (els) => els.map((e) => ({ status: e.getAttribute('data-rule-status'), icon: getComputedStyle(e.querySelector('.rule-icon') ?? e).display, title: e.getAttribute('title') ?? '' })));
+    check(after.length === rules.length && after.every((r) => r.status === 'idle'), `${theme}: after Reset all ${after.length} rules are neutral again`);
+    check(after.every((r) => r.icon === 'none') && after.every((r) => /^Tests?: \S/.test(r.title)), `${theme}: after Reset no ✓/✗ icons show, tooltips still list the tests`);
+    const tests = await page.$$eval('.test-list li.test', (els) => els.map((e) => e.getAttribute('data-status')));
+    check(tests.length > 0 && tests.every((t) => t === 'idle'), `${theme}: after Reset the test list is back to idle (${tests.length} tests)`);
+    const head = (await page.textContent('.results-headline')) ?? '';
+    check(/Run them/.test(head) && !(await page.$('.compile-error, .aborted, .module-logs')), `${theme}: after Reset the summary is gone ("${head.trim()}")`);
+    check(openBefore > 0 && (await page.$$eval('.test-list [aria-expanded="true"]', (els) => els.length)) === 0, `${theme}: after Reset no failure details stay open (was ${openBefore})`);
+    await page.waitForTimeout(1500); // let Reset's own (debounced) save land
+    check((await saved()) === progressBefore, `${theme}: after Reset passed stages, submissions and the current stage are kept (${progressBefore} → ${await saved()})`);
     await ctx.close();
   }
   await browser.close();
