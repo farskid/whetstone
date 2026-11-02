@@ -11,7 +11,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "verify": "tsx scripts/verify.ts",
     "screenshots": "tsx scripts/screenshots.ts",
-    "verify:browser": "tsx scripts/browser-verify.ts"
+    "verify:browser": "tsx scripts/browser-verify.ts",
+    "verify:rules": "tsx scripts/rules-paint-check.ts"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
