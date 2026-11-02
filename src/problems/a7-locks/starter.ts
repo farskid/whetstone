@@ -1,5 +1,4 @@
-export interface Clock { setTimeout(fn: () => void, ms: number): unknown; clearTimeout(id: unknown): void }
-export type Release = () => void;
+import type { Clock, Release } from './types';
 
 export class Semaphore {
   constructor(capacity: number, options: { clock?: Clock } = {}) {

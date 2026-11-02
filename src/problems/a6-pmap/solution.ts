@@ -1,10 +1,6 @@
-export const pMapSkip: unique symbol = Symbol('pMapSkip');
+import type { PMapOptions } from './types';
 
-export interface PMapOptions {
-  concurrency?: number;
-  stopOnError?: boolean;
-  signal?: AbortSignal;
-}
+export const pMapSkip: unique symbol = Symbol('pMapSkip');
 
 export function pMap<T, R>(
   input: Iterable<T | Promise<T>> | AsyncIterable<T>,

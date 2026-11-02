@@ -17,9 +17,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Run dependent async tasks with max parallelism, cycle detection, skip-on-failure, failFast with abort, and targets.',
   stages: [
-    { title: 'Topological run', summary: 'Each task starts once all its deps succeeded and receives their results.' },
-    { title: 'Validation', summary: 'Duplicate ids, unknown deps, and cycles reported with their path.' },
-    { title: 'Failures', summary: 'Dependents of a failed task are skipped; failFast aborts the rest.' },
-    { title: 'Concurrency, targets, events', summary: 'Concurrency limit with input-order priority, targets subset and lifecycle events.' },
+    { title: 'Topological run', summary: 'Each task starts once all its deps succeeded and receives their results.', groups: ['Topological run'] },
+    { title: 'Validation', summary: 'Duplicate ids, unknown deps, and cycles reported with their path.', groups: ['Validation'] },
+    { title: 'Failures', summary: 'Dependents of a failed task are skipped; failFast aborts the rest.', groups: ['Failures'] },
+    { title: 'Concurrency, targets, events', summary: 'Concurrency limit with input-order priority, targets subset and lifecycle events.', groups: ['Concurrency, targets, events'] },
   ],
 };

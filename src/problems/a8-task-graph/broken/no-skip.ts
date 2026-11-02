@@ -1,7 +1,7 @@
 // Broken: Kahn's algorithm without failure propagation. Dependents of a failed task
 // still run, cycle message is generic, and failFast is ignored.
-import type { Options, Report, Task } from '../solution';
-export type { Options, Report, Task } from '../solution';
+import type { Options, Report, Task } from '../types';
+export type { Options, Report, Task } from '../types';
 
 export async function runTaskGraph(tasks: Task[], options: Options = {}): Promise<Report> {
   const report: Report = { status: {}, results: {}, errors: {} };

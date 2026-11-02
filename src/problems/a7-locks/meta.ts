@@ -15,9 +15,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'A weighted FIFO semaphore with timeouts and tryAcquire, a Mutex, and a writer-preferring read/write lock.',
   stages: [
-    { title: 'Mutex', summary: 'Mutex with acquire() → release and runExclusive(fn), FIFO, release is idempotent.' },
-    { title: 'Weighted semaphore', summary: 'Semaphore(capacity) with weights, strict FIFO, tryAcquire and available.' },
-    { title: 'Acquire timeout', summary: 'acquire({ timeout }) gives up after ms and leaves the queue.' },
-    { title: 'Read/write lock', summary: 'Many readers or one writer; a waiting writer blocks new readers.' },
+    { title: 'Mutex', summary: 'Mutex with acquire() → release and runExclusive(fn), FIFO, release is idempotent.', groups: ['Mutex'] },
+    { title: 'Weighted semaphore', summary: 'Semaphore(capacity) with weights, strict FIFO, tryAcquire and available.', groups: ['Weighted semaphore'] },
+    { title: 'Acquire timeout', summary: 'acquire({ timeout }) gives up after ms and leaves the queue.', groups: ['Acquire timeout'] },
+    { title: 'Read/write lock', summary: 'Many readers or one writer; a waiting writer blocks new readers.', groups: ['Read/write lock'] },
   ],
 };

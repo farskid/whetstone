@@ -75,20 +75,18 @@ export const tests: TestCase<M>[] = [
   {
     group: G2,
     title: 'pulls from the iterator only as slots free up',
-    input: 'infinite generator, concurrency 2',
+    input: 'generator of 6 items, concurrency 2',
     async run({ pMap }, { expect, clock }) {
       const c = clock();
       let pulled = 0;
-      function* naturals() { for (let i = 0; ; i++) { pulled++; yield i; } }
-      const ac = new AbortController();
-      const p = pMap(naturals(), (i) => new Promise<number>((r) => c.setTimeout(() => r(i), 10)), { concurrency: 2, signal: ac.signal });
-      p.catch(() => {});
+      function* naturals() { for (let i = 0; i < 6; i++) { pulled++; yield i; } }
+      const p = pMap(naturals(), (i) => new Promise<number>((r) => c.setTimeout(() => r(i), 10)), { concurrency: 2 });
       await c.advance(0);
       expect(pulled, 'pulled before any finished').toBeLessThanOrEqual(3);
       await c.advance(10);
       expect(pulled, 'pulled after two finished').toBeLessThanOrEqual(5);
-      ac.abort('enough');
-      await expect(p).toReject((e) => e === 'enough');
+      await c.runAll();
+      expect(await p).toEqual([0, 1, 2, 3, 4, 5]);
     },
   },
   {

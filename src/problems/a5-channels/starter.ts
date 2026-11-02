@@ -1,4 +1,4 @@
-export interface Received<T> { value: T | undefined; done: boolean }
+import type { Received } from './types';
 
 export class Channel<T> implements AsyncIterable<T> {
   constructor(capacity = 0) {

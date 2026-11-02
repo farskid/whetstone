@@ -1,28 +1,4 @@
-export interface TaskContext {
-  results: Record<string, unknown>;
-  signal: AbortSignal;
-}
-
-export interface Task {
-  id: string;
-  deps?: string[];
-  run(ctx: TaskContext): unknown | Promise<unknown>;
-}
-
-export type TaskStatus = 'success' | 'failed' | 'skipped';
-
-export interface Options {
-  concurrency?: number;
-  failFast?: boolean;
-  targets?: string[];
-  onEvent?: (e: { type: 'start' | TaskStatus; id: string }) => void;
-}
-
-export interface Report {
-  status: Record<string, TaskStatus>;
-  results: Record<string, unknown>;
-  errors: Record<string, unknown>;
-}
+import type { Task, TaskStatus, Options, Report } from './types';
 
 function findCycle(order: string[], depsOf: (id: string) => string[]): string[] | null {
   const state = new Map<string, 'visiting' | 'done'>();

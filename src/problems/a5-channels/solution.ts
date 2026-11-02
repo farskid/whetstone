@@ -1,4 +1,4 @@
-export interface Received<T> { value: T | undefined; done: boolean }
+import type { Received } from './types';
 
 /** A pending receive. accept() returns false if this waiter was already satisfied elsewhere (select). */
 interface Receiver<T> { accept(r: Received<T>): boolean }

@@ -14,9 +14,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Map over sync or async iterables with a concurrency cap, ordered results, pMapSkip, stopOnError and abort.',
   stages: [
-    { title: 'Ordered results with a cap', summary: 'pMap(items, mapper, { concurrency }) keeps results in input order.' },
-    { title: 'Lazy input and pMapSkip', summary: 'Pull from sync or async iterables only as slots free up; pMapSkip leaves an item out.' },
-    { title: 'Errors', summary: 'stopOnError (default) rejects fast and starts nothing new; false collects an AggregateError.' },
-    { title: 'Abort', summary: 'signal rejects with its reason and stops starting new calls.' },
+    { title: 'Ordered results with a cap', summary: 'pMap(items, mapper, { concurrency }) keeps results in input order.', groups: ['Ordered results with a cap'] },
+    { title: 'Lazy input and pMapSkip', summary: 'Pull from sync or async iterables only as slots free up; pMapSkip leaves an item out.', groups: ['Lazy input and pMapSkip'] },
+    { title: 'Errors', summary: 'stopOnError (default) rejects fast and starts nothing new; false collects an AggregateError.', groups: ['Errors'] },
+    { title: 'Abort', summary: 'signal rejects with its reason and stops starting new calls.', groups: ['Abort'] },
   ],
 };

@@ -1,9 +1,8 @@
-export interface Clock { setTimeout(fn: () => void, ms: number): unknown; clearTimeout(id: unknown): void }
-export type Release = () => void;
+import type { Clock, Release } from './types';
 
 const globalClock: Clock = {
-  setTimeout: (fn, ms) => setTimeout(fn, ms),
-  clearTimeout: (id) => clearTimeout(id as any),
+  setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+  clearTimeout: (id) => clearTimeout(id),
 };
 
 interface Waiter { weight: number; grant(): void }
@@ -47,7 +46,7 @@ export class Semaphore {
     this.check(weight);
     if (!this.queue.length && weight <= this.free) return Promise.resolve(this.take(weight));
     return new Promise((resolve, reject) => {
-      let timer: unknown;
+      let timer: number | undefined;
       const waiter: Waiter = {
         weight,
         grant: () => {

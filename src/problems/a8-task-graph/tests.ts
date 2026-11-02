@@ -1,6 +1,6 @@
 import type { TestCase, Deferred } from '../../runner/types';
 type M = typeof import('./solution');
-type Task = import('./solution').Task;
+type Task = import('./types').Task;
 
 /** A task controlled by hand: records when it starts and what it got. */
 function manual(deferred: <T>() => Deferred<T>) {
@@ -26,8 +26,14 @@ const rejectMsg = async (p: Promise<unknown>) => {
   return '(resolved)';
 };
 
+const G1 = 'Topological run';
+const G2 = 'Validation';
+const G3 = 'Failures';
+const G4 = 'Concurrency, targets, events';
+
 export const tests: TestCase<M>[] = [
   {
+    group: G1,
     title: 'runs tasks in dependency order and passes dep results',
     async run({ runTaskGraph }, { expect }) {
       const order: string[] = [];
@@ -44,6 +50,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'ctx.results holds exactly the direct deps',
     async run({ runTaskGraph }, { expect }) {
       let seen: Record<string, unknown> = {};
@@ -56,6 +63,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'independent tasks run in parallel; a task waits for ALL deps',
     input: 'a, b independent; c deps [a, b]',
     async run({ runTaskGraph }, { expect, deferred, flush }) {
@@ -75,6 +83,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'concurrency limit, with input order as priority',
     input: 'concurrency 2; tasks w x y z (all ready)',
     async run({ runTaskGraph }, { expect, deferred, flush }) {
@@ -94,6 +103,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'a newly-ready task earlier in the input jumps the ready queue',
     input: "concurrency 1; tasks: late (deps first), first, other",
     async run({ runTaskGraph }, { expect, deferred, flush }) {
@@ -112,6 +122,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'duplicate ids and unknown deps reject before anything runs',
     async run({ runTaskGraph }, { expect }) {
       let ran = false;
@@ -120,12 +131,11 @@ export const tests: TestCase<M>[] = [
       expect(dup.includes('Duplicate') && dup.includes('a'), dup).toBe(true);
       const unk = await rejectMsg(runTaskGraph([{ id: 'a', run }, { id: 'b', deps: ['nope'], run }]));
       expect(unk.includes('Unknown') && unk.includes('nope'), unk).toBe(true);
-      const tgt = await rejectMsg(runTaskGraph([{ id: 'a', run }], { targets: ['ghost'] }));
-      expect(tgt.includes('Unknown') && tgt.includes('ghost'), tgt).toBe(true);
       expect(ran, 'no task may run').toBe(false);
     },
   },
   {
+    group: G2,
     title: 'cycles are reported with their path',
     async run({ runTaskGraph }, { expect }) {
       let ran = false;
@@ -146,6 +156,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'a failure skips transitive dependents but not unrelated tasks',
     async run({ runTaskGraph }, { expect }) {
       const boom = new Error('build broke');
@@ -163,6 +174,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'a synchronous throw counts as a failure (does not reject the run)',
     async run({ runTaskGraph }, { expect }) {
       const report = await runTaskGraph([{ id: 'a', run: () => { throw new TypeError('sync'); } }]);
@@ -171,12 +183,13 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'failFast: stops starting tasks, aborts the signal, waits for running ones',
-    input: 'concurrency 2; a fails while b is running; c, d not started',
+    input: 'a fails while b is running; c and d depend on b, so they have not started',
     async run({ runTaskGraph }, { expect, deferred, flush }) {
       const m = manual(deferred);
       let settled = false;
-      const p = runTaskGraph([m.task('a'), m.task('b'), m.task('c'), m.task('d', ['b'])], { concurrency: 2, failFast: true });
+      const p = runTaskGraph([m.task('a'), m.task('b'), m.task('c', ['b']), m.task('d', ['b'])], { failFast: true });
       p.then(() => { settled = true; });
       await flush();
       const signal = m.ctxs.get('b')!.signal;
@@ -184,16 +197,16 @@ export const tests: TestCase<M>[] = [
       m.gates.get('a')!.reject(new Error('a failed'));
       await flush();
       expect(signal.aborted, 'signal aborted on first failure').toBe(true);
-      expect(m.started, 'c must not start').toEqual(['a', 'b']);
       expect(settled, 'must wait for b to settle').toBe(false);
       m.gates.get('b')!.resolve('late but fine');
       const report = await p;
-      expect(m.started).toEqual(['a', 'b']);
+      expect(m.started, 'c and d must not start even though b succeeded').toEqual(['a', 'b']);
       expect(report.status).toEqual({ a: 'failed', b: 'success', c: 'skipped', d: 'skipped' });
       expect(report.results).toEqual({ b: 'late but fine' });
     },
   },
   {
+    group: G3,
     title: 'without failFast the signal is never aborted',
     async run({ runTaskGraph }, { expect }) {
       let sig: AbortSignal | undefined;
@@ -205,6 +218,17 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
+    title: 'unknown targets reject before anything runs',
+    async run({ runTaskGraph }, { expect }) {
+      let ran = false;
+      const tgt = await rejectMsg(runTaskGraph([{ id: 'a', run: () => { ran = true; } }], { targets: ['ghost'] }));
+      expect(tgt.includes('Unknown') && tgt.includes('ghost'), tgt).toBe(true);
+      expect(ran, 'no task may run').toBe(false);
+    },
+  },
+  {
+    group: G4,
     title: 'targets run only what they need',
     async run({ runTaskGraph }, { expect }) {
       const ran: string[] = [];
@@ -218,6 +242,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'events: start before run, exactly one final event per task',
     async run({ runTaskGraph }, { expect }) {
       const log: string[] = [];
@@ -233,12 +258,14 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'empty graph resolves to an empty report',
     async run({ runTaskGraph }, { expect }) {
       expect(await runTaskGraph([])).toEqual({ status: {}, results: {}, errors: {} });
     },
   },
   {
+    group: G4,
     title: 'wide graph: 300 tasks, diamond-heavy, each runs once',
     input: 'layer k depends on all 10 tasks of layer k-1; 30 layers',
     async run({ runTaskGraph }, { expect }) {

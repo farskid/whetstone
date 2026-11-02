@@ -44,6 +44,24 @@ export const tests: TestCase<M>[] = [
   {
     group: G1,
     title: 'calling release twice is a no-op',
+    input: 'a holds; b waits; a calls release twice',
+    async run({ Mutex }, { expect, flush }) {
+      const m = new Mutex();
+      const ra = await m.acquire();
+      let b = false, c = false;
+      m.acquire().then(() => { b = true; });
+      ra(); ra();
+      await flush();
+      expect(b, 'b granted').toBe(true);
+      expect(m.locked, 'still locked by b').toBe(true);
+      m.acquire().then(() => { c = true; });
+      await flush();
+      expect(c, 'c granted while b holds').toBe(false);
+    },
+  },
+  {
+    group: G2,
+    title: 'calling a semaphore release twice is a no-op',
     async run({ Semaphore }, { expect }) {
       const s = new Semaphore(2);
       const r1 = await s.acquire();
