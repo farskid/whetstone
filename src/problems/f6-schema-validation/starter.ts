@@ -1,8 +1,4 @@
-export interface Issue {
-  path: (string | number)[];
-  code: string;
-  message: string;
-}
+import type { Issue } from './types';
 
 export class ValidationError extends Error {
   constructor(public issues: Issue[]) {
@@ -10,8 +6,6 @@ export class ValidationError extends Error {
     this.name = 'ValidationError';
   }
 }
-
-export type SafeParseResult = { success: true; data: any } | { success: false; error: ValidationError };
 
 // Build schemas however you like; they need .parse / .safeParse / .optional / .nullable /
 // .default / .refine / .transform, plus the type-specific methods from the statement.

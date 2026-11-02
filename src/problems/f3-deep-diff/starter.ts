@@ -1,15 +1,4 @@
-export type Operation =
-  | { op: 'add'; path: string; value: unknown }
-  | { op: 'remove'; path: string }
-  | { op: 'replace'; path: string; value: unknown }
-  | { op: 'move'; from: string; path: string }
-  | { op: 'copy'; from: string; path: string }
-  | { op: 'test'; path: string; value: unknown };
-
-export interface DiffOptions {
-  /** Identity of an array item. When given, reordered items become `move` ops. */
-  objectHash?: (item: unknown, index: number) => string;
-}
+import type { Operation, DiffOptions } from './types';
 
 export class PatchError extends Error {
   constructor(message: string, public index: number, public operation: Operation) {

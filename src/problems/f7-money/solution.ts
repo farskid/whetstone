@@ -1,15 +1,9 @@
-export interface Currency {
-  code: string;
-  /** Number of minor-unit digits: 2 for USD, 0 for JPY, 3 for KWD. */
-  exponent: number;
-}
+import type { Currency, RoundingMode } from './types';
 
 export const USD: Currency = { code: 'USD', exponent: 2 };
 export const EUR: Currency = { code: 'EUR', exponent: 2 };
 export const JPY: Currency = { code: 'JPY', exponent: 0 };
 export const KWD: Currency = { code: 'KWD', exponent: 3 };
-
-export type RoundingMode = 'half-even' | 'half-up' | 'floor' | 'ceil';
 
 export class CurrencyMismatchError extends Error {
   constructor(a: Currency, b: Currency) {

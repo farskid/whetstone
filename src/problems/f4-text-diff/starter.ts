@@ -1,24 +1,4 @@
-export interface Change {
-  value: string;
-  count: number;
-  added?: true;
-  removed?: true;
-}
-
-export interface Hunk {
-  oldStart: number;
-  oldLines: number;
-  newStart: number;
-  newLines: number;
-  /** ' ', '-', '+' prefixed lines without terminators, plus '\ No newline at end of file' markers. */
-  lines: string[];
-}
-
-export interface StructuredPatch {
-  oldFileName: string;
-  newFileName: string;
-  hunks: Hunk[];
-}
+import type { Change, StructuredPatch } from './types';
 
 export const NO_NEWLINE = '\\ No newline at end of file';
 

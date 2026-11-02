@@ -8,8 +8,14 @@ const issuesOf = (schema: any, input: unknown): string[] | 'ok' => {
   return r.error.issues.map((i: any) => `${i.path.length ? i.path.join('.') : '(root)'} ${i.code}: ${i.message}`);
 };
 
+const G1 = 'Primitives';
+const G2 = 'Objects and arrays';
+const G3 = 'Modifiers';
+const G4 = 'Refine, transform, lazy';
+
 export const tests: TestCase<M>[] = [
   {
+    group: G1,
     title: 'primitives: parse returns the value, wrong type → invalid_type',
     async run({ s }, { expect }) {
       expect(s.string().parse('hi')).toBe('hi');
@@ -23,25 +29,32 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'NaN is not a number',
     async run({ s }, { expect }) {
       expect(issuesOf(s.number(), NaN)).toEqual(['(root) invalid_type: Expected number, received nan']);
     },
   },
   {
+    group: G1,
     title: 'parse throws ValidationError with issues and a readable message; safeParse never throws',
     async run({ s, ValidationError }, { expect }) {
       let err: any;
-      try { s.object({ a: s.string(), b: s.object({ c: s.number() }) }).parse({ a: 1, b: { c: 'x' } }); } catch (e) { err = e; }
+      try { s.string().min(3).regex(/^a/).parse('xy'); } catch (e) { err = e; }
       expect(err).toBeInstanceOf(ValidationError);
       expect(err.name).toBe('ValidationError');
-      expect(err.message).toBe('a: Expected string, received number\nb.c: Expected number, received string');
+      expect(err.message).toBe('(root): String must contain at least 3 character(s)\n(root): Invalid');
+      expect(err.issues).toEqual([
+        { path: [], code: 'too_small', message: 'String must contain at least 3 character(s)' },
+        { path: [], code: 'invalid_string', message: 'Invalid' },
+      ]);
       expect(s.string().safeParse(1).success).toBe(false);
       expect(s.string().safeParse('x')).toEqual({ success: true, data: 'x' });
       expect(() => s.number().parse('1')).toThrow('(root): Expected number, received string');
     },
   },
   {
+    group: G1,
     title: 'string checks: all failing checks reported in chain order; wrong type skips checks',
     async run({ s }, { expect }) {
       const schema = s.string().min(3).regex(/^[a-z]+$/).max(5);
@@ -57,6 +70,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'number checks: min, max, int',
     async run({ s }, { expect }) {
       const n = s.number().int().min(1).max(10);
@@ -69,6 +83,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'schemas are immutable',
     async run({ s }, { expect }) {
       const base = s.string();
@@ -76,12 +91,10 @@ export const tests: TestCase<M>[] = [
       min3.max(4);
       expect(base.parse('a')).toBe('a');
       expect(min3.parse('abcdef')).toBe('abcdef');
-      const obj = s.object({ a: s.string() });
-      obj.strict();
-      expect(obj.parse({ a: 'x', b: 1 })).toEqual({ a: 'x' });
     },
   },
   {
+    group: G1,
     title: 'literal and enum',
     async run({ s }, { expect }) {
       expect(s.literal('on').parse('on')).toBe('on');
@@ -93,6 +106,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'objects: every issue collected with its path, in shape order',
     async run({ s }, { expect }) {
       const User = s.object({
@@ -108,21 +122,29 @@ export const tests: TestCase<M>[] = [
       ]);
       expect(issuesOf(User, [])).toEqual(['(root) invalid_type: Expected object, received array']);
       expect(issuesOf(User, null)).toEqual(['(root) invalid_type: Expected object, received null']);
+      expect(() => s.object({ a: s.string(), b: s.object({ c: s.number() }) }).parse({ a: 1, b: { c: 'x' } }), 'message joins paths with dots')
+        .toThrow('a: Expected string, received number\nb.c: Expected number, received string');
+      const input = { a: 1, x: 2, y: 3 };
+      const out = s.object({ a: s.number() }).parse(input);
+      expect(out, 'unknown keys are stripped').toEqual({ a: 1 });
+      expect(out === input, 'new object').toBe(false);
     },
   },
   {
+    group: G3,
     title: 'objects: unknown keys stripped by default; strict reports; passthrough keeps; output is a new object',
     async run({ s }, { expect }) {
       const shape = { a: s.number() };
       const input = { a: 1, x: 2, y: 3 };
-      const out = s.object(shape).parse(input);
-      expect(out).toEqual({ a: 1 });
-      expect(out === input, 'new object').toBe(false);
+      const obj = s.object(shape);
+      obj.strict();
+      expect(obj.parse(input), 'strict() returns a new schema').toEqual({ a: 1 });
       expect(issuesOf(s.object({ o: s.object(shape).strict() }), { o: input })).toEqual(['o unrecognized_keys: Unrecognized key(s): "x", "y"']);
       expect(Object.keys(s.object({ b: s.number(), a: s.number() }).passthrough().parse({ z: 0, a: 1, b: 2 }))).toEqual(['b', 'a', 'z']);
     },
   },
   {
+    group: G3,
     title: 'extend adds/overrides keys and keeps the unknown-key mode',
     async run({ s }, { expect }) {
       const Base = s.object({ id: s.number(), name: s.string() }).strict();
@@ -133,6 +155,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'arrays: item issues with index paths, then length checks; output is a new array',
     async run({ s }, { expect }) {
       const tags = s.array(s.string()).min(3);
@@ -151,6 +174,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'optional, nullable, and absent optional keys stay absent',
     async run({ s }, { expect }) {
       expect(s.string().optional().parse(undefined)).toBeUndefined();
@@ -163,6 +187,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'default: replaces undefined (value or factory) and is parsed by the inner schema',
     async run({ s }, { expect }) {
       const Settings = s.object({
@@ -181,15 +206,19 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'union: first succeeding option wins; all fail → one invalid_union issue',
     async run({ s }, { expect }) {
-      const u = s.union([s.number().transform((n: number) => `num ${n}`), s.string(), s.object({ k: s.literal('x') })]);
-      expect(u.parse(4)).toBe('num 4');
+      const u = s.union([s.number(), s.string(), s.object({ k: s.literal('x') })]);
+      expect(u.parse(4)).toBe(4);
+      const ab = s.union([s.object({ a: s.number() }), s.object({ a: s.number() }).passthrough()]);
+      expect(ab.parse({ a: 1, b: 2 }), 'the first option that succeeds wins').toEqual({ a: 1 });
       expect(u.parse('4')).toBe('4');
       expect(issuesOf(s.object({ v: u }), { v: { k: 'y' } })).toEqual(['v invalid_union: Invalid input']);
     },
   },
   {
+    group: G4,
     title: 'refine and transform only run on valid input, in chain order',
     async run({ s }, { expect }) {
       const calls: string[] = [];
@@ -204,9 +233,12 @@ export const tests: TestCase<M>[] = [
       const n = s.string().transform((v: string) => v.length).refine((len: number) => len > 1);
       expect(n.parse('ab')).toBe(2);
       expect(issuesOf(s.array(n), ['a'])).toEqual(['0 custom: Invalid input']);
+      const u = s.union([s.number().transform((v: number) => `num ${v}`), s.string()]);
+      expect(u.parse(4), 'a union uses the winning option\'s transformed output').toBe('num 4');
     },
   },
   {
+    group: G4,
     title: 'lazy: recursive schemas',
     async run({ s }, { expect }) {
       const Node: any = s.object({ name: s.string(), children: s.array(s.lazy(() => Node)).default(() => []) });

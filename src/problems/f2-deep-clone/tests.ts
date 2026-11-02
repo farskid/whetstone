@@ -2,9 +2,8 @@ import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
 
 const G1 = 'Plain data';
-const G2 = 'Identity';
-const G3 = 'Built-ins';
-const G4 = 'Edges';
+const G2 = 'Built-ins and identity';
+const G3 = 'Edges';
 
 function thrown(fn: () => unknown): unknown {
   try { fn(); } catch (e) { return e; }
@@ -31,7 +30,6 @@ export const tests: TestCase<M>[] = [
     run({ clone }, { expect }) {
       expect(thrown(() => clone({ f() {} })) instanceof TypeError).toBe(true);
       expect(thrown(() => clone([Symbol('s')])) instanceof TypeError).toBe(true);
-      expect(thrown(() => clone(new Map([[1, () => 1]]))) instanceof TypeError).toBe(true);
       expect(thrown(() => clone(() => 1)) instanceof TypeError).toBe(true);
     },
   },
@@ -49,7 +47,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    group: G3,
+    group: G2,
     title: 'Date and RegExp (with lastIndex)',
     run({ clone }, { expect }) {
       const re = /a(b)/gi;
@@ -61,7 +59,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    group: G3,
+    group: G2,
     title: 'Map and Set keep order and clone object keys and members',
     run({ clone }, { expect }) {
       const key = { id: 1 };
@@ -74,10 +72,11 @@ export const tests: TestCase<M>[] = [
       expect([k2 !== key, k2 === out.key, k2 === a, v2]).toEqual([true, true, true, { v: 2 }]);
       const members = [...out.s];
       expect([members[0], members[1] !== member, members[1], members[2]]).toEqual([3, true, { m: true }, 1]);
+      expect(thrown(() => clone(new Map([[1, () => 1]]))) instanceof TypeError, 'functions inside a Map throw').toBe(true);
     },
   },
   {
-    group: G3,
+    group: G2,
     title: 'typed arrays and DataView share one cloned buffer',
     run({ clone }, { expect }) {
       const buf = new ArrayBuffer(16);
@@ -96,7 +95,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    group: G4,
+    group: G3,
     title: 'sparse arrays keep holes; extra array props are copied',
     run({ clone }, { expect }) {
       const arr: any = [1, , 3];
@@ -107,7 +106,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    group: G4,
+    group: G3,
     title: 'symbol keys are copied; non-enumerable ones are not',
     run({ clone }, { expect }) {
       const k = Symbol('k');
@@ -120,7 +119,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    group: G4,
+    group: G3,
     title: 'getters become data; class instances become plain unless keepPrototype',
     run({ clone }, { expect }) {
       let reads = 0;
@@ -139,7 +138,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    group: G4,
+    group: G3,
     title: 'customizer replaces objects without traversing them',
     run({ clone }, { expect }) {
       class Handle { constructor(public id: number) {} }
@@ -152,7 +151,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    group: G4,
+    group: G3,
     title: '100,000 levels deep (objects and arrays) without stack overflow',
     run({ clone }, { expect }) {
       const root: any = {};

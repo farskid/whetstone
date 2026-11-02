@@ -13,16 +13,16 @@ export const tests: TestCase<M>[] = [
     run({ fuzzyMatch }, { expect }) {
       expect(fuzzyMatch('gst', 'git status')?.positions).toEqual([0, 4, 5]);
       expect([fuzzyMatch('tsg', 'git status'), fuzzyMatch('gitx', 'git'), fuzzyMatch('abc', '')]).toEqual([null, null, null]);
-      expect(fuzzyMatch('', 'anything')).toEqual({ score: 0, positions: [], ranges: [] });
+      expect(fuzzyMatch('', 'anything')?.positions, 'an empty query matches with no positions').toEqual([]);
     },
   },
   {
     group: G1,
     title: 'case- and accent-insensitive, positions in the original text',
     run({ fuzzyMatch }, { expect }) {
-      expect(fuzzyMatch('CAFE', 'Café Royale')).toEqual({ score: 98, positions: [0, 1, 2, 3], ranges: [[0, 4]] });
+      expect(fuzzyMatch('CAFE', 'Café Royale')?.positions).toEqual([0, 1, 2, 3]);
       expect(fuzzyMatch('creme', 'Cre\u0300me brûlée')?.positions, 'decomposed input keeps original indices').toEqual([0, 1, 2, 4, 5]);
-      expect(fuzzyMatch('ü', 'Zurich ÜBER')?.positions, 'the separator bonus beats the earlier u').toEqual([7]);
+      expect(fuzzyMatch('é', 'Résumé')?.positions, 'é folds to e').toEqual([1]);
     },
   },
   {
@@ -52,7 +52,9 @@ export const tests: TestCase<M>[] = [
     group: G2,
     title: 'the best alignment wins over the first one',
     run({ fuzzyMatch }, { expect }) {
-      expect(fuzzyMatch('ab', 'a_b_ab')).toEqual({ score: 49, positions: [4, 5], ranges: [[4, 6]] });
+      const m = fuzzyMatch('ab', 'a_b_ab');
+      expect([m?.score, m?.positions]).toEqual([49, [4, 5]]);
+      expect(fuzzyMatch('ü', 'Zurich ÜBER')?.positions, 'the separator bonus beats the earlier u').toEqual([7]);
       expect(fuzzyMatch('fb', 'foo bar fooBar')?.positions, 'start + separator beats a later camel pair').toEqual([0, 4]);
       expect(fuzzyMatch('usr', 'unused/src/router')?.positions).toEqual([0, 7, 8]);
     },
@@ -74,6 +76,9 @@ export const tests: TestCase<M>[] = [
     title: 'ranges merge adjacent positions',
     run({ fuzzyMatch }, { expect }) {
       expect(fuzzyMatch('getus', 'getUserStatus')?.ranges).toEqual([[0, 5]]);
+      expect(fuzzyMatch('CAFE', 'Café Royale')).toEqual({ score: 98, positions: [0, 1, 2, 3], ranges: [[0, 4]] });
+      expect(fuzzyMatch('ab', 'a_b_ab')?.ranges).toEqual([[4, 6]]);
+      expect(fuzzyMatch('', 'anything')).toEqual({ score: 0, positions: [], ranges: [] });
       expect(fuzzyMatch('gus', 'get_user_status')?.ranges).toEqual([[0, 1], [4, 6]]);
     },
   },

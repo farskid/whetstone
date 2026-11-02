@@ -1,8 +1,4 @@
-export interface Issue {
-  path: (string | number)[];
-  code: string;
-  message: string;
-}
+import type { Issue, SafeParseResult } from './types';
 
 export class ValidationError extends Error {
   constructor(public issues: Issue[]) {
@@ -10,8 +6,6 @@ export class ValidationError extends Error {
     this.name = 'ValidationError';
   }
 }
-
-export type SafeParseResult = { success: true; data: any } | { success: false; error: ValidationError };
 
 type Path = (string | number)[];
 interface Ctx { issues: Issue[] }

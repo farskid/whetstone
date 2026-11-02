@@ -15,9 +15,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Calendar arithmetic on plain dates, calendar-day differences in a time zone across DST, business days with holidays, and RRULE-lite recurrence expansion.',
   stages: [
-    { title: 'Calendar arithmetic', summary: 'addDays, addMonths with end-of-month clamping, startOfWeek.' },
-    { title: 'Time zones', summary: 'Calendar days of instants in a zone, across DST changes.' },
-    { title: 'Business days', summary: 'Add and count business days with a holiday list.' },
-    { title: 'Recurrence', summary: 'Daily, weekly and monthly rules with interval, nth weekday, count and until.' },
+    { title: 'Calendar arithmetic', summary: 'addDays, addMonths with end-of-month clamping, startOfWeek.', groups: ['Calendar arithmetic'] },
+    { title: 'Time zones', summary: 'Calendar days of instants in a zone, across DST changes.', groups: ['Time zones'] },
+    { title: 'Business days', summary: 'Add and count business days with a holiday list.', groups: ['Business days'] },
+    { title: 'Recurrence', summary: 'Daily, weekly and monthly rules with interval, nth weekday, count and until.', groups: ['Recurrence'] },
   ],
 };

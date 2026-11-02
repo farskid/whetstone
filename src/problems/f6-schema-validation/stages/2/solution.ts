@@ -1,0 +1,169 @@
+import type { Issue, SafeParseResult } from './types';
+
+export class ValidationError extends Error {
+  constructor(public issues: Issue[]) {
+    super(issues.map((i) => `${i.path.length ? i.path.join('.') : '(root)'}: ${i.message}`).join('\n'));
+    this.name = 'ValidationError';
+  }
+}
+
+type Path = (string | number)[];
+interface Ctx { issues: Issue[] }
+const INVALID = Symbol('invalid');
+type Out = unknown | typeof INVALID;
+type ParseFn = (input: unknown, path: Path, ctx: Ctx) => Out;
+
+const typeName = (v: unknown): string => {
+  if (v === null) return 'null';
+  if (Array.isArray(v)) return 'array';
+  if (typeof v === 'number' && Number.isNaN(v)) return 'nan';
+  return typeof v;
+};
+
+const addIssue = (ctx: Ctx, path: Path, code: string, message: string) => {
+  ctx.issues.push({ path: [...path], code, message });
+};
+
+const expectType = (expected: string, check: (v: unknown) => boolean): ParseFn => (input, path, ctx) => {
+  if (check(input)) return input;
+  addIssue(ctx, path, 'invalid_type', `Expected ${expected}, received ${typeName(input)}`);
+  return INVALID;
+};
+
+/** A check runs only on a value of the right type; it returns an issue or null. */
+type Check = (value: any) => { code: string; message: string } | null;
+
+export class Schema {
+  constructor(protected readonly _parse: ParseFn) {}
+
+  /** @internal */
+  run(input: unknown, path: Path, ctx: Ctx): Out {
+    return this._parse(input, path, ctx);
+  }
+
+  safeParse(input: unknown): SafeParseResult {
+    const ctx: Ctx = { issues: [] };
+    const out = this.run(input, [], ctx);
+    if (ctx.issues.length || out === INVALID) return { success: false, error: new ValidationError(ctx.issues) };
+    return { success: true, data: out };
+  }
+
+  parse(input: unknown): any {
+    const r = this.safeParse(input);
+    if (!r.success) throw r.error;
+    return r.data;
+  }
+
+}
+
+class CheckedSchema<Self> extends Schema {
+  constructor(
+    private readonly base: ParseFn,
+    private readonly checks: Check[],
+    private readonly make: (checks: Check[]) => Self,
+  ) {
+    super((input, path, ctx) => {
+      const before = ctx.issues.length;
+      const out = base(input, path, ctx); // INVALID only for a wrong type
+      if (out === INVALID) return INVALID;
+      for (const check of checks) {
+        const issue = check(out);
+        if (issue) addIssue(ctx, path, issue.code, issue.message);
+      }
+      return ctx.issues.length > before ? INVALID : out;
+    });
+  }
+  protected with(check: Check): Self {
+    return this.make([...this.checks, check]);
+  }
+}
+
+export class StringSchema extends CheckedSchema<StringSchema> {
+  constructor(checks: Check[] = []) {
+    super(expectType('string', (v) => typeof v === 'string'), checks, (c) => new StringSchema(c));
+  }
+  min(n: number) {
+    return this.with((v: string) => (v.length < n ? { code: 'too_small', message: `String must contain at least ${n} character(s)` } : null));
+  }
+  max(n: number) {
+    return this.with((v: string) => (v.length > n ? { code: 'too_big', message: `String must contain at most ${n} character(s)` } : null));
+  }
+  regex(re: RegExp) {
+    return this.with((v: string) => {
+      re.lastIndex = 0;
+      return re.test(v) ? null : { code: 'invalid_string', message: 'Invalid' };
+    });
+  }
+}
+
+export class NumberSchema extends CheckedSchema<NumberSchema> {
+  constructor(checks: Check[] = []) {
+    super(expectType('number', (v) => typeof v === 'number' && !Number.isNaN(v)), checks, (c) => new NumberSchema(c));
+  }
+  min(n: number) {
+    return this.with((v: number) => (v < n ? { code: 'too_small', message: `Number must be greater than or equal to ${n}` } : null));
+  }
+  max(n: number) {
+    return this.with((v: number) => (v > n ? { code: 'too_big', message: `Number must be less than or equal to ${n}` } : null));
+  }
+  int() {
+    return this.with((v: number) => (Number.isInteger(v) ? null : { code: 'invalid_type', message: 'Expected integer, received float' }));
+  }
+}
+
+export class ArraySchema extends CheckedSchema<ArraySchema> {
+  constructor(item: Schema, checks: Check[] = []) {
+    super(
+      (input, path, ctx) => {
+        if (!Array.isArray(input)) return expectType('array', () => false)(input, path, ctx);
+        // Item issues are recorded here; the length checks then run on the new array.
+        return input.map((el, i) => item.run(el, [...path, i], ctx));
+      },
+      checks,
+      (c) => new ArraySchema(item, c),
+    );
+  }
+  min(n: number) {
+    return this.with((v: unknown[]) => (v.length < n ? { code: 'too_small', message: `Array must contain at least ${n} element(s)` } : null));
+  }
+  max(n: number) {
+    return this.with((v: unknown[]) => (v.length > n ? { code: 'too_big', message: `Array must contain at most ${n} element(s)` } : null));
+  }
+}
+
+export class ObjectSchema extends Schema {
+  constructor(shape: Record<string, Schema>) {
+    super((input, path, ctx) => {
+      if (typeName(input) !== 'object') return expectType('object', () => false)(input, path, ctx);
+      const obj = input as Record<string, unknown>;
+      const out: Record<string, unknown> = {};
+      let ok = true;
+      for (const [key, schema] of Object.entries(shape)) {
+        const r = schema.run(obj[key], [...path, key], ctx);
+        if (r === INVALID) { ok = false; continue; }
+        out[key] = r; // unknown keys are never copied
+      }
+      return ok ? out : INVALID;
+    });
+  }
+}
+
+export const s = {
+  string: () => new StringSchema(),
+  number: () => new NumberSchema(),
+  boolean: () => new Schema(expectType('boolean', (v) => typeof v === 'boolean')),
+  literal: (value: string | number | boolean | null) =>
+    new Schema((input, path, ctx) => {
+      if (input === value) return input;
+      addIssue(ctx, path, 'invalid_literal', `Expected ${JSON.stringify(value)}`);
+      return INVALID;
+    }),
+  enum: (values: readonly (string | number)[]) =>
+    new Schema((input, path, ctx) => {
+      if (values.includes(input as string | number)) return input;
+      addIssue(ctx, path, 'invalid_enum', `Expected ${values.map((v) => JSON.stringify(v)).join(' | ')}, received ${JSON.stringify(input) ?? typeName(input)}`);
+      return INVALID;
+    }),
+  array: (item: Schema) => new ArraySchema(item),
+  object: (shape: Record<string, Schema>) => new ObjectSchema(shape),
+};
