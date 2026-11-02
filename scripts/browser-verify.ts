@@ -154,7 +154,9 @@ async function main() {
     check(sameText(await editorLines(page, TYPES), t2), 'types.ts now shows stage 2\'s types');
     check(!!(await page.$('[data-testid="types-updated"]')), 'types.ts is marked "updated"');
     const added = await page.$$('[data-testid="types-editor"] .types-new-line');
-    check(added.length === 2, `the 2 lines stage 2 added are highlighted (${added.length})`);
+    const before1 = new Set(t1.split('\n').map((l) => l.trim()));
+    const newLines = t2.split('\n').filter((l) => l.trim() && !before1.has(l.trim())).length;
+    check(added.length === newLines, `the ${newLines} lines stage 2 added are highlighted (${added.length})`);
     const lines = (await editorLines(page, SOL)).map(norm).filter(Boolean);
     const s1Lines = new Set(s1.split('\n').map(norm));
     const saved = await page.evaluate((id) => JSON.parse(localStorage.getItem('practical:v2') ?? '{}').code?.[id]?.ts, flowId);
@@ -173,9 +175,8 @@ async function main() {
     check(await runAndCheck(`flow: ${flowId} stage 2 reference in the editor`, page, bad), 'stage 2 passes with the stage-2 solution');
     check((await page.textContent('.stage-label'))?.trim() === 'Stage 3 of 3', 'passing stage 2 moves on to stage 3');
     await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-3-stage2-passed.png') });
-    await page.click('[data-testid="stage-tab-2"]');
-    await page.waitForTimeout(200);
-    // Statement borders: passed stages are the pass colour, the stage being viewed is the accent (even when passed).
+    // Statement borders: passed stages are the pass colour (the viewed one too, once passed); the viewed stage that
+    // isn't passed yet is the accent.
     const border = (k: number) => page.$eval(`[data-testid="stage-section-${k}"]`, (e) => getComputedStyle(e).borderLeftColor);
     const cssVar = (v: string) => page.evaluate((name) => {
       const d = document.createElement('div'); d.style.color = `var(${name})`; document.body.append(d);
@@ -185,13 +186,13 @@ async function main() {
       await page.selectOption('[data-testid="theme-select"]', t);
       await page.waitForTimeout(200);
       const [pass, accent] = [await cssVar('--pass'), await cssVar('--accent')];
-      check(await border(1) === pass, `[${t}] passed stage 1 has a pass-coloured left border`);
-      check(await border(2) === accent, `[${t}] stage 2 (viewed, passed) keeps the accent left border`);
-      await page.click('[data-testid="stage-tab-1"]');
-      await page.waitForTimeout(200);
-      check(await border(1) === accent && await border(2) === pass, `[${t}] viewing stage 1: stage 1 accent, passed stage 2 pass colour`);
+      check(await border(1) === pass && await border(2) === pass, `[${t}] passed stages 1 and 2 have pass-coloured left borders`);
+      check(await border(3) === accent, `[${t}] stage 3 (viewed, not passed yet) has the accent left border`);
       await page.screenshot({ path: join(SHOTS, `whetstone-stage-border-${t}.png`) });
       await page.click('[data-testid="stage-tab-2"]');
+      await page.waitForTimeout(200);
+      check(await border(2) === pass && await page.$eval('[data-testid="stage-section-2"]', (e) => e.classList.contains('current')), `[${t}] viewing passed stage 2: it is current and pass-coloured`);
+      await page.click('[data-testid="stage-tab-3"]');
       await page.waitForTimeout(200);
     }
     await page.selectOption('[data-testid="theme-select"]', 'dark');
