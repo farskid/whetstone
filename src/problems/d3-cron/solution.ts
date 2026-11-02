@@ -1,15 +1,4 @@
-export interface CronSchedule {
-  minute: number[];
-  hour: number[];
-  dayOfMonth: number[];
-  month: number[];
-  dayOfWeek: number[];
-  domRestricted: boolean;
-  dowRestricted: boolean;
-}
-export interface NextOptions {
-  tz?: string;
-}
+import type { CronSchedule, NextOptions } from './types';
 
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];

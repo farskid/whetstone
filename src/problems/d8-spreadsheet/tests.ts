@@ -3,8 +3,8 @@ type M = typeof import('./solution');
 
 const G1 = 'Formulas';
 const G2 = 'Functions and errors';
-const G3 = 'Recalculation';
-const G4 = 'Cycles and custom functions';
+const G3 = 'Recalculation and custom functions';
+const G4 = 'Cycles';
 
 const E = (code: string) => ({ error: code });
 
@@ -181,7 +181,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
-    group: G4,
+    group: G3,
     title: 'custom functions: args, ranges, errors, late definition',
     run({ createSheet }, { expect }) {
       const s = createSheet();

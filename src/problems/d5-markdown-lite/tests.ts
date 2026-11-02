@@ -52,7 +52,6 @@ export const tests: TestCase<M>[] = [
       expect(render('file_name_ here, a * b*')).toBe('<p>file_name_ here, a * b*</p>');
       expect(render('**unclosed and *also')).toBe('<p>**unclosed and *also</p>');
       expect(render('\\*literal\\* \\_x\\_ C:\\path')).toBe('<p>*literal* _x_ C:\\path</p>');
-      expect(render('* not a list?')).toBe('<ul>\n<li>not a list?</li>\n</ul>');
     },
   },
   {
@@ -87,6 +86,7 @@ export const tests: TestCase<M>[] = [
     group: G4,
     title: 'lists: kinds, start numbers, and what ends them',
     run({ render }, { expect }) {
+      expect(render('* not a list?')).toBe('<ul>\n<li>not a list?</li>\n</ul>');
       expect(render('- a\n+ b\n* c')).toBe('<ul>\n<li>a</li>\n<li>b</li>\n<li>c</li>\n</ul>');
       expect(render('3. x\n4. **y**\n- z')).toBe('<ol start="3">\n<li>x</li>\n<li><strong>y</strong></li>\n</ol>\n<ul>\n<li>z</li>\n</ul>');
       expect(render('1. one\n\npara\n- a\n\n- b')).toBe('<ol>\n<li>one</li>\n</ol>\n<p>para</p>\n<ul>\n<li>a</li>\n</ul>\n<ul>\n<li>b</li>\n</ul>');

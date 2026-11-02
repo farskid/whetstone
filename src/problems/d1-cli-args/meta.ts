@@ -15,9 +15,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Parse argv minimist-style, then with a schema: types, aliases, defaults, --no-flags, nested subcommands, unknown/required errors with "did you mean", and generated help.',
   stages: [
-    { title: 'Schema-less parsing', summary: '--a=1 --b 2 -xyz pos -- rest, repeated flags, negative numbers.' },
-    { title: 'Schema', summary: 'Types, defaults, aliases, --no-flag, short groups.' },
-    { title: 'Subcommands and errors', summary: 'Nested commands with inherited options; unknown, invalid and missing-required errors.' },
-    { title: 'Help and suggestions', summary: 'Generated --help text and "did you mean" for typos.' },
+    { title: 'Schema-less parsing', summary: '--a=1 --b 2 -xyz pos -- rest, repeated flags, negative numbers.', groups: ['Schema-less parsing'] },
+    { title: 'Schema', summary: 'Types, defaults, aliases, --no-flag, short groups.', groups: ['Schema'] },
+    { title: 'Subcommands and errors', summary: 'Nested commands with inherited options; unknown, invalid and missing-required errors.', groups: ['Subcommands and errors'] },
+    { title: 'Help and suggestions', summary: 'Generated --help text and "did you mean" for typos.', groups: ['Help and suggestions'] },
   ],
 };

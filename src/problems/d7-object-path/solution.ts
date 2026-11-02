@@ -1,8 +1,4 @@
-export type PathKey = string | number;
-export interface Match {
-  path: PathKey[];
-  value: unknown;
-}
+import type { PathKey, Match } from './types';
 
 type Segment = { kind: 'key'; key: PathKey } | { kind: 'wildcard' } | { kind: 'filter'; expr: Expr };
 

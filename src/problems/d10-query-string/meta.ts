@@ -14,8 +14,8 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Parse and stringify query strings with repeated keys, nested brackets and arrays, plus depth, parameter and array-index limits and prototype-pollution protection.',
   stages: [
-    { title: 'Flat pairs', summary: 'parse and stringify; repeated keys become arrays; + is a space.' },
-    { title: 'Nesting', summary: 'a[b][c]=1, a[]=1, a[0]=x, round-tripping.' },
-    { title: 'Security limits', summary: 'Depth, parameter count, array index cap and __proto__ blocking.' },
+    { title: 'Flat pairs', summary: 'parse and stringify; repeated keys become arrays; + is a space.', groups: ['Flat pairs'] },
+    { title: 'Nesting', summary: 'a[b][c]=1, a[]=1, a[0]=x, round-tripping.', groups: ['Nesting'] },
+    { title: 'Security limits', summary: 'Depth, parameter count, array index cap and __proto__ blocking.', groups: ['Security limits'] },
   ],
 };

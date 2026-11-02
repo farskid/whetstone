@@ -1,21 +1,4 @@
-export interface ParseError {
-  row: number;
-  message: string;
-}
-export interface StreamOptions {
-  delimiter?: string;
-  onRow(fields: string[], row: number): void;
-  onError?(err: ParseError): void;
-}
-export interface ParseOptions {
-  delimiter?: string | 'auto';
-  header?: boolean;
-  dynamicTyping?: boolean;
-}
-export interface ParseResult {
-  data: unknown[];
-  errors: ParseError[];
-}
+import type { ParseError, ParseOptions, ParseResult, StreamOptions } from './types';
 
 const CANDIDATES = [',', '\t', ';', '|'];
 

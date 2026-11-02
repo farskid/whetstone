@@ -1,10 +1,4 @@
-export interface SemVer {
-  major: number;
-  minor: number;
-  patch: number;
-  prerelease: Array<string | number>;
-  build: string[];
-}
+import type { SemVer } from './types';
 
 export function parse(input: string): SemVer | null {
   throw new Error('Not implemented');

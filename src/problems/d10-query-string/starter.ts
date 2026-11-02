@@ -1,11 +1,5 @@
-export interface ParseOptions {
-  depth?: number;
-  parameterLimit?: number;
-  arrayLimit?: number;
-}
-export interface StringifyOptions {
-  arrayFormat?: 'indices' | 'brackets' | 'repeat';
-}
+import type { ParseOptions, StringifyOptions } from './types';
+
 type Value = string | Value[] | { [k: string]: Value };
 
 export function parse(input: string, opts: ParseOptions = {}): Record<string, Value> {

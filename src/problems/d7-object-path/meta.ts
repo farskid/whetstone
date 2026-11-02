@@ -15,9 +15,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Parse paths like a.b[0]["x.y"], read and write through them (mutably and immutably), and query with wildcards and filter expressions that report concrete paths.',
   stages: [
-    { title: 'get', summary: "Dots, [0] indexes and ['quoted'] keys, with a default for missing values." },
-    { title: 'set and setIn', summary: 'Create arrays for numeric segments and objects otherwise; an immutable variant shares untouched branches.' },
-    { title: 'Wildcards', summary: 'a.*.b and a[*] return every match with its concrete path.' },
-    { title: 'Filters', summary: '[?(@.price > 10 && @.tags contains "x")]' },
+    { title: 'get', summary: "Dots, [0] indexes and ['quoted'] keys, with a default for missing values.", groups: ['get'] },
+    { title: 'set and setIn', summary: 'Create arrays for numeric segments and objects otherwise; an immutable variant shares untouched branches.', groups: ['set and setIn'] },
+    { title: 'Wildcards', summary: 'a.*.b and a[*] return every match with its concrete path.', groups: ['Wildcards'] },
+    { title: 'Filters', summary: '[?(@.price > 10 && @.tags contains "x")]', groups: ['Filters'] },
   ],
 };

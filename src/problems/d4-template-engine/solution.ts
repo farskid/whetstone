@@ -1,8 +1,4 @@
-export type Helper = (...args: unknown[]) => unknown;
-export interface RenderOptions {
-  partials?: Record<string, string>;
-  helpers?: Record<string, Helper>;
-}
+import type { Helper, RenderOptions } from './types';
 
 export class TemplateError extends Error {
   constructor(message: string, public line: number, public column: number) {

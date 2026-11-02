@@ -1,10 +1,4 @@
-export interface SemVer {
-  major: number;
-  minor: number;
-  patch: number;
-  prerelease: Array<string | number>;
-  build: string[];
-}
+import type { SemVer } from './types';
 
 const IDENT = '(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)';
 const VERSION = new RegExp(

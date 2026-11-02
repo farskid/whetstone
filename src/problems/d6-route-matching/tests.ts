@@ -1,10 +1,16 @@
 import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
 
+const G1 = 'Static and params';
+const G2 = 'Specificity and wildcards';
+const G3 = 'Constraints and optional params';
+const G4 = 'Methods and reverse routing';
+
 const throws = (fn: () => unknown) => { try { fn(); } catch { return true; } return false; };
 
 export const tests: TestCase<M>[] = [
   {
+    group: G1,
     title: 'static routes and the root',
     run({ createRouter }, { expect }) {
       const r = createRouter<string>();
@@ -17,6 +23,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'params are captured and decoded',
     input: "'/users/:id/posts/:postId' with '/users/j%C3%B6rg/posts/7'",
     run({ createRouter }, { expect }) {
@@ -28,6 +35,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G1,
     title: 'query, hash, trailing and duplicate slashes are ignored',
     run({ createRouter }, { expect }) {
       const r = createRouter<string>();
@@ -38,6 +46,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'static beats param regardless of registration order',
     run({ createRouter }, { expect }) {
       const r = createRouter<string>();
@@ -48,6 +57,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'param beats wildcard; wildcard captures the rest',
     run({ createRouter }, { expect }) {
       const r = createRouter<string>();
@@ -59,6 +69,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
     title: 'backtracks when the most specific branch dead-ends',
     input: "routes '/a/:x/c' and '/a/b/d'; path '/a/b/c'",
     run({ createRouter }, { expect }) {
@@ -72,6 +83,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'constraints must match the whole segment',
     input: "'/u/:id(\\d+)' and '/u/:slug'",
     run({ createRouter }, { expect }) {
@@ -84,6 +96,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'constraint alternation is fully anchored',
     input: "'/:lang(en|fi)/docs'",
     run({ createRouter }, { expect }) {
@@ -95,6 +108,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G3,
     title: 'optional params: present or absent (no key when absent)',
     input: "'/posts/:year(\\d{4})?/:slug'",
     run({ createRouter }, { expect }) {
@@ -108,6 +122,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'methods: exact method beats ALL; unknown method does not match',
     run({ createRouter }, { expect }) {
       const r = createRouter<string>();
@@ -121,6 +136,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'allowedMethods() for 405 responses',
     run({ createRouter }, { expect }) {
       const r = createRouter<string>();
@@ -135,6 +151,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'duplicate and malformed patterns throw',
     run({ createRouter }, { expect }) {
       const r = createRouter<string>();
@@ -148,6 +165,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'buildPath fills, encodes and validates',
     run({ buildPath }, { expect }) {
       expect(buildPath('/users/:id(\\d+)/:tab?', { id: 7 })).toBe('/users/7');
@@ -160,6 +178,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'round trip: buildPath then match gives the params back',
     run({ createRouter, buildPath }, { expect }) {
       const r = createRouter<string>();
@@ -170,6 +189,7 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G4,
     title: 'many routes: matching stays fast',
     input: '2,000 routes, 20,000 lookups',
     run({ createRouter }, { expect }) {

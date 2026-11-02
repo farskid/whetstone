@@ -14,9 +14,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Render a Markdown subset to HTML: headings, paragraphs, fenced code, blockquotes, nested lists, emphasis, code spans and links, with HTML escaping and unsafe-URL filtering.',
   stages: [
-    { title: 'Blocks', summary: 'Headings, paragraphs, fenced code, HTML escaping.' },
-    { title: 'Inline', summary: 'Code spans, emphasis, strong, backslash escapes, unclosed delimiters.' },
-    { title: 'Links', summary: 'Inline links with safe URLs only.' },
-    { title: 'Lists and quotes', summary: 'Nested lists, ordered start numbers, nested blockquotes.' },
+    { title: 'Blocks', summary: 'Headings, paragraphs, fenced code, HTML escaping.', groups: ['Blocks'] },
+    { title: 'Inline', summary: 'Code spans, emphasis, strong, backslash escapes, unclosed delimiters.', groups: ['Inline'] },
+    { title: 'Links', summary: 'Inline links with safe URLs only.', groups: ['Links'] },
+    { title: 'Lists and quotes', summary: 'Nested lists, ordered start numbers, nested blockquotes.', groups: ['Lists and quotes'] },
   ],
 };

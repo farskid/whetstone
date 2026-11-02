@@ -17,9 +17,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'A router with params, optional segments, constraints, wildcards, specificity ranking, 405s and reverse routing.',
   stages: [
-    { title: 'Static and params', summary: 'add(method, "/users/:id") and match(method, path) with decoded params.' },
-    { title: 'Specificity', summary: 'Static beats param beats wildcard, per segment, regardless of registration order.' },
-    { title: 'Optional, constraints, wildcard', summary: ':id?, :id(\\d+) and trailing * with backtracking.' },
-    { title: 'Methods and reverse routing', summary: 'ALL, allowedMethods() for 405s, duplicate detection and buildPath().' },
+    { title: 'Static and params', summary: 'add(method, "/users/:id") and match(method, path) with decoded params.', groups: ['Static and params'] },
+    { title: 'Specificity and wildcards', summary: 'Static beats param beats trailing *, per segment, with backtracking from dead ends.', groups: ['Specificity and wildcards'] },
+    { title: 'Constraints and optional params', summary: ':id(\\d+) segments that must fully match, and :id? params that may be absent.', groups: ['Constraints and optional params'] },
+    { title: 'Methods and reverse routing', summary: 'ALL, allowedMethods() for 405s, duplicate detection and buildPath().', groups: ['Methods and reverse routing'] },
   ],
 };

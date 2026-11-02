@@ -1,8 +1,4 @@
-export type PathKey = string | number;
-export interface Match {
-  path: PathKey[];
-  value: unknown;
-}
+import type { PathKey, Match } from './types';
 
 export function get(obj: unknown, path: string | PathKey[], defaultValue?: unknown): unknown {
   throw new Error('Not implemented');

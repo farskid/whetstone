@@ -14,9 +14,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'Parse and compare semantic versions with prerelease precedence, then match ranges: caret, tilde, comparators, x-ranges, hyphens, unions and the prerelease rule.',
   stages: [
-    { title: 'Parse and compare', summary: 'Strict parsing; 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0; build metadata ignored.' },
-    { title: 'Caret, tilde, comparators', summary: '^, ~, >=, <, and space-joined ANDs.' },
-    { title: 'X-ranges, hyphens, unions', summary: '1.x, *, 1.2 - 2.3.4, and ||.' },
-    { title: 'maxSatisfying and prereleases', summary: 'Prereleases match only when a comparator opts in on the same major.minor.patch.' },
+    { title: 'Parse and compare', summary: 'Strict parsing; 1.0.0-alpha < 1.0.0-alpha.1 < 1.0.0; build metadata ignored.', groups: ['Parse and compare'] },
+    { title: 'Caret, tilde, comparators', summary: '^, ~, >=, <, and space-joined ANDs.', groups: ['Caret, tilde, comparators'] },
+    { title: 'X-ranges, hyphens, unions', summary: '1.x, *, 1.2 - 2.3.4, and ||.', groups: ['X-ranges, hyphens, unions'] },
+    { title: 'maxSatisfying and prereleases', summary: 'Prereleases match only when a comparator opts in on the same major.minor.patch.', groups: ['maxSatisfying and prereleases'] },
   ],
 };

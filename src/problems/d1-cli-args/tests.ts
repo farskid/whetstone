@@ -1,5 +1,5 @@
 import type { TestCase } from '../../runner/types';
-import type { CliSpec } from './solution';
+import type { CliSpec } from './types';
 type M = typeof import('./solution');
 
 const G1 = 'Schema-less parsing';

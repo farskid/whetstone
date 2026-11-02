@@ -1,4 +1,4 @@
-export type Argv = Record<string, unknown> & { _: string[] };
+import type { Argv, OptionSpec, CommandSpec, CliSpec, CliResult } from './types';
 
 const NUMBER = /^-?\d+(\.\d+)?$/;
 const isFlag = (t: string | undefined) => t !== undefined && t.length > 1 && t[0] === '-' && !NUMBER.test(t);
@@ -32,28 +32,6 @@ export function parseArgs(argv: string[]): Argv {
     else set(last, true);
   }
   return out;
-}
-
-export interface OptionSpec {
-  type: 'string' | 'number' | 'boolean' | 'array';
-  alias?: string | string[];
-  default?: unknown;
-  required?: boolean;
-  description?: string;
-}
-export interface CommandSpec {
-  description?: string;
-  options?: Record<string, OptionSpec>;
-  commands?: Record<string, CommandSpec>;
-}
-export interface CliSpec extends CommandSpec {
-  name: string;
-}
-export interface CliResult {
-  command: string[];
-  options: Record<string, unknown>;
-  _: string[];
-  errors: string[];
 }
 
 export function distance(a: string, b: string): number {

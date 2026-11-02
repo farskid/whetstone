@@ -1,15 +1,4 @@
-export interface CronSchedule {
-  minute: number[];
-  hour: number[];
-  dayOfMonth: number[];
-  month: number[];
-  dayOfWeek: number[];
-  domRestricted: boolean;
-  dowRestricted: boolean;
-}
-export interface NextOptions {
-  tz?: string;
-}
+import type { CronSchedule, NextOptions } from './types';
 
 export function parseCron(expr: string): CronSchedule {
   throw new Error('Not implemented');
