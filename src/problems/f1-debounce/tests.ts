@@ -168,6 +168,19 @@ export const tests: TestCase<M>[] = [
     },
   },
   {
+    group: G2,
+    title: 'trailing undefined (or left out) counts as true',
+    input: '{ leading: true, trailing: undefined }; d(1); d(2)',
+    run({ debounce }, { expect, clock }) {
+      const c = clock(); const s = spy();
+      const d = debounce(s.fn, 100, { leading: true, trailing: undefined, clock: c });
+      d(1); d(2);
+      expect(s.calls, 'leading call right away').toEqual([[1]]);
+      c.tick(100);
+      expect(s.calls, 'trailing still runs').toEqual([[1], [2]]);
+    },
+  },
+  {
     group: G3,
     title: 'cancel() drops the scheduled call',
     run({ debounce }, { expect, clock }) {
