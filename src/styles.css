@@ -287,3 +287,11 @@ a.problem-row:hover, .link-row:hover { background: var(--bg-3); }
 }
 
 .t-group { list-style: none; margin: 10px 0 2px; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted, #888); }
+
+/* Rules linked to tests (docs/rule-annotations.md), painted from the last run. Icon + color, never color alone. */
+.markdown .rule[data-rule-status="pass"], .markdown .rule[data-rule-status="fail"] { border-radius: 4px; padding: 0 4px; margin-left: -4px; }
+.markdown .rule[data-rule-status="pass"] { color: var(--pass); background: color-mix(in srgb, var(--pass) 9%, transparent); }
+.markdown .rule[data-rule-status="fail"] { color: var(--fail); background: color-mix(in srgb, var(--fail) 9%, transparent); }
+.markdown .rule[data-rule-status] li:not(.rule) { color: var(--text); background: none; }
+.markdown .rule-icon { font-weight: 700; margin-right: 6px; }
+.markdown .rule { cursor: help; }

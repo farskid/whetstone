@@ -5,7 +5,7 @@ import { getSources, toJs } from '../problems/sources';
 import { adoptTypesFile, ownCopiesOfTypes } from '../problems/typesFile';
 import { useProgress, actions, unlockedStage, getProgress as progressNow } from '../store';
 import { stageCount, stageOfGroup, testsForStage } from '../problems/stages';
-import type { Language, TestResult } from '../runner/types';
+import type { Language, TestResult, TestStatus } from '../runner/types';
 import { runInWorker, type RunHandle } from '../runner/client';
 import { monaco } from '../monaco';
 import { TagChips } from './TagChips';
@@ -53,6 +53,11 @@ export function ProblemPage({ problem }: { problem: Problem }) {
 
   const [tab, setTab] = useState<'statement' | 'solution'>('statement');
   const [run, setRun] = useState<RunState>({ phase: 'idle' });
+  /** The last run's status per test title (partial while running); paints the annotated rules in the statement. */
+  const lastResults = useMemo(() => {
+    const rs = run.phase === 'done' ? run.summary.results : run.phase === 'running' ? run.results : [];
+    return new Map<string, TestStatus>(rs.map((r) => [r.title, r.status]));
+  }, [run]);
   /** Set when a run just passed a stage that unlocked the next one. */
   const [justUnlocked, setJustUnlocked] = useState<number | null>(null);
   const [leftW, setLeftW] = useState(() => Math.round(window.innerWidth * 0.4));
@@ -248,9 +253,9 @@ export function ProblemPage({ problem }: { problem: Problem }) {
               <>
                 <div className="pb-tags" aria-label="Tags"><TagChips tags={problem.tags} /></div>
                 {staged && !full ? (
-                  <StagedStatement problem={problem} sections={sources.stageStatements} unlocked={unlocked} current={viewStage} passed={stagePassed} theme={theme} />
+                  <StagedStatement problem={problem} sections={sources.stageStatements} unlocked={unlocked} current={viewStage} passed={stagePassed} theme={theme} results={lastResults} />
                 ) : (
-                  <Markdown source={sources.statement} theme={theme} />
+                  <Markdown source={sources.statement} theme={theme} results={lastResults} />
                 )}
                 <div className="inspired muted small">Inspired by {problem.inspiredBy}.</div>
               </>
@@ -381,8 +386,9 @@ const editorOptions = {
   padding: { top: 10 },
 } as const;
 
-function StagedStatement({ problem, sections, unlocked, current, passed, theme }: {
+function StagedStatement({ problem, sections, unlocked, current, passed, theme, results }: {
   problem: Problem; sections: string[]; unlocked: number; current: number; passed: (string | null)[]; theme: ResolvedTheme;
+  results: ReadonlyMap<string, TestStatus>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => { ref.current?.querySelector('.stage-section.current')?.scrollIntoView({ block: 'start' }); }, [current]);
@@ -395,7 +401,7 @@ function StagedStatement({ problem, sections, unlocked, current, passed, theme }
             <span className="stage-kicker">Stage {k + 1}{passed[k] ? ' ✓' : ''}</span>
             <span className="stage-head-title">{st.title}</span>
           </div>
-          <Markdown source={sections[k]} theme={theme} />
+          <Markdown source={sections[k]} theme={theme} results={results} />
         </section>
       ) : (
         <div key={k} className="stage-section locked-section muted small">🔒 Stage {k + 1}: {st.title}. Unlocks when stage {k} passes.</div>
