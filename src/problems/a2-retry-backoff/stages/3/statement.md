@@ -12,6 +12,6 @@ interface RetryOptions {
 }
 ```
 
-- If the error is an `AbortError`, reject with its `originalError` at once.
-- `new AbortError(err)` keeps `err` as `originalError`. `new AbortError('msg')` uses itself as `originalError`. Its `name` is `'AbortError'`.
-- Otherwise, if retries are left and `shouldRetry` is given and resolves to `false`, reject with the error instead of waiting.
+- If the error is an `AbortError`, reject with its `originalError` at once. <!-- tests: throwing AbortError(err) stops at once and rejects with err -->
+- `new AbortError(err)` keeps `err` as `originalError`. `new AbortError('msg')` uses itself as `originalError`. Its `name` is `'AbortError'`. <!-- tests: throwing AbortError(err) stops at once and rejects with err | AbortError("msg") rejects with the AbortError itself -->
+- Otherwise, if retries are left and `shouldRetry` is given and resolves to `false`, reject with the error instead of waiting. <!-- tests: shouldRetry returning false stops with that error | async shouldRetry is awaited -->

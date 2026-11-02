@@ -19,7 +19,7 @@ interface TimeoutOptions {
 function withTimeout<T>(promise: Promise<T>, ms: number, options?: TimeoutOptions): Promise<T>;
 ```
 
-- If `promise` settles first, the result settles the same way.
-- If `ms` passes first, reject with `new TimeoutError('Timed out after <ms> ms')`. Settling later changes nothing.
-- `ms = Infinity` never times out (and sets no timer).
-- Use `options.clock` for the timer.
+- If `promise` settles first, the result settles the same way. <!-- tests: resolves with the value when the promise wins | passes through a rejection that comes first -->
+- If `ms` passes first, reject with `new TimeoutError('Timed out after <ms> ms')`. Settling later changes nothing. <!-- tests: rejects with TimeoutError("Timed out after 100 ms") at the deadline | a late resolve after the timeout changes nothing -->
+- `ms = Infinity` never times out (and sets no timer). <!-- tests: ms = Infinity never times out and sets no timer -->
+- Use `options.clock` for the timer. <!-- tests: rejects with TimeoutError("Timed out after 100 ms") at the deadline -->

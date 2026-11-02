@@ -10,5 +10,5 @@ interface RetryOptions {
 }
 ```
 
-- Before retry number `n` (n = 1 for the wait after the first failure), wait `min(maxTimeout, minTimeout * factor ** (n - 1))` ms.
-- With `randomize: true`, multiply that capped value by `random()`.
+- Before retry number `n` (n = 1 for the wait after the first failure), wait `min(maxTimeout, minTimeout * factor ** (n - 1))` ms. <!-- tests: waits minTimeout * factor^(n-1) between attempts | does not call fn again before the wait is over | waits are capped at maxTimeout -->
+- With `randomize: true`, multiply that capped value by `random()`. <!-- tests: randomize multiplies the capped wait by random() -->

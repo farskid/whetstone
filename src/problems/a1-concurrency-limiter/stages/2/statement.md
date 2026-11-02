@@ -7,6 +7,6 @@ interface Limiter {
 }
 ```
 
-- `activeCount` is already updated when `run()` returns.
-- A finished task frees its slot **before** its `run` promise settles. The next queued task has already started by then, so code awaiting `run` sees the updated counts.
-- `onIdle()` resolves once nothing is running and nothing is queued. If that's already true, it returns an already-resolved promise.
+- `activeCount` is already updated when `run()` returns. <!-- tests: activeCount and pendingCount -->
+- A finished task frees its slot **before** its `run` promise settles. The next queued task has already started by then, so code awaiting `run` sees the updated counts. <!-- tests: a failed task frees its slot before run() rejects -->
+- `onIdle()` resolves once nothing is running and nothing is queued. If that's already true, it returns an already-resolved promise. <!-- tests: onIdle() waits for running and queued work -->

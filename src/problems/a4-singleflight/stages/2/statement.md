@@ -12,5 +12,5 @@ class Group<T> {
 }
 ```
 
-- A successful result is cached with the time it resolved. While its age (`now - resolvedAt`) is **less than** `ttl`, `do` resolves with it without calling `fn`.
-- Errors are never cached.
+- A successful result is cached with the time it resolved. While its age (`now - resolvedAt`) is **less than** `ttl`, `do` resolves with it without calling `fn`. <!-- tests: ttl: cached result served until its age reaches ttl | ttl age counts from when the call resolved -->
+- Errors are never cached. <!-- tests: errors are never cached -->

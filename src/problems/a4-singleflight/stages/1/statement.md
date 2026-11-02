@@ -11,7 +11,7 @@ class Group<T> {
 }
 ```
 
-- A key is compared as a string, so `1` and `'1'` are the **same** key.
-- While a call for a key is in flight, every `do(key, …)` joins it: their `fn` isn't called, and they all get the same value or the same rejection.
-- A sync throw from `fn` counts as a rejection.
-- Once the call settles the key is free again, so the next `do` calls its `fn`.
+- A key is compared as a string, so `1` and `'1'` are the **same** key. <!-- tests: keys 1 and "1" are the same key -->
+- While a call for a key is in flight, every `do(key, …)` joins it: their `fn` isn't called, and they all get the same value or the same rejection. <!-- tests: concurrent calls with the same key share one fn call | every waiter sees the same rejection -->
+- A sync throw from `fn` counts as a rejection. <!-- tests: a sync throw from fn becomes a rejection -->
+- Once the call settles the key is free again, so the next `do` calls its `fn`. <!-- tests: without ttl, a call after settling runs fn again -->
