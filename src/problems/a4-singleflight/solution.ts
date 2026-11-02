@@ -1,8 +1,4 @@
-export interface GroupOptions {
-  ttl?: number;
-  staleAfter?: number;
-  clock?: { now(): number };
-}
+import type { GroupOptions } from './types';
 
 interface Cached<T> { value: T; at: number }
 

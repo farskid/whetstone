@@ -114,7 +114,7 @@ async function main() {
 
   // 6. A staged problem (F1): stage 1 passes and unlocks stage 2, then stage 2 runs stages 1 + 2
   {
-    const s1 = readFileSync(join(root, 'src', 'problems', 'f1-debounce', 'stages', '1.solution.ts'), 'utf8');
+    const s1 = readFileSync(join(root, 'src', 'problems', 'f1-debounce', 'stages', '1', 'solution.ts'), 'utf8');
     const page = await open(browser, '#/p/f1-debounce', baseState({ code: { 'f1-debounce': { ts: s1 } } }));
     await waitEditor(page);
     await page.click('[data-testid="run"]');

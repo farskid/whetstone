@@ -1,0 +1,52 @@
+import type { Limiter } from './types';
+
+function checkConcurrency(n: number) {
+  if (!(n === Infinity || (Number.isInteger(n) && n >= 1))) {
+    throw new TypeError(`concurrency must be an integer >= 1 or Infinity, got ${String(n)}`);
+  }
+}
+
+export function createLimiter(concurrency: number): Limiter {
+  checkConcurrency(concurrency);
+  let active = 0;
+  const queue: Array<() => void> = [];
+  let idleWaiters: Array<() => void> = [];
+
+  const checkIdle = () => {
+    if (active === 0 && queue.length === 0 && idleWaiters.length) {
+      const ws = idleWaiters;
+      idleWaiters = [];
+      ws.forEach((w) => w());
+    }
+  };
+
+  const pump = () => {
+    while (active < concurrency && queue.length) queue.shift()!();
+    checkIdle();
+  };
+
+  return {
+    run<T>(fn: () => T | Promise<T>): Promise<T> {
+      return new Promise<T>((resolve, reject) => {
+        const start = () => {
+          active++;
+          let p: Promise<T>;
+          try { p = Promise.resolve(fn()); } catch (e) { p = Promise.reject(e); }
+          // Free the slot before settling, so the caller already sees the updated counts.
+          const done = () => { active--; pump(); };
+          p.then((v) => { done(); resolve(v); }, (e) => { done(); reject(e); });
+        };
+        if (active < concurrency) start();
+        else queue.push(start);
+      });
+    },
+    get activeCount() { return active; },
+    get pendingCount() { return queue.length; },
+    onIdle() {
+      return new Promise<void>((resolve) => {
+        if (active === 0 && queue.length === 0) { resolve(); return; }
+        idleWaiters.push(resolve);
+      });
+    },
+  };
+}

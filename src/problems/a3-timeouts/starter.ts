@@ -1,20 +1,10 @@
-export interface Clock {
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
-}
+import type { Clock, TimeoutOptions } from './types';
 
 export class TimeoutError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'TimeoutError';
   }
-}
-
-export interface TimeoutOptions<T> {
-  fallback?: T | (() => T | Promise<T>);
-  message?: string | Error;
-  signal?: AbortSignal;
-  clock?: Clock;
 }
 
 export function withTimeout<T>(

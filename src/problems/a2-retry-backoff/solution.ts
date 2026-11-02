@@ -1,7 +1,4 @@
-export interface Clock {
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
-}
+import type { Clock, RetryOptions } from './types';
 
 export class AbortError extends Error {
   readonly originalError: Error;
@@ -10,21 +7,6 @@ export class AbortError extends Error {
     this.name = 'AbortError';
     this.originalError = typeof errorOrMessage === 'string' ? this : errorOrMessage;
   }
-}
-
-export interface FailedAttempt { error: Error; attempt: number; retriesLeft: number }
-
-export interface RetryOptions {
-  retries?: number;
-  minTimeout?: number;
-  factor?: number;
-  maxTimeout?: number;
-  randomize?: boolean;
-  random?: () => number;
-  shouldRetry?: (error: Error) => boolean | Promise<boolean>;
-  onFailedAttempt?: (info: FailedAttempt) => void | Promise<void>;
-  signal?: AbortSignal;
-  clock?: Clock;
 }
 
 const globalClock: Clock = {

@@ -1,8 +1,4 @@
-export interface GroupOptions {
-  ttl?: number;
-  staleAfter?: number;
-  clock?: { now(): number };
-}
+import type { GroupOptions } from './types';
 
 export class Group<T> {
   constructor(options: GroupOptions = {}) {
