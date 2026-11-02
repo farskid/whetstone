@@ -2,13 +2,15 @@ import { useSyncExternalStore } from 'react';
 import type { Language } from './runner/types';
 import { problemsById } from './problems';
 import { stageCount } from './problems/stages';
+import { resolveTheme, type ThemePref } from './theme';
 
 type Code = Partial<Record<Language, string>>;
 
 /** Everything the site remembers. Lives in localStorage only. */
 export interface Progress {
   version: 2;
-  theme: 'dark' | 'light';
+  /** The header's pick; "system" follows the OS (see src/theme.ts). Old saves only have dark/light. */
+  theme: ThemePref;
   lang: Language;
   /** The editor buffer per problem. One buffer per language that carries over from stage to stage. */
   code: Record<string, Code>;
@@ -62,7 +64,7 @@ export function normalize(raw: any): Progress {
   if (!raw || typeof raw !== 'object') return base;
   const s: Progress = {
     version: 2,
-    theme: raw.theme === 'light' ? 'light' : 'dark',
+    theme: raw.theme === 'light' || raw.theme === 'system' ? raw.theme : 'dark',
     lang: raw.lang === 'js' ? 'js' : 'ts',
     code: { ...obj(raw.code) },
     solved: { ...obj(raw.solved) },
@@ -108,7 +110,7 @@ window.addEventListener('beforeunload', () => { clearTimeout(saveTimer); try { l
 
 export function update(fn: (s: Progress) => Progress) {
   state = fn(state);
-  document.documentElement.dataset.theme = state.theme;
+  document.documentElement.dataset.theme = resolveTheme(state.theme);
   save();
   listeners.forEach((l) => l());
 }

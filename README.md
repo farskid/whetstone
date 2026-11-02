@@ -44,7 +44,7 @@ One-time setup: in the repo, go to Settings → Pages → Build and deployment a
   - Sucrase strips the types from your code. The code is then loaded as an ES module inside a Web Worker. A 5s watchdog kills the worker on infinite loops.
   - Time-based problems use a `FakeClock` passed into your code, so the tests are deterministic.
   - The same core runs under Node for `npm run verify`.
-- **Persistence**: everything is kept in `localStorage` under `practical:v2`. This covers code per problem and language, solved state, attempts, theme and language, plus for staged problems the unlocked stage, when each stage passed, the code snapshot per passed stage, revealed stage references and the full-problem toggle. On first load, `practical:v1` progress (and old v1 exports on import) is migrated:
+- **Persistence**: everything is kept in `localStorage` under `practical:v2`. This covers code per problem and language, solved state, attempts, theme (Dark, Light or System, which follows the OS live) and language, plus for staged problems the unlocked stage, when each stage passed, the code snapshot per passed stage, revealed stage references and the full-problem toggle. On first load, `practical:v1` progress (and old v1 exports on import) is migrated:
   - A problem solved in v1 counts as fully passed, with every stage unlocked.
   - Progress on the old F10 warm-up counts towards F1 stage 1.
   - `#/p/f10-debounce-basic` redirects to F1.

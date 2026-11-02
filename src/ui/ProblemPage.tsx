@@ -14,11 +14,13 @@ import { Markdown } from './Markdown';
 import { Results, type RunState } from './Results';
 import { Splitter } from './Splitter';
 import { CodeView } from './CodeView';
+import { useResolvedTheme, type ResolvedTheme } from '../theme';
 
 type Ed = Parameters<OnMount>[0];
 
 export function ProblemPage({ problem }: { problem: Problem }) {
   const progress = useProgress();
+  const theme = useResolvedTheme(progress.theme);
   const lang = progress.lang;
   const n = stageCount(problem);
   const staged = n > 1;
@@ -188,7 +190,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   };
 
   const running = run.phase === 'running';
-  const monacoTheme = progress.theme === 'dark' ? 'vs-dark' : 'vs';
+  const monacoTheme = theme === 'dark' ? 'vs-dark' : 'vs';
 
   return (
     <main className="problem-page">
@@ -242,9 +244,9 @@ export function ProblemPage({ problem }: { problem: Problem }) {
               <>
                 <div className="pb-tags" aria-label="Tags"><TagChips tags={problem.tags} /></div>
                 {staged && !full ? (
-                  <StagedStatement problem={problem} sections={sources.stageStatements} unlocked={unlocked} current={viewStage} passed={stagePassed} theme={progress.theme} />
+                  <StagedStatement problem={problem} sections={sources.stageStatements} unlocked={unlocked} current={viewStage} passed={stagePassed} theme={theme} />
                 ) : (
-                  <Markdown source={sources.statement} theme={progress.theme} />
+                  <Markdown source={sources.statement} theme={theme} />
                 )}
                 <div className="inspired muted small">Inspired by {problem.inspiredBy}.</div>
               </>
@@ -254,11 +256,11 @@ export function ProblemPage({ problem }: { problem: Problem }) {
                 {typesTs !== undefined && (
                   <>
                     <div className="file-label small muted">types.ts</div>
-                    <CodeView code={typesTs} language="typescript" theme={progress.theme} />
+                    <CodeView code={typesTs} language="typescript" theme={theme} />
                     <div className="file-label small muted">solution.{lang}</div>
                   </>
                 )}
-                <CodeView code={solution} language={lang === 'ts' ? 'typescript' : 'javascript'} theme={progress.theme} />
+                <CodeView code={solution} language={lang === 'ts' ? 'typescript' : 'javascript'} theme={theme} />
               </div>
             ) : (
               <div className="locked">
@@ -367,7 +369,7 @@ const editorOptions = {
 } as const;
 
 function StagedStatement({ problem, sections, unlocked, current, passed, theme }: {
-  problem: Problem; sections: string[]; unlocked: number; current: number; passed: (string | null)[]; theme: 'dark' | 'light';
+  problem: Problem; sections: string[]; unlocked: number; current: number; passed: (string | null)[]; theme: ResolvedTheme;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => { ref.current?.querySelector('.stage-section.current')?.scrollIntoView({ block: 'start' }); }, [current]);

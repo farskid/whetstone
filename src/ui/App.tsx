@@ -4,11 +4,13 @@ import { useProgress, actions } from '../store';
 import { ListPage } from './ListPage';
 import { ProblemPage } from './ProblemPage';
 import { problemsById } from '../problems';
+import { useResolvedTheme, type ThemePref } from '../theme';
 
 export function App() {
   const route = useRoute();
   const progress = useProgress();
-  useEffect(() => { document.documentElement.dataset.theme = progress.theme; }, [progress.theme]);
+  const theme = useResolvedTheme(progress.theme);
+  useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
   const problem = route.name === 'problem' ? problemsById.get(route.id) : undefined;
 
   return (
@@ -19,14 +21,18 @@ export function App() {
         </a>
         <span className="brand-sub">library-style coding practice</span>
         <div className="spacer" />
-        <button
-          className="btn ghost"
-          title="Toggle dark mode"
-          aria-label="Toggle dark mode"
-          onClick={() => actions.setTheme(progress.theme === 'dark' ? 'light' : 'dark')}
+        <select
+          className="theme-select"
+          data-testid="theme-select"
+          aria-label="Color theme"
+          title="Color theme"
+          value={progress.theme}
+          onChange={(e) => actions.setTheme(e.target.value as ThemePref)}
         >
-          {progress.theme === 'dark' ? '☀ Light' : '☾ Dark'}
-        </button>
+          <option value="dark">☾ Dark</option>
+          <option value="light">☀ Light</option>
+          <option value="system">◐ System ({theme === 'dark' ? 'dark' : 'light'})</option>
+        </select>
       </header>
       {route.name === 'problem' ? (
         problem ? <ProblemPage key={problem.id} problem={problem} /> : (

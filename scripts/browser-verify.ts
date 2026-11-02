@@ -6,7 +6,8 @@
  * editor, see stage 2 unlock, continue to it with the code carried over while the read-only types.ts beside it swaps to
  * stage 2's (typing into it does nothing), then pass stage 2. Code saved with its own copies of the types gets the
  * "Import from types.ts" offer, and a narrow window stacks the two editors. Screenshots go to SHOTS_DIR
- * (default /workspace) as whetstone-two-editors-*.png. Any request that 404s (a worker, chunk or asset
+ * (default /workspace) as whetstone-two-editors-*.png. The header theme picker is checked too (Dark/Light/System, System
+ * following an emulated OS colour scheme live, Monaco following along); its screenshots are whetstone-theme-*.png. Any request that 404s (a worker, chunk or asset
  * resolved outside the base) fails the run too.
  * VERIFY_BASE=/whetstone/ serves dist/ under that base, to check a build made with BASE_PATH=/whetstone/.
  */
@@ -204,6 +205,65 @@ async function main() {
     check(!!tb && !!sb && tb.y + tb.height <= sb.y + 1 && Math.abs(tb.x - sb.x) < 2, 'a narrow window stacks the editors');
     await narrow.screenshot({ path: join(SHOTS, 'whetstone-two-editors-5-narrow.png') });
     await narrowCtx.close();
+  }
+  // Theme picker: Dark / Light / System, where System follows the OS live; Monaco follows the resolved theme.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: 'dark' });
+    const page = await ctx.newPage();
+    const check = (ok: boolean, what: string) => (ok ? console.log(`  ✓ theme: ${what}`) : fail(`theme: ${what}`));
+    const shown = () => page.evaluate(() => document.documentElement.dataset.theme);
+    const monacoIs = (cls: 'vs' | 'vs-dark') => page.waitForFunction((c) => {
+      const el = document.querySelector('[data-testid="solution-editor"] .monaco-editor');
+      return !!el && el.classList.contains(c);
+    }, cls, { timeout: 5000 }).then(() => true, () => false);
+    const saved = () => page.evaluate(() => JSON.parse(localStorage.getItem('practical:v2') ?? '{}').theme);
+    const id = ids.includes('f1-debounce') ? 'f1-debounce' : ids[0];
+    await page.goto(`${BASE}#/p/${id}`);
+    await page.waitForSelector(SOL, { timeout: 20000 });
+    const sel = '[data-testid="theme-select"]';
+    check(await page.inputValue(sel) === 'dark' && await shown() === 'dark', 'a fresh visit starts on Dark');
+    check(await page.getAttribute(sel, 'aria-label') === 'Color theme', 'the picker is labelled');
+    await page.selectOption(sel, 'light');
+    check(await shown() === 'light' && await monacoIs('vs'), 'Light: page and Monaco go light');
+    await page.screenshot({ path: join(SHOTS, 'whetstone-theme-light.png') });
+    // Keyboard: focus the select and arrow up to Dark.
+    await page.focus(sel);
+    await page.keyboard.press('ArrowUp');
+    check(await page.inputValue(sel) === 'dark' && await shown() === 'dark' && await monacoIs('vs-dark'), 'keyboard ArrowUp picks Dark; Monaco goes dark');
+    await page.screenshot({ path: join(SHOTS, 'whetstone-theme-dark.png') });
+    await page.selectOption(sel, 'system');
+    await page.waitForTimeout(300);
+    check(await shown() === 'dark' && await monacoIs('vs-dark'), 'System with a dark OS is dark');
+    await page.emulateMedia({ colorScheme: 'light' });
+    check(await page.waitForFunction(() => document.documentElement.dataset.theme === 'light', null, { timeout: 3000 }).then(() => true, () => false) && await monacoIs('vs'), 'System follows the OS to light live');
+    check(((await page.textContent(`${sel} option[value="system"]`)) ?? '').includes('light'), 'the System option names the theme it resolved to');
+    await page.screenshot({ path: join(SHOTS, 'whetstone-theme-system-light.png') });
+    await page.emulateMedia({ colorScheme: 'dark' });
+    check(await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark', null, { timeout: 3000 }).then(() => true, () => false) && await monacoIs('vs-dark'), 'and back to dark live');
+    await page.screenshot({ path: join(SHOTS, 'whetstone-theme-system-dark.png') });
+    await page.waitForTimeout(300);
+    check(await saved() === 'system', 'System is saved as "system"');
+    // Reload with a light OS: the inline script in index.html sets light before the app runs (no dark flash).
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto('about:blank');
+    await ctx.addInitScript(() => { new MutationObserver(() => {
+      const el = document.documentElement;
+      if (document.body && !(window as any).__firstTheme) (window as any).__firstTheme = el.dataset.theme;
+    }).observe(document, { childList: true, subtree: true }); });
+    await page.goto(`${BASE}#/p/${id}`);
+    await page.waitForSelector(SOL, { timeout: 20000 });
+    check(await page.evaluate(() => (window as any).__firstTheme) === 'light' && await page.inputValue(sel) === 'system', 'reload with a light OS paints light from the start');
+    // An old save with theme "light" (and one with garbage) keeps working.
+    for (const [raw, want] of [['light', 'light'], ['blue', 'dark']] as const) {
+      const old = await browser.newContext({ colorScheme: 'light' });
+      await old.addInitScript(`localStorage.setItem('practical:v2', ${JSON.stringify(JSON.stringify({ version: 2, theme: raw }))});`);
+      const p2 = await old.newPage();
+      await p2.goto(`${BASE}#/`);
+      await p2.waitForSelector(sel);
+      check(await p2.inputValue(sel) === want && await p2.evaluate(() => document.documentElement.dataset.theme) === want, `a saved theme "${raw}" opens as ${want}`);
+      await old.close();
+    }
+    await ctx.close();
   }
   await browser.close();
   console.log(failed ? `browser verify FAILED: ${failed}` : `browser verify OK: ${ids.length} problems × ts/js (staged ones also per stage, plus the staged flow)`);
