@@ -1,3 +1,5 @@
+import type {} from './types';
+
 type AnyFn = (...args: any[]) => any;
 
 const shallowEqual = (a: unknown[], b: unknown[]) => a.length === b.length && a.every((x, i) => Object.is(x, b[i]));

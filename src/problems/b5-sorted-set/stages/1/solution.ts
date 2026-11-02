@@ -1,3 +1,5 @@
+import type {} from './types';
+
 type Entry = { member: string; score: number };
 
 const cmp = (a: Entry, b: Entry) =>

@@ -1,3 +1,5 @@
+import type {} from './types';
+
 export class TextBuffer {
   constructor(initial = '') { throw new Error('Not implemented'); }
   get length(): number { throw new Error('Not implemented'); }

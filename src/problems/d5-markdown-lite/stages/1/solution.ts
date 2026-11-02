@@ -1,3 +1,5 @@
+import type {} from './types';
+
 const ESC: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
 export const escapeHtml = (s: string) => s.replace(/[&<>"]/g, (c) => ESC[c]);
 

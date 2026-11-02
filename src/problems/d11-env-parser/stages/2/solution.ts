@@ -1,3 +1,5 @@
+import type {} from './types';
+
 const KEY = /^(?:export\s+)?([A-Za-z_][A-Za-z0-9_.-]*)\s*=\s*/;
 
 export function parse(src: string): Record<string, string> {

@@ -1,3 +1,5 @@
+import type {} from './types';
+
 function decode(s: string): string {
   const plus = s.replace(/\+/g, ' ');
   try {

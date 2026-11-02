@@ -1,3 +1,5 @@
+import type {} from './types';
+
 type Piece = { add: boolean; start: number; length: number };
 
 export class TextBuffer {

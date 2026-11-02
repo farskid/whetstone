@@ -1,3 +1,5 @@
+import type {} from './types';
+
 function checkValue(x: number) {
   if (typeof x !== 'number' || Number.isNaN(x)) throw new RangeError(`Expected a number, got ${String(x)}`);
 }

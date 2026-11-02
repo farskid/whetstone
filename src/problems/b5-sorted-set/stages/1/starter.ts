@@ -1,3 +1,5 @@
+import type {} from './types';
+
 export class SortedSet {
   get size(): number { throw new Error('Not implemented'); }
   add(member: string, score: number): boolean { throw new Error('Not implemented'); }

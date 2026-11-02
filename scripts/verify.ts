@@ -11,6 +11,8 @@
  *    and fails at least one test that stage k+1 adds (so every split really asks for something new)
  *  - each stage's types file (stages/<k>/types.ts, types.ts for the last) holds only types, and no starter or
  *    reference redeclares a name it exports; code runs against the stage's types file, as in the browser
+ *  - every stage's starter and reference (and the full starter and solution) import from './types', even when the
+ *    stage has no types yet (`import type {} from './types'`), so no import appears out of nowhere at a later stage
  *  - legacy code that declares its own copies of the types still passes, and so does it after adoptTypesFile()
  *  - broken/s<k>-*.ts must fail stage k (stages 1..k); every broken still fails the full run
  */
@@ -19,7 +21,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { problems } from '../src/problems/index';
 import { runTests, stripTypes, compile } from '../src/runner/core';
-import { adoptTypesFile, exportedTypeNames, findTypeDecls, ownCopiesOfTypes, TYPES_IMPORT_RE } from '../src/problems/typesFile';
+import { adoptTypesFile, exportedTypeNames, findTypeDecls, importsTypesFile, ownCopiesOfTypes, TYPES_IMPORT_RE } from '../src/problems/typesFile';
 import { isStaged, testsAddedBy, testsForStage } from '../src/problems/stages';
 import type { RunSummary } from '../src/runner/types';
 
@@ -121,6 +123,11 @@ async function verifyStages(p: (typeof problems)[number], dir: string) {
     const copies = ownCopiesOfTypes(src, stageTypes[k] ?? '');
     if (copies.length) fail(`${file} redeclares ${copies.join(', ')} from ${typesFile(k)}: import them from './types' instead`);
   };
+  /** A staged file always imports './types', so a later stage that adds types doesn't make an import appear. */
+  const importsTypes = (file: string, src: string) => {
+    if (!importsTypesFile(src)) fail(`${file} does not import from './types': add \`import type { … } from './types';\` (or \`import type {} from './types';\` when it uses none yet)`);
+  };
+  for (const f of ['starter.ts', 'solution.ts']) importsTypes(f, readFileSync(join(dir, f), 'utf8'));
   noCopies('starter.ts', readFileSync(join(dir, 'starter.ts'), 'utf8'), n - 1);
 
   const starterPath = join(dir, 'stages', '1', 'starter.ts');
@@ -128,6 +135,7 @@ async function verifyStages(p: (typeof problems)[number], dir: string) {
   else {
     const starter = readFileSync(starterPath, 'utf8');
     noCopies('stages/1/starter.ts', starter, 0);
+    importsTypes('stages/1/starter.ts', starter);
     try { compile(stripTypes(starter), 'js'); } catch (e) { fail(`stages/1/starter.ts JS does not compile: ${e}`); }
     const s = await runTests(testsForStage(p, 0), starter, 'ts', { typesSource: stageTypes[0] });
     if (s.compileError) fail(`stages/1/starter.ts: ${s.compileError}`);
@@ -141,6 +149,7 @@ async function verifyStages(p: (typeof problems)[number], dir: string) {
     const src = readFileSync(join(dir, file), 'utf8');
     const typesSource = stageTypes[k];
     noCopies(file, src, k);
+    if (k < n - 1) importsTypes(file, src);
     const tests = testsForStage(p, k);
     for (const [label, code, lang] of [['ts', src, 'ts'], ['js', stripTypes(src), 'js']] as const) {
       const s = await runTests(tests, code, lang, { typesSource });

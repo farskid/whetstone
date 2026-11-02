@@ -1,3 +1,5 @@
+import type {} from './types';
+
 export class Group<T> {
   private inflight = new Map<string, Promise<T>>();
 

@@ -1,3 +1,5 @@
+import type {} from './types';
+
 type Node =
   | { t: 'text'; v: string }
   | { t: 'var'; expr: string; raw: boolean };

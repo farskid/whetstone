@@ -1,3 +1,5 @@
+import type {} from './types';
+
 export class RollingWindow {
   constructor(size: number) { throw new Error('Not implemented'); }
   push(x: number): void { throw new Error('Not implemented'); }
