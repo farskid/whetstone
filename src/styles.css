@@ -84,6 +84,8 @@ code, pre, .codeview { font-family: ui-monospace, 'JetBrains Mono', 'SF Mono', M
   background-position: calc(100% - 15px) 55%, calc(100% - 10px) 55%;
   background-size: 5px 5px; background-repeat: no-repeat;
 }
+.request-link { padding: 6px 12px; font-size: inherit; text-decoration: none; color: var(--text); }
+@media (max-width: 640px) { .request-link { padding: 6px 10px; font-size: 12px; } .brand-sub { display: none; } }
 .theme-select:hover { border-color: var(--accent); }
 .theme-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
 .theme-select option { background: var(--bg-2); color: var(--text); }

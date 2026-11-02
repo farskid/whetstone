@@ -6,6 +6,8 @@ import { ProblemPage } from './ProblemPage';
 import { problemsById } from '../problems';
 import { useResolvedTheme, type ThemePref } from '../theme';
 
+const REQUEST_URL = 'https://github.com/farskid/whetstone/issues/new?template=problem-request.yml&title=' + encodeURIComponent('Problem request: ');
+
 export function App() {
   const route = useRoute();
   const progress = useProgress();
@@ -21,6 +23,16 @@ export function App() {
         </a>
         <span className="brand-sub">library-style coding practice</span>
         <div className="spacer" />
+        <a
+          className="btn ghost small request-link"
+          data-testid="request-problem"
+          href={REQUEST_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Opens a GitHub issue where you can suggest a problem or a library"
+        >
+          + Request a problem
+        </a>
         <select
           className="theme-select"
           data-testid="theme-select"
