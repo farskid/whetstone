@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import type { Problem } from '../problems/types';
 import { getSources, toJs } from '../problems/sources';
+import { adoptTypesFile, ownCopiesOfTypes } from '../problems/typesFile';
 import { useProgress, actions, unlockedStage, getProgress as progressNow } from '../store';
 import { stageCount, stageOfGroup, testsForStage } from '../problems/stages';
 import type { Language, TestResult } from '../runner/types';
@@ -33,6 +34,13 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   const starter = (l: Language) => (l === 'ts' ? starterTsFor() : toJs(starterTsFor()));
   const solutionTs = staged && !full ? sources.stageSolutionsTs[viewStage] : sources.solutionTs;
   const solution = lang === 'ts' ? solutionTs : toJs(solutionTs);
+  /**
+   * Staged problems: the stage's types, shown read-only beside the solution, which imports them from './types'. A new
+   * stage swaps this file and leaves the solution alone. Single-stage problems keep their types inline.
+   */
+  const typesTs = !staged ? undefined : full ? sources.typesTs ?? '' : sources.stageTypesTs[viewStage];
+  const prevTypesTs = staged && !full && viewStage > 0 ? sources.stageTypesTs[viewStage - 1] : undefined;
+  const typesPath = `file:///problems/${problem.id}/types.ts`;
   const stageTests = useMemo(() => testsForStage(problem, staged ? viewStage : undefined), [problem, staged, viewStage]);
   const titles = useMemo(() => stageTests.map((t) => t.title), [stageTests]);
   const groups = useMemo(
@@ -47,6 +55,8 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   const [leftW, setLeftW] = useState(() => Math.round(window.innerWidth * 0.4));
   const [resultsH, setResultsH] = useState(() => Math.round(window.innerHeight * 0.36));
   const editorRef = useRef<Ed | null>(null);
+  const typesEdRef = useRef<Ed | null>(null);
+  const typesDecos = useRef<{ clear(): void } | null>(null);
   const handleRef = useRef<RunHandle | null>(null);
   const leftRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -59,6 +69,49 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   const initialCode = progress.code[problem.id]?.[lang] ?? starter(lang);
 
   useEffect(() => () => handleRef.current?.cancel(), []);
+
+  // This page owns the types model, not its editor: it exists before the solution model is first checked (so
+  // `import type … from './types'` resolves from the start), and a stage change replaces its text in place.
+  useEffect(() => {
+    if (typesTs === undefined) return;
+    const uri = monaco.Uri.parse(typesPath);
+    const model = monaco.editor.getModel(uri) ?? monaco.editor.createModel(typesTs, 'typescript', uri);
+    if (model.getValue() !== typesTs) model.setValue(typesTs);
+    markNewTypeLines();
+  }, [typesPath, typesTs]);
+  useEffect(() => () => monaco.editor.getModel(monaco.Uri.parse(typesPath))?.dispose(), [typesPath]);
+
+  /** Highlight the lines this stage added to the types file. */
+  function markNewTypeLines() {
+    typesDecos.current?.clear();
+    const ed = typesEdRef.current;
+    if (!ed || prevTypesTs === undefined || typesTs === undefined) return;
+    const before = new Set(prevTypesTs.split('\n').map((l) => l.trim()));
+    const ranges = typesTs.split('\n').flatMap((l, i) => (l.trim() && !before.has(l.trim()) ? [i + 1] : []));
+    typesDecos.current = ed.createDecorationsCollection(ranges.map((line) => ({
+      range: new monaco.Range(line, 1, line, 1),
+      options: { isWholeLine: true, className: 'types-new-line', linesDecorationsClassName: 'types-new-gutter' },
+    })));
+  }
+  const typesChanged = prevTypesTs !== undefined && typesTs !== prevTypesTs;
+
+  /** Code saved before the types had their own file declares its own copies; offer to switch it to the import. */
+  const tsCode = progress.code[problem.id]?.ts;
+  const ownCopies = useMemo(
+    () => (typesTs !== undefined && tsCode !== undefined ? ownCopiesOfTypes(tsCode, typesTs) : []),
+    [tsCode, typesTs],
+  );
+  const showOwnTypes = lang === 'ts' && ownCopies.length > 0 && !progress.ownTypes[problem.id];
+  const useTypesFile = () => {
+    const ed = editorRef.current;
+    const model = ed?.getModel();
+    if (!ed || !model || typesTs === undefined) return;
+    const { code } = adoptTypesFile(model.getValue(), typesTs);
+    ed.pushUndoStop(); // Ctrl/⌘+Z brings the old declarations back
+    model.pushEditOperations([], [{ range: model.getFullModelRange(), text: code }], () => null);
+    ed.pushUndoStop();
+    actions.setCode(problem.id, 'ts', code);
+  };
 
   const goStage = (k: number) => {
     handleRef.current?.cancel();
@@ -83,7 +136,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     const h = runInWorker(problem.id, titles, source, lang, (r) => {
       partial.push(r);
       setRun({ phase: 'running', results: [...partial] });
-    }, stage);
+    }, stage, typesTs);
     handleRef.current = h;
     h.promise.then((summary) => {
       if (handleRef.current !== h) return;
@@ -95,7 +148,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
         if (passedAll && staged && !full && stage !== undefined && stage < n - 1 && stage === before) setJustUnlocked(stage + 1);
       }
     });
-  }, [problem.id, titles, lang, staged, viewStage, full, n]);
+  }, [problem.id, titles, lang, staged, viewStage, full, n, typesTs]);
 
   const runRef = useRef(doRun);
   runRef.current = doRun;
@@ -198,6 +251,13 @@ export function ProblemPage({ problem }: { problem: Problem }) {
             ) : revealed ? (
               <div>
                 <p className="muted small">Reference solution{staged && !full ? ` for stage ${viewStage + 1}` : ''} ({lang === 'ts' ? 'TypeScript' : 'JavaScript'}). Yours doesn't need to look like this.</p>
+                {typesTs !== undefined && (
+                  <>
+                    <div className="file-label small muted">types.ts</div>
+                    <CodeView code={typesTs} language="typescript" theme={progress.theme} />
+                    <div className="file-label small muted">solution.{lang}</div>
+                  </>
+                )}
                 <CodeView code={solution} language={lang === 'ts' ? 'typescript' : 'javascript'} theme={progress.theme} />
               </div>
             ) : (
@@ -223,27 +283,62 @@ export function ProblemPage({ problem }: { problem: Problem }) {
               {running ? 'Running…' : 'Run tests'}
             </button>
           </div>
-          <div className="editor-wrap">
-            <Editor
-              key={lang}
-              path={`file:///problems/${problem.id}/solution.${lang}`}
-              language={lang === 'ts' ? 'typescript' : 'javascript'}
-              defaultValue={initialCode}
-              theme={monacoTheme}
-              onMount={onMount}
-              onChange={(v) => v !== undefined && actions.setCode(problem.id, lang, v)}
-              loading={<div className="muted pad">Loading editor…</div>}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 14,
-                tabSize: 2,
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                fixedOverflowWidgets: true,
-                renderLineHighlight: 'line',
-                padding: { top: 10 },
-              }}
-            />
+          {showOwnTypes && (
+            <div className="own-types" data-testid="own-types">
+              <span>
+                Your saved code declares its own <code>{ownCopies.join(', ')}</code>. These now live in the read-only{' '}
+                <code>types.ts</code>, which changes as stages add to them.
+              </span>
+              <button className="btn primary small" onClick={useTypesFile} data-testid="use-types-file" title="Remove your copies and import them from ./types. Ctrl/⌘+Z undoes it.">Import from types.ts</button>
+              <button className="btn ghost small" onClick={() => actions.keepOwnTypes(problem.id)}>Keep mine</button>
+            </div>
+          )}
+          <div className={`editor-wrap ${typesTs !== undefined ? 'split' : ''}`}>
+            {typesTs !== undefined && (
+              <div className="editor-col types-col" data-testid="types-editor">
+                <div className="file-tab">
+                  <span className="file-name">types.ts</span>
+                  <span className="muted small">read-only{full ? '' : ` · stage ${viewStage + 1}`}</span>
+                  {typesChanged && <span className="types-badge" data-testid="types-updated" title="Highlighted lines are new in this stage">updated</span>}
+                </div>
+                <div className="editor-host">
+                  <Editor
+                    path={typesPath}
+                    language="typescript"
+                    keepCurrentModel
+                    theme={monacoTheme}
+                    onMount={(ed) => { typesEdRef.current = ed; markNewTypeLines(); }}
+                    loading={<div className="muted pad">Loading editor…</div>}
+                    options={{
+                      ...editorOptions,
+                      readOnly: true,
+                      domReadOnly: true,
+                      readOnlyMessage: { value: 'types.ts is read-only. Each stage replaces it. Import what you need in your solution: `import type { … } from \'./types\'`.' },
+                      renderLineHighlight: 'none',
+                      lineNumbersMinChars: 3,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="editor-col solution-col" data-testid="solution-editor">
+              {typesTs !== undefined && (
+                <div className="file-tab"><span className="file-name">solution.{lang}</span><span className="muted small">yours · carries over between stages</span></div>
+              )}
+              <div className="editor-host">
+                <Editor
+                  key={lang}
+                  path={`file:///problems/${problem.id}/solution.${lang}`}
+                  language={lang === 'ts' ? 'typescript' : 'javascript'}
+                  defaultValue={initialCode}
+                  theme={monacoTheme}
+                  onMount={onMount}
+                  onChange={(v) => v !== undefined && actions.setCode(problem.id, lang, v)}
+                  loading={<div className="muted pad">Loading editor…</div>}
+                  options={{ ...editorOptions, renderLineHighlight: 'line' }}
+                />
+              </div>
+            </div>
           </div>
           <Splitter direction="vertical" getStart={() => -(resultsRef.current?.offsetHeight ?? resultsH)} onResize={(h) => setResultsH(Math.max(120, Math.min(window.innerHeight - 220, -h)))} />
           <div className="results-wrap" ref={resultsRef} style={{ height: resultsH }}>
@@ -260,6 +355,16 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     </main>
   );
 }
+
+const editorOptions = {
+  minimap: { enabled: false },
+  fontSize: 14,
+  tabSize: 2,
+  scrollBeyondLastLine: false,
+  automaticLayout: true,
+  fixedOverflowWidgets: true,
+  padding: { top: 10 },
+} as const;
 
 function StagedStatement({ problem, sections, unlocked, current, passed, theme }: {
   problem: Problem; sections: string[]; unlocked: number; current: number; passed: (string | null)[]; theme: 'dark' | 'light';

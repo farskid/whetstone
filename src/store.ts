@@ -27,6 +27,11 @@ export interface Progress {
   stageRevealed: Record<string, number[]>;
   /** Staged problems the user switched to "full problem" (every stage unlocked, one run of everything). */
   full: Record<string, boolean>;
+  /**
+   * Staged problems whose saved code declares its own copies of the types in types.ts (written before the types moved
+   * to their own file) and where the user chose to keep them rather than import types.ts.
+   */
+  ownTypes: Record<string, boolean>;
 }
 
 const KEY = 'practical:v2';
@@ -36,7 +41,7 @@ const FOLDED: Record<string, { into: string; stage: number }> = { 'f10-debounce-
 
 const empty = (): Progress => ({
   version: 2, theme: 'dark', lang: 'ts', code: {}, solved: {}, attempts: {}, revealed: {},
-  stage: {}, stagePassed: {}, stageCode: {}, stageRevealed: {}, full: {},
+  stage: {}, stagePassed: {}, stageCode: {}, stageRevealed: {}, full: {}, ownTypes: {},
 });
 const obj = (v: unknown) => (typeof v === 'object' && v && !Array.isArray(v) ? (v as Record<string, any>) : {});
 
@@ -68,13 +73,14 @@ export function normalize(raw: any): Progress {
     stageCode: { ...obj(raw.stageCode) },
     stageRevealed: { ...obj(raw.stageRevealed) },
     full: { ...obj(raw.full) },
+    ownTypes: { ...obj(raw.ownTypes) },
   };
   // Folded problems: their progress counts for the stage they became.
   for (const [old, { into, stage }] of Object.entries(FOLDED)) {
     if (s.solved[old]) passThrough(s, into, stage, s.solved[old].at);
     if (s.code[old] && !s.code[into]) s.code[into] = s.code[old];
     if (s.attempts[old]) s.attempts[into] = (s.attempts[into] ?? 0) + s.attempts[old];
-    for (const k of ['code', 'solved', 'attempts', 'revealed', 'stage', 'stagePassed', 'stageCode', 'stageRevealed', 'full'] as const) delete (s[k] as Record<string, unknown>)[old];
+    for (const k of ['code', 'solved', 'attempts', 'revealed', 'stage', 'stagePassed', 'stageCode', 'stageRevealed', 'full', 'ownTypes'] as const) delete (s[k] as Record<string, unknown>)[old];
   }
   // A problem solved before it was staged (v1) is fully unlocked.
   for (const [id, v] of Object.entries(s.solved)) if (v?.at) passThrough(s, id, Infinity, v.at);
@@ -156,6 +162,7 @@ export const actions = {
   reveal: (id: string) => update((s) => ({ ...s, revealed: { ...s.revealed, [id]: true } })),
   revealStage: (id: string, stage: number) =>
     update((s) => ({ ...s, stageRevealed: { ...s.stageRevealed, [id]: [...new Set([...(s.stageRevealed[id] ?? []), stage])] } })),
+  keepOwnTypes: (id: string) => update((s) => ({ ...s, ownTypes: { ...s.ownTypes, [id]: true } })),
   setFull: (id: string, on: boolean) => update((s) => ({ ...s, full: { ...s.full, [id]: on } })),
   exportJson: () => JSON.stringify({ app: 'practical', exportedAt: new Date().toISOString(), ...state }, null, 2),
   importJson: (text: string) => {
