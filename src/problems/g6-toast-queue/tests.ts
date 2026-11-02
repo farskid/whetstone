@@ -1,5 +1,5 @@
 import type { TestCase } from '../../runner/types';
-import type { Toast } from './solution';
+import type { Toast } from './types';
 type M = typeof import('./solution');
 
 const msgs = (ts: Toast[]) => ts.map((t) => t.message);

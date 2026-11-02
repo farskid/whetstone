@@ -1,40 +1,4 @@
-export interface ListItem {
-  label: string;
-  disabled?: boolean;
-}
-
-export interface Clock {
-  setTimeout(fn: () => void, ms: number): unknown;
-  clearTimeout(id: unknown): void;
-}
-
-export interface ListboxOptions {
-  items: ListItem[];
-  clock: Clock;
-  loop?: boolean;
-  typeaheadTimeout?: number;
-  pageSize?: number;
-}
-
-export interface Listbox {
-  /** Index of the active item, or -1 when every item is disabled. */
-  readonly active: number;
-  /** Returns true when the key was handled (the caller should preventDefault). */
-  handleKey(key: string): boolean;
-  /** Moves to an enabled item. Returns false (and does nothing) for a disabled one. */
-  setActive(index: number): boolean;
-}
-
-export interface GridOptions {
-  count: number;
-  columns: number;
-  rtl?: boolean;
-}
-
-export interface Grid {
-  readonly active: number;
-  handleKey(key: string, mods?: { ctrlKey?: boolean }): boolean;
-}
+import type { ListboxOptions, Listbox, GridOptions, Grid } from './types';
 
 export function createListbox(options: ListboxOptions): Listbox {
   const { items, clock, loop = false, typeaheadTimeout = 500, pageSize = 10 } = options;
@@ -42,7 +6,7 @@ export function createListbox(options: ListboxOptions): Listbox {
   const enabled = (i: number) => i >= 0 && i < n && !items[i].disabled;
   let active = items.findIndex((it) => !it.disabled);
   let query = '';
-  let timer: unknown = undefined;
+  let timer: number | undefined;
 
   function scan(from: number, step: 1 | -1, wrap: boolean): number {
     for (let k = 0, i = from; k < n; k++, i += step) {
@@ -67,7 +31,7 @@ export function createListbox(options: ListboxOptions): Listbox {
   }
 
   function typeahead(ch: string): boolean {
-    clock.clearTimeout(timer);
+    if (timer !== undefined) clock.clearTimeout(timer);
     timer = clock.setTimeout(() => (query = ''), typeaheadTimeout);
     query += ch.toLowerCase();
     const repeated = [...query].every((c) => c === query[0]);

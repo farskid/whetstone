@@ -2,17 +2,17 @@
 
 Libraries like **dnd-kit** keep the DOM work separate from a small amount of pure math, and the math is what you'll build here. Rects are plain `{ top, height }` objects measured **before** the drag started.
 
-## Stage 1: `arrayMove(list, from, to)`
+## `arrayMove(list, from, to)`
 
 Return a new array with the item at `from` moved to index `to`, and leave the input unchanged. Both indices must be integers inside the list. Otherwise, throw a `RangeError`.
 
-## Stage 2: `getDropIndex(rects, activeIndex, pointerY)`
+## `getDropIndex(rects, activeIndex, pointerY)`
 
 Return the index where the dragged item should end up, so that `arrayMove(list, activeIndex, getDropIndex(...))` is the reordered list. The answer is **the number of other items whose vertical midpoint is strictly above `pointerY`**. A pointer exactly on a midpoint doesn't pass it.
 
 The dragged item's own rect is not one of the other items. Rects can have different heights and gaps between them. An invalid `activeIndex` throws a `RangeError`.
 
-## Stage 3: several selected items
+## Several selected items
 
 - **`moveMany(list, selected, toIndex)`** moves the items at the `selected` indices as one block:
   1. Take the selected items out, keeping their **original relative order**. The order of `selected` doesn't matter, and duplicate indices count once.
@@ -21,7 +21,7 @@ The dragged item's own rect is not one of the other items. Rects can have differ
 
 An out-of-range index throws a `RangeError`.
 
-## Stage 4: trees
+## Trees
 
 A tree is a flat list of `{ id, parentId }` items in **preorder**: every parent comes before its children, and each subtree is contiguous. The root items have `parentId: null` and depth 0.
 

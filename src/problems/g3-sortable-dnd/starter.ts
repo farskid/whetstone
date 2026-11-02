@@ -1,24 +1,4 @@
-export interface Rect {
-  top: number;
-  height: number;
-}
-
-export interface TreeItem {
-  id: string;
-  parentId: string | null;
-}
-
-export interface TreeDrop {
-  depth: number;
-  parentId: string | null;
-  /** Position among the new parent's children. */
-  index: number;
-}
-
-export interface TreeDropOptions {
-  indent?: number;
-  maxDepth?: number;
-}
+import type { Rect, TreeItem, TreeDrop, TreeDropOptions } from './types';
 
 export function arrayMove<T>(list: readonly T[], from: number, to: number): T[] {
   throw new Error('Not implemented');

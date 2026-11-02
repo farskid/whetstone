@@ -50,7 +50,6 @@ export const tests: TestCase<M>[] = [
       expect(errorName(() => ed.addMark(3, 1, 'bold'))).toBe('RangeError');
       expect(errorName(() => ed.addMark(0, 5, 'bold'))).toBe('RangeError');
       expect(errorName(() => ed.removeMark(-1, 2, 'bold'))).toBe('RangeError');
-      expect(errorName(() => ed.insertText(5, 'x'))).toBe('RangeError');
       const out = ed.getSpans();
       out[1].text = 'zz';
       out[1].marks.length = 0;
@@ -132,6 +131,7 @@ export const tests: TestCase<M>[] = [
       const empty = createEditor();
       empty.insertText(0, 'hi');
       expect(show(empty.getSpans())).toEqual(['hi[]']);
+      expect(errorName(() => empty.insertText(3, 'x')), 'past the end').toBe('RangeError');
     },
   },
   {

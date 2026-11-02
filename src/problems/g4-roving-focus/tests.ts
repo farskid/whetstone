@@ -1,5 +1,5 @@
 import type { TestCase } from '../../runner/types';
-import type { ListItem } from './solution';
+import type { ListItem } from './types';
 type M = typeof import('./solution');
 
 function thrown(fn: () => unknown): unknown {

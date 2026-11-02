@@ -1,7 +1,7 @@
 // Broken: recomputes every start offset on each call (O(n)), excludes the
 // row that is only partially visible at the top, and ignores gap.
-import type { VirtualItem, VirtualizerOptions } from '../solution';
-export type { VirtualItem, VirtualizerOptions } from '../solution';
+import type { VirtualItem, VirtualizerOptions } from '../types';
+export type { VirtualItem, VirtualizerOptions } from '../types';
 
 export function createVirtualizer(o: VirtualizerOptions) {
   let count = o.count;

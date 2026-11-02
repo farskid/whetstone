@@ -1,24 +1,4 @@
-export interface Rect {
-  top: number;
-  height: number;
-}
-
-export interface TreeItem {
-  id: string;
-  parentId: string | null;
-}
-
-export interface TreeDrop {
-  depth: number;
-  parentId: string | null;
-  /** Position among the new parent's children. */
-  index: number;
-}
-
-export interface TreeDropOptions {
-  indent?: number;
-  maxDepth?: number;
-}
+import type { Rect, TreeItem, TreeDrop, TreeDropOptions } from './types';
 
 function checkIndex(i: number, length: number, what: string): void {
   if (!Number.isInteger(i) || i < 0 || i >= length) throw new RangeError(`${what} ${i} is out of range 0..${length - 1}`);

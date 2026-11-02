@@ -1,12 +1,18 @@
 import type { TestCase } from '../../runner/types';
 type M = typeof import('./solution');
 
+const G1 = 'Fixed size';
+const G2 = 'Variable + measured sizes';
+const G3 = 'Scroll anchoring + scrollToIndex';
+const G4 = 'Scale';
+
 const idx = (items: { index: number }[]) => items.map((i) => i.index);
 const range = (a: number, b: number) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
 
 export const tests: TestCase<M>[] = [
   {
     title: 'fixed size: visible rows, positions and total',
+    group: G1,
     input: '1000 rows × 50px, viewport 200, overscan 0, scrollTop 0',
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 1000, estimateSize: () => 50, viewportHeight: 200, overscan: 0 });
@@ -21,6 +27,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'partially visible rows at both edges count as visible',
+    group: G1,
     input: 'scrollTop 75 → rows 1 (75..100 visible) through 5 (250..275)',
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 1000, estimateSize: () => 50, viewportHeight: 200, overscan: 0 });
@@ -30,6 +37,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'overscan adds rows on each side, clamped to the list',
+    group: G1,
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 1000, estimateSize: () => 50, viewportHeight: 200, overscan: 3 });
       expect(idx(v.getVirtualItems(500))).toEqual(range(7, 16));
@@ -40,6 +48,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'scrollTop is clamped to the scrollable range',
+    group: G1,
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 10, estimateSize: () => 50, viewportHeight: 200, overscan: 0 });
       expect(idx(v.getVirtualItems(-300))).toEqual([0, 1, 2, 3]);
@@ -48,17 +57,18 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'empty and short lists',
+    group: G1,
     run({ createVirtualizer }, { expect }) {
       const empty = createVirtualizer({ count: 0, estimateSize: () => 50, viewportHeight: 200 });
       expect(empty.getVirtualItems(0)).toEqual([]);
       expect(empty.getTotalSize()).toBe(0);
-      expect(empty.scrollToIndex(5, { align: 'start' })).toBe(0);
       const short = createVirtualizer({ count: 2, estimateSize: () => 50, viewportHeight: 200 });
       expect(idx(short.getVirtualItems(40))).toEqual([0, 1]);
     },
   },
   {
     title: 'variable estimated sizes',
+    group: G2,
     input: 'size(i) = 20 + (i % 3) * 10 → 20, 30, 40, 20, 30, 40 …',
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 300, estimateSize: (i) => 20 + (i % 3) * 10, viewportHeight: 100, overscan: 0 });
@@ -74,6 +84,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'gap between rows (and a scrollTop that lands in a gap)',
+    group: G2,
     input: 'rows 50px, gap 10 → starts 0, 60, 120 …',
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 100, estimateSize: () => 50, viewportHeight: 100, overscan: 0, gap: 10 });
@@ -85,6 +96,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'measure() replaces the estimate and shifts later rows',
+    group: G2,
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 100, estimateSize: () => 50, viewportHeight: 200, overscan: 0 });
       v.measure(1, 120);
@@ -100,6 +112,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'measure() returns a scroll adjustment only for rows starting above the viewport',
+    group: G3,
     input: 'scrollTop 500 (row 10 at top)',
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 100, estimateSize: () => 50, viewportHeight: 200, overscan: 0 });
@@ -111,6 +124,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'scrollToIndex: start / end / center',
+    group: G3,
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 100, estimateSize: () => 50, viewportHeight: 200 });
       expect(v.scrollToIndex(10, { align: 'start' })).toBe(500);
@@ -119,10 +133,13 @@ export const tests: TestCase<M>[] = [
       expect(v.scrollToIndex(0, { align: 'center' }), 'clamped at the top').toBe(0);
       expect(v.scrollToIndex(99, { align: 'start' }), 'clamped at the bottom').toBe(4800);
       expect(v.scrollToIndex(5000, { align: 'start' }), 'index clamped').toBe(4800);
+      const empty = createVirtualizer({ count: 0, estimateSize: () => 50, viewportHeight: 200 });
+      expect(empty.scrollToIndex(5, { align: 'start' }), 'empty list').toBe(0);
     },
   },
   {
     title: 'scrollToIndex auto: only scrolls if needed, by the minimum amount',
+    group: G3,
     input: 'viewport 200 at scrollTop 500 shows rows 10..13',
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 100, estimateSize: () => 50, viewportHeight: 200 });
@@ -135,6 +152,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'scrollToIndex uses measured sizes',
+    group: G3,
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 100, estimateSize: () => 50, viewportHeight: 200 });
       v.measure(0, 300);
@@ -144,6 +162,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'setCount keeps measurements; setViewportHeight changes the range',
+    group: G4,
     run({ createVirtualizer }, { expect }) {
       const v = createVirtualizer({ count: 10, estimateSize: () => 50, viewportHeight: 200, overscan: 0 });
       v.measure(2, 100);
@@ -160,6 +179,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: 'getVirtualItems matches a brute-force reference on random sizes',
+    group: G2,
     input: '500 random sizes 1..100, gap 3, overscan 2, 300 random scroll positions',
     run({ createVirtualizer }, { expect }) {
       let seed = 7;
@@ -185,6 +205,7 @@ export const tests: TestCase<M>[] = [
   },
   {
     title: '100k rows: interleaved measure + getVirtualItems stay fast',
+    group: G4,
     input: '100,000 rows; 5,000 × (measure a random row, then getVirtualItems)',
     run({ createVirtualizer }, { expect }) {
       const N = 100_000;

@@ -16,9 +16,8 @@ export const meta: ProblemMeta = {
   ],
   summary: 'The math behind sortable lists and trees: non-mutating moves, midpoint drop index, multi-select drags, and tree depth projection from the drag offset with descendant protection.',
   stages: [
-    { title: 'arrayMove', summary: 'Move one item without mutating the list.' },
-    { title: 'Drop index', summary: 'Midpoint rule against the other items\' rects.' },
-    { title: 'Multi-select', summary: 'Move non-contiguous selections as one block, keeping their order.' },
-    { title: 'Trees', summary: 'Project depth and parent from the horizontal offset; never into a descendant; max depth.' },
+    { title: 'arrayMove and drop index', summary: 'Move one item without mutating the list; midpoint rule against the other items\' rects.', groups: ['arrayMove', 'Drop index'] },
+    { title: 'Multi-select', summary: 'Move non-contiguous selections as one block, keeping their order.', groups: ['Multi-select'] },
+    { title: 'Trees', summary: 'Project depth and parent from the horizontal offset; never into a descendant; max depth.', groups: ['Trees'] },
   ],
 };

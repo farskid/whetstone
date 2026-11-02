@@ -1,5 +1,5 @@
 import type { TestCase } from '../../runner/types';
-import type { MasonryItem, Placed } from './solution';
+import type { MasonryItem, Placed } from './types';
 type M = typeof import('./solution');
 
 function thrown(fn: () => unknown): unknown {
@@ -73,11 +73,10 @@ export const tests: TestCase<M>[] = [
     group: 'Responsive columns',
     title: 'aspect ratios scale with the column width',
     run({ layout }, { expect }) {
-      const r = layout([{ aspectRatio: 2 }, { aspectRatio: 0.5 }, { aspectRatio: 1 }, { aspectRatio: 2, span: 2 }], { containerWidth: 410, columnCount: 2, gutter: 10 });
-      expect(r.positions.map((p) => p.height), 'the wide item is 410 wide').toEqual([100, 400, 200, 205]);
+      const r = layout([{ aspectRatio: 2 }, { aspectRatio: 0.5 }, { aspectRatio: 1 }], { containerWidth: 410, columnCount: 2, gutter: 10 });
+      expect(r.positions.map((p) => p.height), 'columns are 200 wide').toEqual([100, 400, 200]);
       expect(r.positions[2].y).toBe(110);
-      expect(r.positions[3].y).toBe(410);
-      expect(r.height).toBe(615);
+      expect(r.height).toBe(400);
     },
   },
   {
@@ -91,7 +90,6 @@ export const tests: TestCase<M>[] = [
       expect(thrown(() => layout([], { containerWidth: 100, minColumnWidth: 0 }))).toBeInstanceOf(RangeError);
       expect(thrown(() => layout([], { containerWidth: -1, columnCount: 2 }))).toBeInstanceOf(RangeError);
       expect(thrown(() => layout(h(-5), { containerWidth: 100, columnCount: 2 }))).toBeInstanceOf(RangeError);
-      expect(thrown(() => layout([{ height: 5, span: 0 }], { containerWidth: 100, columnCount: 2 }))).toBeInstanceOf(RangeError);
       expect(thrown(() => layout([{ aspectRatio: 0 }], { containerWidth: 100, columnCount: 2 }))).toBeInstanceOf(RangeError);
     },
   },
@@ -109,6 +107,10 @@ export const tests: TestCase<M>[] = [
       expect(r.positions[5].column).toBe(0);
       expect(r.positions[5].y).toBe(10);
       expect(r.height).toBe(80);
+      const ar = layout([{ aspectRatio: 2 }, { aspectRatio: 0.5 }, { aspectRatio: 1 }, { aspectRatio: 2, span: 2 }], { containerWidth: 410, columnCount: 2, gutter: 10 });
+      expect(ar.positions.map((p) => p.height), 'the wide item is 410 wide').toEqual([100, 400, 200, 205]);
+      expect(ar.positions[3].y).toBe(410);
+      expect(ar.height).toBe(615);
     },
   },
   {
@@ -123,6 +125,7 @@ export const tests: TestCase<M>[] = [
       expect([full.column, full.span, full.width, full.x]).toEqual([0, 4, 430, 0]);
       expect(full.y, 'below everything: columns end at 50, 50, 50, 50').toBe(50);
       expect(r.height).toBe(70);
+      expect(thrown(() => layout([{ height: 5, span: 0 }], { containerWidth: 100, columnCount: 2 })), 'bad span').toBeInstanceOf(RangeError);
     },
   },
   {

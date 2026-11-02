@@ -1,17 +1,4 @@
-export interface VirtualItem {
-  index: number;
-  start: number;
-  size: number;
-  end: number;
-}
-
-export interface VirtualizerOptions {
-  count: number;
-  estimateSize: (index: number) => number;
-  viewportHeight: number;
-  overscan?: number;
-  gap?: number;
-}
+import type { VirtualItem, VirtualizerOptions } from './types';
 
 /** Fenwick tree over (size + gap) per row: prefix(i) = start(i). */
 class Fenwick {

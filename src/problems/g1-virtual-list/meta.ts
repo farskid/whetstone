@@ -16,9 +16,9 @@ export const meta: ProblemMeta = {
   ],
   summary: 'The math behind list virtualization: visible range with overscan, dynamic measurement with scroll anchoring, scrollToIndex, 100k rows fast.',
   stages: [
-    { title: 'Fixed size', summary: 'Visible range for a fixed row height, with overscan and total size.' },
-    { title: 'Variable + measured sizes', summary: 'estimateSize per row, measure() replaces estimates, gap between rows.' },
-    { title: 'Scroll anchoring + scrollToIndex', summary: 'measure() returns the scroll adjustment for rows above the viewport; scrollToIndex with start/center/end/auto.' },
-    { title: 'Scale', summary: 'Count changes keep measurements; 100k rows with frequent measurements stay fast (no O(n) per call).' },
+    { title: 'Fixed size', summary: 'Visible range for a fixed row height, with overscan and total size.', groups: ['Fixed size'] },
+    { title: 'Variable + measured sizes', summary: 'estimateSize per row, measure() replaces estimates, gap between rows.', groups: ['Variable + measured sizes'] },
+    { title: 'Scroll anchoring + scrollToIndex', summary: 'measure() returns the scroll adjustment for rows above the viewport; scrollToIndex with start/center/end/auto.', groups: ['Scroll anchoring + scrollToIndex'] },
+    { title: 'Scale', summary: 'Count changes keep measurements; 100k rows with frequent measurements stay fast (no O(n) per call).', groups: ['Scale'] },
   ],
 };

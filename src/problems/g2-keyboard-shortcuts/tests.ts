@@ -1,5 +1,5 @@
 import type { TestCase } from '../../runner/types';
-import type { KeyEventLike } from './solution';
+import type { KeyEventLike } from './types';
 type M = typeof import('./solution');
 
 const ev = (key: string, mods: Partial<KeyEventLike> = {}): KeyEventLike => ({ key, ...mods });

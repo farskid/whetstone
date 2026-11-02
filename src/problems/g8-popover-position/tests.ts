@@ -1,5 +1,5 @@
 import type { TestCase } from '../../runner/types';
-import type { Middleware, Placement, Rect } from './solution';
+import type { Middleware, Placement, Rect } from './types';
 type M = typeof import('./solution');
 
 const V: Rect = { x: 0, y: 0, width: 400, height: 300 };

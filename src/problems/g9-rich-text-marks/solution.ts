@@ -1,29 +1,4 @@
-export type SimpleMarkType = 'bold' | 'italic' | 'underline' | 'code';
-
-export type Mark =
-  | { type: 'link'; href: string }
-  | { type: 'color'; color: string }
-  | { type: SimpleMarkType };
-
-export type MarkType = Mark['type'];
-
-export interface Span {
-  text: string;
-  marks: Mark[];
-}
-
-export interface Editor {
-  getSpans(): Span[];
-  getText(): string;
-  addMark(from: number, to: number, mark: Mark | SimpleMarkType): void;
-  removeMark(from: number, to: number, type: MarkType): void;
-  toggleMark(from: number, to: number, mark: Mark | SimpleMarkType): void;
-  /** The marks text typed at pos would get. */
-  marksAt(pos: number): Mark[];
-  insertText(pos: number, text: string): void;
-  deleteText(from: number, to: number): void;
-  toHTML(): string;
-}
+import type { SimpleMarkType, Mark, MarkType, Span, Editor } from './types';
 
 /** Outermost first. */
 const RANK: MarkType[] = ['link', 'color', 'bold', 'italic', 'underline', 'code'];
