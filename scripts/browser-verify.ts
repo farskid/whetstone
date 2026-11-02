@@ -167,6 +167,26 @@ async function main() {
     await paste(page, s2);
     check(await runAndCheck(`flow: ${flowId} stage 2 reference in the editor`, page, bad), 'stage 2 passes with the stage-2 solution');
     await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-3-stage2-passed.png') });
+    // Statement borders: passed stages are the pass colour, the stage being viewed is the accent (even when passed).
+    const border = (k: number) => page.$eval(`[data-testid="stage-section-${k}"]`, (e) => getComputedStyle(e).borderLeftColor);
+    const cssVar = (v: string) => page.evaluate((name) => {
+      const d = document.createElement('div'); d.style.color = `var(${name})`; document.body.append(d);
+      const c = getComputedStyle(d).color; d.remove(); return c;
+    }, v);
+    for (const t of ['dark', 'light'] as const) {
+      await page.selectOption('[data-testid="theme-select"]', t);
+      await page.waitForTimeout(200);
+      const [pass, accent] = [await cssVar('--pass'), await cssVar('--accent')];
+      check(await border(1) === pass, `[${t}] passed stage 1 has a pass-coloured left border`);
+      check(await border(2) === accent, `[${t}] stage 2 (viewed, passed) keeps the accent left border`);
+      await page.click('[data-testid="stage-tab-1"]');
+      await page.waitForTimeout(200);
+      check(await border(1) === accent && await border(2) === pass, `[${t}] viewing stage 1: stage 1 accent, passed stage 2 pass colour`);
+      await page.screenshot({ path: join(SHOTS, `whetstone-stage-border-${t}.png`) });
+      await page.click('[data-testid="stage-tab-2"]');
+      await page.waitForTimeout(200);
+    }
+    await page.selectOption('[data-testid="theme-select"]', 'dark');
     await page.reload();
     await page.waitForSelector(SOL, { timeout: 20000 });
     check(!(await page.isDisabled('[data-testid="stage-tab-2"]')), 'stage 2 stays unlocked after a reload');

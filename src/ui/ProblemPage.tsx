@@ -377,7 +377,7 @@ function StagedStatement({ problem, sections, unlocked, current, passed, theme }
     <div className="staged-statement" ref={ref}>
       <h1 className="staged-h1">{problem.title}</h1>
       {problem.stages.map((st, k) => k <= unlocked ? (
-        <section key={k} className={`stage-section ${k === current ? 'current' : ''}`} data-testid={`stage-section-${k + 1}`}>
+        <section key={k} className={`stage-section ${passed[k] ? 'passed' : ''} ${k === current ? 'current' : ''}`} data-testid={`stage-section-${k + 1}`}>
           <div className="stage-head">
             <span className="stage-kicker">Stage {k + 1}{passed[k] ? ' ✓' : ''}</span>
             <span className="stage-head-title">{st.title}</span>

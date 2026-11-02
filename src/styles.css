@@ -236,6 +236,8 @@ a.problem-row:hover, .link-row:hover { background: var(--bg-3); }
 .full-toggle { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); white-space: nowrap; cursor: pointer; }
 .staged-h1 { font-size: 22px; margin: 16px 0 4px; }
 .stage-section { border-left: 3px solid var(--line); padding: 2px 0 2px 14px; margin: 14px 0; scroll-margin-top: 8px; }
+/* passed stages get the pass colour; the stage you are viewing stays accent even when passed (this rule comes later) */
+.stage-section.passed { border-left-color: var(--pass); }
 .stage-section.current { border-left-color: var(--accent); }
 .stage-section .markdown > :first-child { margin-top: 6px; }
 .stage-head { display: flex; align-items: baseline; gap: 10px; }
