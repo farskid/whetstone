@@ -10,7 +10,7 @@ function pMap<T, R>(
 ): Promise<Exclude<R, typeof pMapSkip>[]>;
 ```
 
-- Pull the next item only when a slot is free, so the iterator is never more than `concurrency` items ahead of the finished calls. Don't copy the input into an array first: infinite or expensive iterators must be safe.
-- Sync and async iterables both work.
-- An error thrown by the iterator rejects the result.
-- If the mapper returns (or resolves to) `pMapSkip`, that item is left out of the results. The other results keep their relative order.
+- Pull the next item only when a slot is free, so the iterator is never more than `concurrency` items ahead of the finished calls. Don't copy the input into an array first: infinite or expensive iterators must be safe. <!-- tests: pulls from the iterator only as slots free up -->
+- Sync and async iterables both work. <!-- tests: async iterables work -->
+- An error thrown by the iterator rejects the result. <!-- tests: an iterator that throws rejects the result -->
+- If the mapper returns (or resolves to) `pMapSkip`, that item is left out of the results. The other results keep their relative order. <!-- tests: pMapSkip leaves items out of the result -->

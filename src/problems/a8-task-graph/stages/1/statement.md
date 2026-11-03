@@ -25,9 +25,9 @@ interface Report {
 function runTaskGraph(tasks: Task[]): Promise<Report>;
 ```
 
-- A task starts once **all** of its deps have finished. Tasks whose deps are done all run at the same time; there is no limit yet.
+- A task starts once **all** of its deps have finished. Tasks whose deps are done all run at the same time; there is no limit yet. <!-- tests: independent tasks run in parallel; a task waits for ALL deps -->
 - When several tasks become ready together, call their `run` in input-array order.
-- `ctx.results` holds exactly the task's **direct** deps' results, keyed by id (not deps of deps).
+- `ctx.results` holds exactly the task's **direct** deps' results, keyed by id (not deps of deps). <!-- tests: ctx.results holds exactly the direct deps -->
 - `run` may return a plain value or a promise. The task's result is the resolved value.
-- The promise resolves once every task has finished, with `status[id] = 'success'` and `results[id]` for every task, and `errors: {}`. An empty task list resolves to `{ status: {}, results: {}, errors: {} }`.
+- The promise resolves once every task has finished, with `status[id] = 'success'` and `results[id]` for every task, and `errors: {}`. An empty task list resolves to `{ status: {}, results: {}, errors: {} }`. <!-- tests: empty graph resolves to an empty report | runs tasks in dependency order and passes dep results -->
 - For this stage you may assume the input is valid (unique ids, known deps, no cycles) and that every task succeeds. Later stages handle the rest.

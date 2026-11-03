@@ -16,8 +16,8 @@ class Mutex {   // now: a Semaphore of capacity 1
 }
 ```
 
-- `acquire(w)` resolves with a `release` once `w` units are free, and holds them until `release()`. With no waiters and enough room it is granted synchronously (`available` drops right away). A second call of the same `release` does nothing.
-- **Strict FIFO.** Waiters are granted in the order they called `acquire`. A waiter that doesn't fit yet blocks everyone behind it, even lighter ones that would fit. Releasing grants as many waiters from the front as now fit.
-- A weight that isn't a positive integer, or is above `capacity`, throws a `RangeError` synchronously from `acquire` / `tryAcquire`.
-- `tryAcquire(w)` grants at once if nobody is queued and there is room, otherwise returns `null`. It never queues.
+- `acquire(w)` resolves with a `release` once `w` units are free, and holds them until `release()`. With no waiters and enough room it is granted synchronously (`available` drops right away). A second call of the same `release` does nothing. <!-- tests: weights: holds units until released | calling a semaphore release twice is a no-op -->
+- **Strict FIFO.** Waiters are granted in the order they called `acquire`. A waiter that doesn't fit yet blocks everyone behind it, even lighter ones that would fit. Releasing grants as many waiters from the front as now fit. <!-- tests: strict FIFO: a heavy waiter blocks lighter ones behind it | a release grants every waiter at the front that now fits -->
+- A weight that isn't a positive integer, or is above `capacity`, throws a `RangeError` synchronously from `acquire` / `tryAcquire`. <!-- tests: bad weights throw RangeError -->
+- `tryAcquire(w)` grants at once if nobody is queued and there is room, otherwise returns `null`. It never queues. <!-- tests: tryAcquire grants or returns null, never queues -->
 - `runExclusive(fn, w)` acquires `w`, runs `fn`, and releases even if `fn` throws.
