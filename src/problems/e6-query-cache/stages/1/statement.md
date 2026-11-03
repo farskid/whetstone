@@ -22,11 +22,11 @@ function createQueryClient(options?: { clock?: { now(): number } }): {
 
 `QueryState` is `{ status, fetchStatus, data, error, updatedAt, isStale }` (see the types file).
 
-**Keys.** `hashKey` is a deterministic JSON hash where plain-object keys are **sorted** at every depth, so `['todos', { a: 1, b: 2 }]` and `['todos', { b: 2, a: 1 }]` are the same query. Everything else follows `JSON.stringify`: arrays keep their order, `1` and `'1'` differ, and nesting matters.
+**Keys.** `hashKey` is a deterministic JSON hash where plain-object keys are **sorted** at every depth, so `['todos', { a: 1, b: 2 }]` and `['todos', { b: 2, a: 1 }]` are the same query. Everything else follows `JSON.stringify`: arrays keep their order, `1` and `'1'` differ, and nesting matters. <!-- tests: hashKey sorts object keys at every depth -->
 
 **`fetchQuery(key, fn)`**
-- If a fetch for the key is already in flight, return a promise for that fetch's outcome. Never start a second one.
-- Otherwise, if the query has data, resolve with it and **don't** call `fn`. In this stage cached data never goes stale.
+- If a fetch for the key is already in flight, return a promise for that fetch's outcome. Never start a second one. <!-- tests: concurrent fetches of the same key are deduped -->
+- Otherwise, if the query has data, resolve with it and **don't** call `fn`. In this stage cached data never goes stale. <!-- tests: fetchQuery caches by key and resolves data -->
 - Otherwise call `fn({ queryKey: key, signal })` (`signal` is an `AbortSignal` that is never aborted here). The promise resolves with the data or rejects with the error.
 - A query enters the cache when its first fetch starts.
 

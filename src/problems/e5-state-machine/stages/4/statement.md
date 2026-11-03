@@ -37,11 +37,11 @@ function interpret(machine: Machine, options?: { clock?: Clock }): Service;
 
 ### `interpret(machine, { clock })`
 - `clock` defaults to the real timers.
-- `start()` enters the initial state, runs its actions, notifies subscribers and returns the service. A second `start()` does nothing.
-- `send(event)` transitions, runs `state.actions` (names come from `machine.options.actions`; unknown names are skipped) with the new context and event, then notifies subscribers. Sends are ignored before `start()` and after `stop()`. Unchanged transitions notify no one.
+- `start()` enters the initial state, runs its actions, notifies subscribers and returns the service. A second `start()` does nothing. <!-- tests: service runs actions, notifies subscribers and ignores sends when stopped -->
+- `send(event)` transitions, runs `state.actions` (names come from `machine.options.actions`; unknown names are skipped) with the new context and event, then notifies subscribers. Sends are ignored before `start()` and after `stop()`. Unchanged transitions notify no one. <!-- tests: service runs actions, notifies subscribers and ignores sends when stopped -->
 - `state` is the current state. `subscribe(fn)` returns an unsubscribe function.
 
 ### Timers and promises
-- Entering a state with `after` schedules each delay on `clock.setTimeout`; when it fires, the service sends that state's `afterEvent`.
-- Entering a state with `invoke` calls `src(ctx, event)` with the new context and event. A thrown error counts as a rejection.
-- Leaving that state, re-entering it (that's a new activation), or calling `stop()` makes the old timers and promises **no-ops**, even if they fire or settle later. Clear the timers you no longer need.
+- Entering a state with `after` schedules each delay on `clock.setTimeout`; when it fires, the service sends that state's `afterEvent`. <!-- tests: after timers fire, and are cancelled by leaving, re-entering or stopping -->
+- Entering a state with `invoke` calls `src(ctx, event)` with the new context and event. A thrown error counts as a rejection. <!-- tests: invoked promises resolve or reject into transitions; stale ones are ignored -->
+- Leaving that state, re-entering it (that's a new activation), or calling `stop()` makes the old timers and promises **no-ops**, even if they fire or settle later. Clear the timers you no longer need. <!-- tests: after timers fire, and are cancelled by leaving, re-entering or stopping | invoked promises resolve or reject into transitions; stale ones are ignored -->

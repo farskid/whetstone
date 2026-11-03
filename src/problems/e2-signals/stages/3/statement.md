@@ -13,8 +13,8 @@ batch(() => {
 function batch<T>(fn: () => T): T;
 ```
 
-- `batch` runs `fn` and returns its result. Effects triggered inside run **once**, after the **outermost** batch ends (batches can nest).
-- Inside a batch, reading a signal or computed gives the fresh value.
-- **Glitch-free:** in a diamond `a → b, a → c, (b, c) → d`, one write to `a` computes `d` once, and no effect ever sees `b` and `c` from different moments.
-- **Equality cutoff:** if a computed re-computes to an `Object.is`-equal value, effects and computeds that read it don't re-run.
-- Chains of computeds (`first, last → full → upper → effect`) update after every change, inside or outside a batch.
+- `batch` runs `fn` and returns its result. Effects triggered inside run **once**, after the **outermost** batch ends (batches can nest). <!-- tests: batch runs effects once, after the outermost batch -->
+- Inside a batch, reading a signal or computed gives the fresh value. <!-- tests: reads inside a batch see fresh values -->
+- **Glitch-free:** in a diamond `a → b, a → c, (b, c) → d`, one write to `a` computes `d` once, and no effect ever sees `b` and `c` from different moments. <!-- tests: diamond: computes once, never shows inconsistent state -->
+- **Equality cutoff:** if a computed re-computes to an `Object.is`-equal value, effects and computeds that read it don't re-run. <!-- tests: equality cutoff: unchanged computed does not re-run dependents -->
+- Chains of computeds (`first, last → full → upper → effect`) update after every change, inside or outside a batch. <!-- tests: effects depending on computeds update after nested changes -->

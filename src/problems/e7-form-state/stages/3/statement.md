@@ -20,14 +20,14 @@ interface Clock { now(): number; setTimeout(fn: () => void, ms: number): number;
 //                    submit(onSubmit?: (values: Values) => unknown): Promise<{ ok: boolean; errors: Errors }>
 ```
 
-- `setValue` on an async field starts its check after `debounceMs` on the `clock`, or immediately if it is 0 or unset. A newer `setValue` on the same path cancels the pending timer.
-- `isValidating` is true while any check is debouncing or in flight.
-- `submit(onSubmit?)`:
+- `setValue` on an async field starts its check after `debounceMs` on the `clock`, or immediately if it is 0 or unset. A newer `setValue` on the same path cancels the pending timer. <!-- tests: async checks are debounced on the clock -->
+- `isValidating` is true while any check is debouncing or in flight. <!-- tests: async checks are debounced on the clock -->
+- `submit(onSubmit?)`: <!-- tests: submit flushes debounces, waits for checks, touches fields and calls onSubmit only when valid -->
   1. Touches every path in `values` that has a field config.
   2. Runs any debouncing checks immediately, cancelling their timers.
   3. Starts checks for async fields that have no result and no check running.
   4. Waits until no checks are pending.
   5. If the form is valid, awaits `onSubmit(values)`.
-  It resolves to `{ ok, errors }`. `onSubmit` is never called when the form is invalid.
+  It resolves to `{ ok, errors }`. `onSubmit` is never called when the form is invalid. <!-- tests: submit flushes debounces, waits for checks, touches fields and calls onSubmit only when valid -->
 - `reset` also cancels pending timers.
 - Everything from earlier stages still applies.

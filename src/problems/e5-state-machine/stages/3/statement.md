@@ -19,23 +19,23 @@ m.transition(m.initialState, 'LOGOUT').value;      // 'login'
 
 The machine config is now a state node itself: any node may have `initial` and `states`, plus `onDone`. `MachineState` gains `matches(path)`.
 
-- A node with children must name a valid `initial`; `createMachine` throws otherwise. Entering a node enters its `initial` child, recursively.
-- `value` is the dot path of the active leaf, e.g. `'app.editor.idle'`. `matches(p)` is true for the leaf and every ancestor path, and only on whole segments (`'app.edit'` doesn't match).
+- A node with children must name a valid `initial`; `createMachine` throws otherwise. Entering a node enters its `initial` child, recursively. <!-- tests: nested states: initial descent, matches, bubbling and exit order -->
+- `value` is the dot path of the active leaf, e.g. `'app.editor.idle'`. `matches(p)` is true for the leaf and every ancestor path, and only on whole segments (`'app.edit'` doesn't match). <!-- tests: nested states: initial descent, matches, bubbling and exit order -->
 - `entered` / `exited` hold full dot paths.
 
 **Targets**
-- A plain name is a **sibling** of the state that declares the transition. Dots go deeper, as in `'q.y'`. On the root, a name is a top-level state.
-- `'#a.b'` is an absolute path from the root.
+- A plain name is a **sibling** of the state that declares the transition. Dots go deeper, as in `'q.y'`. On the root, a name is a top-level state. <!-- tests: deeper handlers shadow outer ones; dotted and absolute targets -->
+- `'#a.b'` is an absolute path from the root. <!-- tests: deeper handlers shadow outer ones; dotted and absolute targets -->
 
-**Choosing a transition.** Look for an enabled candidate on the active leaf, then on its ancestors, then on the root. The first node with one wins; a blocked guard falls through to the parent.
+**Choosing a transition.** Look for an enabled candidate on the active leaf, then on its ancestors, then on the root. The first node with one wins; a blocked guard falls through to the parent. <!-- tests: nested states: initial descent, matches, bubbling and exit order | deeper handlers shadow outer ones; dotted and absolute targets -->
 
 **Action order**
-1. Exit actions, innermost first, for every active state below the transition's **domain**: the nearest common ancestor of source and target that is a *proper* ancestor of the source. So a parent handler targeting its own child exits and re-enters the parent.
+1. Exit actions, innermost first, for every active state below the transition's **domain**: the nearest common ancestor of source and target that is a *proper* ancestor of the source. So a parent handler targeting its own child exits and re-enters the parent. <!-- tests: nested states: initial descent, matches, bubbling and exit order -->
 2. The transition's actions.
 3. Entry actions, outermost first, down to the new leaf, following `initial`s.
 
 The initial state runs entry actions from the outermost state inwards.
 
 **Final states**
-- Entering a final state whose parent has a passing `onDone` takes that transition, as if from the parent, with event `{ type: 'done.state.<parentPath>' }`. Repeat if that lands on another final state.
+- Entering a final state whose parent has a passing `onDone` takes that transition, as if from the parent, with event `{ type: 'done.state.<parentPath>' }`. Repeat if that lands on another final state. <!-- tests: final child states trigger onDone, possibly chained -->
 - `done` is `true` only once a **top-level** final state is entered. After that every event is ignored.

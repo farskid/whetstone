@@ -22,8 +22,8 @@ interface StoreApi<T> {
 ```
 
 - `initializer(set, get, api)` returns the initial state. `set` behaves like `api.setState`, and `get` like `api.getState`.
-- `setState` accepts a partial or a function of the current state that returns one.
-- The partial is shallow-merged into a **new** state object; the old state is never mutated. With `replace`, the partial becomes the whole state.
-- If the partial (or the function's result) is `Object.is`-equal to the current state, nothing happens and no listener is called.
-- Otherwise every listener is called with `(state, prev)`.
+- `setState` accepts a partial or a function of the current state that returns one. <!-- tests: set merges into a new object; replace swaps it; actions use set -->
+- The partial is shallow-merged into a **new** state object; the old state is never mutated. With `replace`, the partial becomes the whole state. <!-- tests: set merges into a new object; replace swaps it; actions use set -->
+- If the partial (or the function's result) is `Object.is`-equal to the current state, nothing happens and no listener is called. <!-- tests: listeners get (state, prev); identical results do not notify -->
+- Otherwise every listener is called with `(state, prev)`. <!-- tests: listeners get (state, prev); identical results do not notify -->
 - `subscribe` returns an unsubscribe function.

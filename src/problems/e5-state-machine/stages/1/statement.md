@@ -25,12 +25,12 @@ interface Machine {
 function createMachine(config: MachineConfig): Machine;
 ```
 
-- `config.states` maps each state name to `{ on?, type? }`. `on` maps an event type to the **name** of the next state.
+- `config.states` maps each state name to `{ on?, type? }`. `on` maps an event type to the **name** of the next state. <!-- tests: initial state and simple transitions -->
 - `config.on` holds root-level handlers. The active state's handler wins; the root's is used only when the state has none for that event.
 - `event` is a string or `{ type, ...payload }`. `state.event` is the event as an object; for `initialState` it's `{ type: 'xstate.init' }`.
-- `initialState` has `value: config.initial` and `changed: true`.
-- **No handler:** the result has the same `value`, `changed: false` and `actions: []`.
-- `done` is `true` when the state is `type: 'final'`. Every event sent to a done state is ignored (`changed: false`).
+- `initialState` has `value: config.initial` and `changed: true`. <!-- tests: initial state and simple transitions -->
+- **No handler:** the result has the same `value`, `changed: false` and `actions: []`. <!-- tests: unknown events leave the state unchanged; final states stop everything -->
+- `done` is `true` when the state is `type: 'final'`. Every event sent to a done state is ignored (`changed: false`). <!-- tests: unknown events leave the state unchanged; final states stop everything -->
 - `transition` must not mutate its input; return a new state object.
 - `actions` is always `[]` in this stage.
 - Throw an `Error` for an unknown `initial` or target.

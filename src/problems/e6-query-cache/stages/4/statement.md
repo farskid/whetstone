@@ -16,12 +16,12 @@ interface QueryClientOptions {
 ```
 
 **Retries**
-- On failure, wait `retryDelay(failureCount)` on `clock.setTimeout` (`failureCount` is 1 for the first retry), then call `fn` again. Do this up to `retry` times.
-- Only the final failure counts: status becomes `'error'`, `error` is set, any old `data` is kept, and the promise rejects. While retrying, `fetchStatus` stays `'fetching'`.
+- On failure, wait `retryDelay(failureCount)` on `clock.setTimeout` (`failureCount` is 1 for the first retry), then call `fn` again. Do this up to `retry` times. <!-- tests: retries with backoff on the clock, then succeeds -->
+- Only the final failure counts: status becomes `'error'`, `error` is set, any old `data` is kept, and the promise rejects. While retrying, `fetchStatus` stays `'fetching'`. <!-- tests: final failure: status error, old data kept, promise rejects -->
 - An aborted fetch stops retrying.
 
 **Garbage collection**
-- A query with no observers and no fetch in flight is removed after `gcTime`. Start the timer when it reaches that state (a fetch settles, the last observer leaves, or `setQueryData` writes an unobserved query).
-- A new observer or fetch cancels the timer. A query is never collected mid-fetch.
+- A query with no observers and no fetch in flight is removed after `gcTime`. Start the timer when it reaches that state (a fetch settles, the last observer leaves, or `setQueryData` writes an unobserved query). <!-- tests: garbage collection after the last observer leaves | unobserved fetchQuery results are collected too, but not mid-fetch -->
+- A new observer or fetch cancels the timer. A query is never collected mid-fetch. <!-- tests: unobserved fetchQuery results are collected too, but not mid-fetch -->
 - Calling an unsubscribe function twice does nothing the second time.
 - After removal, `getState` returns `undefined` and `getQueryData` returns `undefined`.

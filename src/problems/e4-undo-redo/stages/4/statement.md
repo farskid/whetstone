@@ -29,11 +29,11 @@ function createCommandHistory(options?: { capacity?: number }): CommandHistory;
 
 ### Selection
 - `history.selection` is the present selection, initially `undefined`.
-- `push`'s `selection` defaults to the current selection. Each step remembers its own selection, so `undo`/`redo` restore the selection together with the state.
+- `push`'s `selection` defaults to the current selection. Each step remembers its own selection, so `undo`/`redo` restore the selection together with the state. <!-- tests: selection travels with each step -->
 - A coalesced push replaces the selection too. `rollback()` restores the selection from its `begin()`.
 
 ### Command history
-- `execute(command)` calls `do()`, records the command and clears redo. If `do()` throws, the error propagates and nothing is recorded.
-- `undo()` calls the latest command's `undo()`. `redo()` calls the latest undone command's `do()` again. Both return `true`, or `false` when there is nothing to do.
-- If a command's `undo` or `do` throws during undo/redo, the error propagates and both stacks stay as they were.
-- `capacity` limits the number of undoable commands (default: unlimited); the oldest are dropped first.
+- `execute(command)` calls `do()`, records the command and clears redo. If `do()` throws, the error propagates and nothing is recorded. <!-- tests: command history: execute, undo, redo, capacity | command history: throwing commands leave the stacks alone -->
+- `undo()` calls the latest command's `undo()`. `redo()` calls the latest undone command's `do()` again. Both return `true`, or `false` when there is nothing to do. <!-- tests: command history: execute, undo, redo, capacity -->
+- If a command's `undo` or `do` throws during undo/redo, the error propagates and both stacks stay as they were. <!-- tests: command history: throwing commands leave the stacks alone -->
+- `capacity` limits the number of undoable commands (default: unlimited); the oldest are dropped first. <!-- tests: command history: execute, undo, redo, capacity -->

@@ -15,7 +15,7 @@ subscribe<U>(
 ): () => void
 ```
 
-- The selector runs at subscribe time and after every state change.
-- The listener is called with `(slice, prevSlice)` only when the new slice differs from the last one according to `equalityFn` (default `Object.is`). The last slice is updated only when the listener fires.
-- `fireImmediately` calls the listener once at subscribe time with `(slice, slice)`.
+- The selector runs at subscribe time and after every state change. <!-- tests: selector subscriptions fire only when the slice changes -->
+- The listener is called with `(slice, prevSlice)` only when the new slice differs from the last one according to `equalityFn` (default `Object.is`). The last slice is updated only when the listener fires. <!-- tests: selector subscriptions fire only when the slice changes | equalityFn and fireImmediately -->
+- `fireImmediately` calls the listener once at subscribe time with `(slice, slice)`. <!-- tests: equalityFn and fireImmediately -->
 - `subscribe(listener)` with one argument still works as before.

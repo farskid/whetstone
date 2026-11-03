@@ -27,10 +27,10 @@ interface Form {
 ```
 
 - Paths are dot strings, and array indices are numbers: `'items.0.name'`.
-- `getValue(path)` returns the value at the path, or `undefined` if any part of the path is missing.
-- `setValue(path, value)` writes a value, creating missing containers: an array when the next segment is a number, otherwise an object.
-- `values` is replaced immutably on every change. Never mutate `initialValues` or an earlier `values`. Containers that didn't change keep their identity.
-- `isDirty(path?)` deep-compares the current value with the initial value, at the path or for the whole form. Setting a value back to the original makes it clean again.
-- `touch(path)` marks a path as visited. `isTouched(path)` is true only for exactly that path.
-- `reset(values?)` restores the initial values and clears touched state. If `values` is given, it becomes the new initial values.
+- `getValue(path)` returns the value at the path, or `undefined` if any part of the path is missing. <!-- tests: nested get/set is immutable and shares untouched branches -->
+- `setValue(path, value)` writes a value, creating missing containers: an array when the next segment is a number, otherwise an object. <!-- tests: nested get/set is immutable and shares untouched branches -->
+- `values` is replaced immutably on every change. Never mutate `initialValues` or an earlier `values`. Containers that didn't change keep their identity. <!-- tests: nested get/set is immutable and shares untouched branches -->
+- `isDirty(path?)` deep-compares the current value with the initial value, at the path or for the whole form. Setting a value back to the original makes it clean again. <!-- tests: dirty compares with the initial values; touched; reset -->
+- `touch(path)` marks a path as visited. `isTouched(path)` is true only for exactly that path. <!-- tests: dirty compares with the initial values; touched; reset -->
+- `reset(values?)` restores the initial values and clears touched state. If `values` is given, it becomes the new initial values. <!-- tests: dirty compares with the initial values; touched; reset -->
 - Extra options (such as `clock`) may be passed. Ignore them.

@@ -19,7 +19,7 @@ await api.persist.whenHydrated();
 | `version` | Defaults to `0`. |
 | `migrate(state, storedVersion)` | Converts state saved under another version. May be async. |
 | `partialize(state)` | What gets saved. Defaults to the whole state; functions disappear in JSON. |
-| `merge(persisted, current)` | Defaults to `{ ...current, ...persisted }`. |
+| `merge(persisted, current)` | Defaults to `{ ...current, ...persisted }`. <!-- tests: partialize, custom merge and clearStorage --> |
 | `onHydrated(state, error?)` | Called when hydration finishes. |
 
 **Storage**
@@ -28,11 +28,11 @@ await api.persist.whenHydrated();
 - No storage writes happen before hydration is done. In this stage, changes made before then may be overwritten by the persisted values.
 
 **Hydration**
-- Hydration starts at creation but is **always asynchronous**: right after `create`, `api.persist.hasHydrated()` is `false`, even with a synchronous storage.
-- When it finishes, the store holds `merge(persisted, current)` (listeners are notified), then `onHydrated` is called and `whenHydrated()` promises resolve.
+- Hydration starts at creation but is **always asynchronous**: right after `create`, `api.persist.hasHydrated()` is `false`, even with a synchronous storage. <!-- tests: hydration is async even with sync storage, then merges and notifies -->
+- When it finishes, the store holds `merge(persisted, current)` (listeners are notified), then `onHydrated` is called and `whenHydrated()` promises resolve. <!-- tests: hydration is async even with sync storage, then merges and notifies -->
 - If nothing is stored, the state stays as it is.
-- If the stored version differs: with a `migrate`, use its result; without one, ignore the stored state.
-- If the stored value isn't valid JSON or isn't an object with a `state`, keep the current state. Hydration still completes, and `onHydrated` receives an `Error`.
+- If the stored version differs: with a `migrate`, use its result; without one, ignore the stored state. <!-- tests: versions: migrate old state, or ignore it without migrate -->
+- If the stored value isn't valid JSON or isn't an object with a `state`, keep the current state. Hydration still completes, and `onHydrated` receives an `Error`. <!-- tests: corrupt storage falls back to the current state -->
 
 `api.persist`:
 
@@ -41,4 +41,4 @@ await api.persist.whenHydrated();
 | `hasHydrated()` | Whether hydration has finished. |
 | `whenHydrated()` | A promise that resolves once hydration has finished. |
 | `rehydrate()` | Runs hydration again. |
-| `clearStorage()` | Removes the key from storage. |
+| `clearStorage()` | Removes the key from storage. <!-- tests: partialize, custom merge and clearStorage --> |

@@ -14,7 +14,7 @@ client.setQueryData(['k'], (old) => old + 1);
 setQueryData<T>(key: QueryKey, updater: T | ((old: T | undefined) => T)): void;
 ```
 
-- Data is **stale** if there is none, or if `now - updatedAt >= staleTime`. `isStale` reports this.
-- `fetchQuery` serves cached data only while it is fresh. Stale data is refetched. An in-flight fetch is still shared, fresh or not.
-- With the default `staleTime` of `0`, every `fetchQuery` that isn't deduped calls `fn`.
-- `setQueryData(key, updater)` writes data. A function updater gets the old data (`undefined` if none). It creates the query if needed, sets `status: 'success'` and `updatedAt = now`, and clears `error`.
+- Data is **stale** if there is none, or if `now - updatedAt >= staleTime`. `isStale` reports this. <!-- tests: staleTime: fresh data is served, stale data is refetched -->
+- `fetchQuery` serves cached data only while it is fresh. Stale data is refetched. An in-flight fetch is still shared, fresh or not. <!-- tests: staleTime: fresh data is served, stale data is refetched -->
+- With the default `staleTime` of `0`, every `fetchQuery` that isn't deduped calls `fn`. <!-- tests: default staleTime 0 refetches every time -->
+- `setQueryData(key, updater)` writes data. A function updater gets the old data (`undefined` if none). It creates the query if needed, sets `status: 'success'` and `updatedAt = now`, and clears `error`. <!-- tests: setQueryData seeds the cache and clears an error -->
