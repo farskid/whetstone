@@ -156,6 +156,8 @@ a.problem-row:hover, .link-row:hover { background: var(--bg-3); }
 .status-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-size: 12px; font-weight: 700; }
 .status-dot.started { border-color: var(--warn); }
 .status-dot.ok { background: var(--pass); border-color: var(--pass); color: #fff; }
+.status-dot .crack-lock { font-size: 13px; }
+.status-dot .crack-lock .cl-crack { stroke: var(--pass); }
 .tag { font-size: 12px; color: var(--muted); background: var(--bg-3); border: 1px solid var(--line); padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
 .diff { font-size: 13px; font-weight: 600; }
 .d-easy { color: var(--easy); } .d-medium { color: var(--medium); } .d-hard { color: var(--hard); }
@@ -165,14 +167,16 @@ a.problem-row:hover, .link-row:hover { background: var(--bg-3); }
 .problem-page { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .problem-bar { display: flex; align-items: center; gap: 12px; padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--bg-2); flex: none; }
 .pb-title { font-size: 16px; margin: 0; }
-.solved-badge { color: var(--pass); font-weight: 600; font-size: 13px; }
+/* "Cracked": the persistent marker for a solved problem (an open, cracked padlock), see src/ui/Cracked.tsx. */
+.solved-badge { display: inline-flex; align-items: center; gap: 5px; padding: 1px 9px 1px 7px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--pass) 55%, transparent); background: color-mix(in srgb, var(--pass) 10%, transparent); color: var(--pass); font-weight: 650; font-size: 12px; letter-spacing: .02em; position: relative; overflow: hidden; }
+.solved-badge .crack-lock { font-size: 14px; }
 .workspace { flex: 1; display: flex; min-height: 0; }
 .left-pane { display: flex; flex-direction: column; min-width: 260px; background: var(--bg-2); }
 .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); padding: 0 10px; flex: none; }
 .tab { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); padding: 9px 12px; cursor: pointer; font: inherit; font-weight: 500; }
 .tab.on { color: var(--text); border-bottom-color: var(--accent); }
 .left-body { overflow: auto; padding: 4px 22px 28px; flex: 1; }
-.right-pane { flex: 1; display: flex; flex-direction: column; min-width: 340px; container-type: inline-size; }
+.right-pane { flex: 1; display: flex; flex-direction: column; min-width: 340px; container-type: inline-size; position: relative; }
 .editor-bar { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-bottom: 1px solid var(--line); background: var(--bg-2); flex: none; }
 .seg { display: flex; background: var(--bg-3); border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
 .seg button { background: none; border: 0; color: var(--muted); padding: 3px 10px; border-radius: 6px; cursor: pointer; font: inherit; font-size: 13px; }
@@ -295,3 +299,39 @@ a.problem-row:hover, .link-row:hover { background: var(--bg-3); }
 .markdown .rule[data-rule-status] li:not(.rule) { color: var(--text); background: none; }
 .markdown .rule-icon { font-weight: 700; margin-right: 6px; }
 .markdown .rule { cursor: help; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Cracked (src/ui/Cracked.tsx): plays once when the whole problem newly passes. ~1.9s, click-through, over the editor
+   and tests. The padlock is open with a crack in it; in the stamp and a just-cracked header badge the shackle springs
+   open and the crack runs in. */
+.crack-lock { display: block; flex: none; overflow: visible; }
+.crack-lock .cl-shackle { transform-box: view-box; transform-origin: 16.5px 11px; transform: translateY(-1.6px) rotate(24deg); }
+.crack-lock .cl-crack { stroke: var(--bg-2); stroke-dasharray: 12; stroke-dashoffset: 0; }
+.cracked-fx { position: absolute; inset: 0; z-index: 30; pointer-events: none; overflow: hidden; border-radius: 2px; animation: crack-frame 1.9s ease-out both; }
+.cracked-sweep { position: absolute; inset: -20% -60%; background: linear-gradient(105deg, transparent 38%, color-mix(in srgb, var(--pass) 16%, transparent) 46%, color-mix(in srgb, #fff 22%, var(--pass) 18%) 50%, color-mix(in srgb, var(--pass) 16%, transparent) 54%, transparent 62%); transform: translateX(-70%); animation: crack-sweep 1.1s cubic-bezier(.45, .1, .25, 1) .05s both; mix-blend-mode: screen; }
+[data-theme='light'] .cracked-sweep { mix-blend-mode: multiply; background: linear-gradient(105deg, transparent 38%, color-mix(in srgb, var(--pass) 12%, transparent) 46%, color-mix(in srgb, var(--pass) 24%, transparent) 50%, color-mix(in srgb, var(--pass) 12%, transparent) 54%, transparent 62%); }
+.cracked-stamp { position: absolute; left: 50%; top: 38%; display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; column-gap: 14px; align-items: center; padding: 14px 26px 14px 20px; border-radius: 16px; border: 1.5px solid var(--pass); background: color-mix(in srgb, var(--bg-2) 88%, var(--pass)); color: var(--pass); box-shadow: 0 12px 40px rgba(0,0,0,.35), 0 0 0 6px color-mix(in srgb, var(--pass) 12%, transparent); transform: translate(-50%, -50%); animation: crack-stamp 1.9s cubic-bezier(.2, .9, .3, 1.2) both; }
+.cracked-stamp .crack-lock { grid-row: 1 / span 2; font-size: 54px; }
+.cracked-word { font-size: 32px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: 1.1; }
+.cracked-sub { font-size: 13px; color: var(--muted); font-weight: 500; }
+.crack-lock.open .cl-shackle, .solved-badge.just .cl-shackle { animation: crack-shackle .55s cubic-bezier(.3, 1.6, .5, 1) .28s both; }
+.crack-lock.open .cl-crack, .solved-badge.just .cl-crack { animation: crack-line .3s ease-out .22s both; }
+.crack-lock.open .cl-body { animation: crack-jolt .3s ease-out .2s both; transform-box: view-box; transform-origin: 12px 16px; }
+.solved-badge.just { animation: crack-pop .5s cubic-bezier(.2, .9, .3, 1.4) .9s both; }
+.solved-badge.just::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 30%, color-mix(in srgb, #fff 45%, transparent) 50%, transparent 70%); transform: translateX(-120%); animation: crack-shine .7s ease-out 1.05s both; }
+@keyframes crack-frame { 0% { box-shadow: inset 0 0 0 0 transparent; } 12% { box-shadow: inset 0 0 0 2px var(--pass), inset 0 0 60px color-mix(in srgb, var(--pass) 22%, transparent); } 70% { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--pass) 60%, transparent), inset 0 0 30px color-mix(in srgb, var(--pass) 8%, transparent); } 100% { box-shadow: inset 0 0 0 0 transparent; } }
+@keyframes crack-sweep { to { transform: translateX(70%); } }
+@keyframes crack-stamp { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.72) rotate(-5deg); } 16% { opacity: 1; transform: translate(-50%, -50%) scale(1.04) rotate(-2deg); } 26%, 78% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(-2deg); } 100% { opacity: 0; transform: translate(-50%, -62%) scale(.96) rotate(-2deg); } }
+@keyframes crack-shackle { from { transform: none; } to { transform: translateY(-1.6px) rotate(24deg); } }
+@keyframes crack-line { from { stroke-dashoffset: 12; } to { stroke-dashoffset: 0; } }
+@keyframes crack-jolt { 0% { transform: none; } 35% { transform: translateX(-.6px) rotate(-3deg); } 70% { transform: translateX(.4px) rotate(2deg); } 100% { transform: none; } }
+@keyframes crack-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes crack-shine { to { transform: translateX(120%); } }
+@keyframes crack-fade { 0% { opacity: 0; } 10%, 85% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .cracked-sweep, .solved-badge.just::after { display: none; }
+  .cracked-fx { animation: none; box-shadow: inset 0 0 0 2px var(--pass); }
+  .cracked-stamp { animation: crack-fade 1.9s linear both; }
+  .crack-lock.open .cl-shackle, .crack-lock.open .cl-crack, .crack-lock.open .cl-body, .solved-badge.just, .solved-badge.just .cl-shackle, .solved-badge.just .cl-crack { animation: none; }
+}

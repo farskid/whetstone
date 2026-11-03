@@ -15,6 +15,7 @@ import { Results, type RunState } from './Results';
 import { Splitter } from './Splitter';
 import { useEditorSplit } from './editorSplit';
 import { CodeView } from './CodeView';
+import { CrackedEffect, CrackLock } from './Cracked';
 import { useResolvedTheme, type ResolvedTheme } from '../theme';
 
 type Ed = Parameters<OnMount>[0];
@@ -72,6 +73,14 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   const typesColRef = useRef<HTMLDivElement>(null);
 
   const solved = !!progress.solved[problem.id];
+  /**
+   * Whether the last finished run of the whole problem (single-stage, the final stage, or full mode) passed. Starts as
+   * "solved", so opening a solved problem and re-running it green plays nothing; going red and back to green does.
+   */
+  const wholeGreen = useRef(solved);
+  /** Bumped each time the problem newly goes green, which (re)plays the "Cracked" effect; null when it isn't showing. */
+  const [cracked, setCracked] = useState<number | null>(null);
+  const endCracked = useCallback(() => setCracked(null), []);
   const revealed = staged && !full
     ? solved || !!stagePassed[viewStage] || (progress.stageRevealed[problem.id] ?? []).includes(viewStage) || (viewStage === n - 1 && !!progress.revealed[problem.id])
     : solved || !!progress.revealed[problem.id];
@@ -133,6 +142,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     handleRef.current?.cancel();
     handleRef.current = null;
     setJustPassed(null);
+    setCracked(null);
     setRun({ phase: 'idle' });
     setRunEpoch((e) => e + 1);
   };
@@ -151,6 +161,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     const partial: TestResult[] = [];
     setRun({ phase: 'running', results: [] });
     setJustPassed(null);
+    setCracked(null);
     const stage = staged ? viewStage : undefined;
     // Pin the stage being run, so unlocking the next one doesn't move the view mid-run.
     if (staged && !full) setPicked(viewStage);
@@ -167,6 +178,11 @@ export function ProblemPage({ problem }: { problem: Problem }) {
         const passedAll = !summary.compileError && summary.passed === summary.total;
         const before = unlockedStage(progressNow(), problem.id);
         actions.recordAttempt(problem.id, passedAll, lang, stage, source);
+        // The whole problem (not an intermediate stage) went from red or unsolved to all green: it's cracked.
+        if (!staged || full || stage === n - 1) {
+          if (passedAll && !wholeGreen.current) setCracked((c) => (c ?? 0) + 1);
+          wholeGreen.current = passedAll;
+        }
         // A first pass of a stage that isn't the last moves straight on; the code carries over (it is the saved code).
         if (passedAll && staged && !full && stage !== undefined && stage < n - 1 && stage === before) {
           handleRef.current = null;
@@ -200,6 +216,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     }
     if (snapshot !== undefined) actions.setCode(problem.id, lang, snapshot);
     else actions.resetCode(problem.id, lang);
+    wholeGreen.current = false; // the code that passed is gone, so passing again cracks it again
     clearRun(); // the last run tested code that is gone now
   };
 
@@ -226,7 +243,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
         <h1 className="pb-title"><span className="cat-id">{problem.catalogId}</span>{problem.title}</h1>
         <span className={`diff d-${problem.difficulty.toLowerCase()}`}>{problem.difficulty}</span>
         <span className="tag">{problem.theme}</span>
-        {solved && <span className="solved-badge" data-testid="solved-badge">✓ Solved</span>}
+        {solved && <span className={`solved-badge ${cracked !== null ? 'just' : ''}`} data-testid="solved-badge" title="Solved: every test passes"><CrackLock /> Cracked</span>}
         <div className="spacer" />
         <span className="muted small">{attempts} {attempts === 1 ? 'submission' : 'submissions'}</span>
       </div>
@@ -300,6 +317,8 @@ export function ProblemPage({ problem }: { problem: Problem }) {
         </section>
         <Splitter direction="horizontal" label="Resize statement and editor" getStart={() => leftRef.current?.offsetWidth ?? leftW} onResize={(w) => setLeftW(Math.max(260, Math.min(window.innerWidth - 360, w)))} />
         <section className="right-pane">
+          {cracked !== null && <CrackedEffect key={cracked} total={titles.length} onDone={endCracked} />}
+          <span className="sr-only" role="status">{cracked !== null ? `Problem cracked: all ${titles.length} tests pass.` : ''}</span>
           <div className="editor-bar">
             <div className="seg" role="group" aria-label="Language">
               <button className={lang === 'ts' ? 'on' : ''} onClick={() => actions.setLang('ts')}>TypeScript</button>

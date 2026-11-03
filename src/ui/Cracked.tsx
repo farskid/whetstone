@@ -1,0 +1,36 @@
+import { useEffect } from 'react';
+
+/** How long the effect stays on screen. Matches the `crack-*` animations in styles.css. */
+export const CRACKED_MS = 1900;
+
+/** An open padlock. The shackle lifts and swings, a crack runs across the body. */
+export function CrackLock({ className = '' }: { className?: string }) {
+  return (
+    <svg className={`crack-lock ${className}`} viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true">
+      <path className="cl-shackle" d="M7.5 11V7.5a4.5 4.5 0 0 1 9 0V11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      <rect className="cl-body" x="4.5" y="11" width="15" height="10.5" rx="2.4" fill="currentColor" />
+      <path className="cl-crack" d="M12 11.6 10.6 14.4 13.2 16.1 11.2 18.4 12.6 21" fill="none" strokeWidth="1.3" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/**
+ * The moment a problem is fully solved: a green sweep over the editor and tests, and a "Cracked" stamp with the lock
+ * springing open. Purely decorative and click-through; calls onDone when it has played. Reduced motion gets a fade only.
+ */
+export function CrackedEffect({ total, onDone }: { total: number; onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, CRACKED_MS);
+    return () => clearTimeout(t);
+  }, [onDone]);
+  return (
+    <div className="cracked-fx" data-testid="cracked-fx" aria-hidden="true">
+      <div className="cracked-sweep" />
+      <div className="cracked-stamp">
+        <CrackLock className="open" />
+        <span className="cracked-word">Cracked</span>
+        <span className="cracked-sub">All {total} tests green</span>
+      </div>
+    </div>
+  );
+}

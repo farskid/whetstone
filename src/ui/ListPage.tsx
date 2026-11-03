@@ -4,6 +4,7 @@ import type { Difficulty, Theme } from '../problems/types';
 import { useProgress, actions, passedStages } from '../store';
 import { stageCount } from '../problems/stages';
 import { href } from './router';
+import { CrackLock } from './Cracked';
 import { KIND_LABEL, KIND_ORDER, TagChips } from './TagChips';
 
 const DIFFS: Difficulty[] = ['Easy', 'Medium', 'Hard'];
@@ -140,8 +141,8 @@ export function ListPage({ tag }: { tag: string | null }) {
           const started = passedN > 0 || (!!progress.code[p.id] && Object.keys(progress.code[p.id]).length > 0);
           return (
             <div key={p.id} className={`problem-row link-row ${solved ? 'solved' : ''}`}>
-              <span className={`status-dot ${solved ? 'ok' : started ? 'started' : ''}`} title={solved ? 'Solved' : started ? 'Started' : 'Not started'}>
-                {solved ? '✓' : ''}
+              <span className={`status-dot ${solved ? 'ok' : started ? 'started' : ''}`} title={solved ? 'Cracked: every test passes' : started ? 'Started' : 'Not started'}>
+                {solved ? <CrackLock /> : ''}
               </span>
               <span className="p-main">
                 <a className="p-title row-link" href={href.problem(p.id)} data-testid={`problem-${p.id}`}><span className="cat-id">{p.catalogId}</span>{p.title}</a>
