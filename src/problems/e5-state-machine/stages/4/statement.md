@@ -23,7 +23,8 @@ interface Service {
   subscribe(listener: (state: MachineState) => void): () => void;
   stop(): void;
 }
-function interpret(machine: Machine, options?: { clock?: Clock }): Service;
+interface InterpretOptions { clock?: Clock }
+function interpret(machine: Machine, options?: InterpretOptions): Service;
 // Machine gains: options, config. State nodes gain: after, invoke.
 ```
 

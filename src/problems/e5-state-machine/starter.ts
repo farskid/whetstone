@@ -1,4 +1,4 @@
-import type { AssignAction, MachineConfig, MachineOptions, Machine, Clock, Service } from './types';
+import type { AssignAction, MachineConfig, MachineOptions, Machine, Clock, Service, InterpretOptions } from './types';
 
 export function assign(assignment: AssignAction['assignment']): AssignAction {
   return { type: 'assign', assignment };
@@ -12,6 +12,6 @@ export function createMachine(config: MachineConfig, options: MachineOptions = {
   throw new Error('Not implemented');
 }
 
-export function interpret(machine: Machine, opts: { clock?: Clock } = {}): Service {
+export function interpret(machine: Machine, opts: InterpretOptions = {}): Service {
   throw new Error('Not implemented');
 }

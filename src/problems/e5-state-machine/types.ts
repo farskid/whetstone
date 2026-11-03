@@ -80,3 +80,6 @@ export interface Service {
   subscribe(listener: (state: MachineState) => void): () => void;
   stop(): void;
 }
+
+/** Options for `interpret`: `clock` drives `after` timers. Defaults to real timers. */
+export interface InterpretOptions { clock?: Clock }

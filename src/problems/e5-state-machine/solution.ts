@@ -1,4 +1,4 @@
-import type { Ctx, EventObject, Event, ActionFn, AssignAction, Action, Guard, TransitionConfig, TransitionSpec, StateNodeConfig, MachineConfig, MachineOptions, MachineState, Machine, Clock, Service } from './types';
+import type { Ctx, EventObject, Event, ActionFn, AssignAction, Action, Guard, TransitionConfig, TransitionSpec, StateNodeConfig, MachineConfig, MachineOptions, MachineState, Machine, Clock, Service, InterpretOptions } from './types';
 
 export function assign(assignment: AssignAction['assignment']): AssignAction {
   return { type: 'assign', assignment };
@@ -162,7 +162,7 @@ export function createMachine(config: MachineConfig, options: MachineOptions = {
   return { initialState, transition, options, config };
 }
 
-export function interpret(machine: Machine, opts: { clock?: Clock } = {}): Service {
+export function interpret(machine: Machine, opts: InterpretOptions = {}): Service {
   const clock: Clock = opts.clock ?? { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms), clearTimeout: (h) => clearTimeout(h) };
   let state = machine.initialState;
   let running = false;
