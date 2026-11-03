@@ -16,6 +16,14 @@
  *  - legacy code that declares its own copies of the types still passes, and so does it after adoptTypesFile()
  *  - broken/s<k>-*.ts must fail stage k (stages 1..k); every broken still fails the full run
  *  - every `<!-- tests: … -->` rule marker in a statement names tests that exist and run there (docs/rule-annotations.md)
+ *  - named types: every exported function's and public class member's parameters and result in a stage reference or
+ *    starter use names from that stage's types file, not inline object types, nested function types or names of
+ *    their own (primitives, type parameters, built-ins, plain callbacks and the solution's classes are fine)
+ *  - stage contracts (src/runner/contract.ts): a public signature that changes or goes away from stage k-1 to stage k
+ *    (in the reference or its types file) must be covered by stage k's contract, by a check or a `@contract-skip`;
+ *    a stage's contract keeps the previous stage's checks, so the last one (contract.ts) holds them all. Every check
+ *    passes against its stage's reference (also with the types pasted in, as legacy code has them) and every check
+ *    for a change of that stage fails against the previous stage's reference with its own old types
  */
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -26,6 +34,8 @@ import { adoptTypesFile, exportedTypeNames, findTypeDecls, importsTypesFile, own
 import { isStaged, testsAddedBy, testsForStage } from '../src/problems/stages';
 import type { RunSummary, TestCase } from '../src/runner/types';
 import { parseRuleMarks } from '../src/problems/ruleMarks';
+import { parseContract, explainContract, contractKeys } from '../src/runner/contract';
+import { tsc, dtsMembers, changedKeys, covers, namedTypeIssues } from './lib/contracts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'problems');
 // A test that fails early can leave a user promise rejected with no handler; that's not a crash.
@@ -223,6 +233,113 @@ async function verifyTypesLinking(file: string, src: string, typesSource: string
   if (ownCopiesOfTypes(adopted.code, typesSource).length) fail(`${file}: adoptTypesFile left copies behind`);
   if (!all(await runTests(tests, adopted.code, 'ts', { typesSource }))) fail(`${file} after adoptTypesFile fails`);
   else ok(`${file}: './types' links at runtime; legacy inline types (${names.length}) pass before and after adopting`);
+}
+
+/**
+ * Named types and stage contracts for every staged problem, in two tsc runs over a temp tree (see the header). Legacy
+ * code (the types pasted into the solution, no './types' import) stands in for a user whose own types didn't move on.
+ */
+{
+  console.log('\nnamed types and stage contracts');
+  const staged = problems.filter((p) => isStaged(p) && (!only || p.id === only));
+  const legacy = (src: string, types: string) => `${types}\n${src.replace(new RegExp(`^import type[^;]*${TYPES_IMPORT_RE.source};?\\n`, 'm'), '')}`;
+  interface StageFiles { solution: string; types: string; contract?: string; contractFile: string }
+  const files = new Map<string, StageFiles[]>();
+  const emit: Record<string, string> = {};
+  for (const p of staged) {
+    const dir = join(root, p.id);
+    const n = p.stages.length;
+    const list: StageFiles[] = [];
+    for (let k = 1; k <= n; k++) {
+      const last = k === n;
+      const at = (f: string) => (last ? join(dir, f) : join(dir, 'stages', `${k}`, f));
+      const contractFile = last ? 'contract.ts' : `stages/${k}/contract.ts`;
+      const sf = { solution: readIf(at('solution.ts')) ?? '', types: readIf(at('types.ts')) ?? '', contract: readIf(at('contract.ts')), contractFile };
+      list.push(sf);
+      emit[`${p.id}/${k}/solution.ts`] = sf.solution;
+      emit[`${p.id}/${k}/types.ts`] = sf.types;
+    }
+    {
+      emit[`${p.id}/starter1/solution.ts`] = readIf(join(dir, 'stages', '1', 'starter.ts')) ?? '';
+      emit[`${p.id}/starter1/types.ts`] = list[0].types;
+      emit[`${p.id}/full/solution.ts`] = readIf(join(dir, 'starter.ts')) ?? '';
+      emit[`${p.id}/full/types.ts`] = list[n - 1].types;
+    }
+    files.set(p.id, list);
+  }
+  const { dts } = tsc(emit, true);
+  const members = (id: string, k: string) => new Map([...dtsMembers(dts[`${id}/${k}/types.d.ts`] ?? ''), ...dtsMembers(dts[`${id}/${k}/solution.d.ts`] ?? '')]);
+
+  // Cases for the contract check: each stage's reference as is (ok) and with its types pasted in (own), and the
+  // previous stage's reference with its own old types (prev).
+  const cases: Record<string, string> = {};
+  const changes = new Map<string, string[][]>();
+  const bad = new Map<string, number>();
+  const pfail = (id: string, msg: string) => { bad.set(id, (bad.get(id) ?? 0) + 1); fail(`${id}: ${msg}`); };
+  for (const p of staged) {
+    const list = files.get(p.id)!;
+    const labels = list.map((_, k) => [`${k + 1}`, k === list.length - 1 ? 'solution.ts' : `stages/${k + 1}/solution.ts`]);
+    for (const [k, label] of [...labels, ['starter1', 'stages/1/starter.ts'], ['full', 'starter.ts']]) {
+      const sol = dts[`${p.id}/${k}/solution.d.ts`];
+      if (sol === undefined) { pfail(p.id, `no declarations emitted for ${label}`); continue; }
+      for (const issue of namedTypeIssues(sol, dts[`${p.id}/${k}/types.d.ts`] ?? '')) pfail(p.id, `${label}: ${issue}. Name it in the stage's types file and import it.`);
+    }
+    const perStage: string[][] = [[]];
+    for (let k = 1; k < list.length; k++) perStage.push(changedKeys(members(p.id, `${k}`), members(p.id, `${k + 1}`)));
+    changes.set(p.id, perStage);
+    list.forEach((sf, k) => {
+      const c = sf.contract ? parseContract(sf.contract) : { blocks: [], skips: [] };
+      const keys = contractKeys(c);
+      const uncovered = perStage[k].filter((key) => ![...keys].some((ck) => covers(ck, key)));
+      if (uncovered.length) pfail(p.id, `stage ${k + 1} changes ${uncovered.join(', ')} from stage ${k}: add a check to ${sf.contractFile} (or \`// @contract-skip <key>: <why>\`)`);
+      for (const b of c.blocks) {
+        if (!b.keys.length || !b.message) pfail(p.id, `${sf.contractFile}: a @contract check needs keys and a message (line ${b.startLine})`);
+      }
+      if (k > 0 && list[k - 1].contract) {
+        const carried = parseContract(list[k - 1].contract!).blocks.flatMap((b) => b.keys).filter((key) => !keys.has(key));
+        if (carried.length) pfail(p.id, `${sf.contractFile} drops ${carried.join(', ')} that stage ${k}'s contract checks: keep the check (or skip it with a reason)`);
+      }
+      const here = members(p.id, `${k + 1}`);
+      for (const b of c.blocks) for (const key of b.keys) if (![...here.keys()].some((m) => covers(key, m))) pfail(p.id, `${sf.contractFile}: @contract key ${key} names nothing stage ${k + 1} exports`);
+      if (!sf.contract) return;
+      const base = `${p.id}/${k + 1}`;
+      cases[`${base}/ok/solution.ts`] = sf.solution;
+      cases[`${base}/ok/types.ts`] = sf.types;
+      cases[`${base}/ok/contract.ts`] = sf.contract;
+      cases[`${base}/own/solution.ts`] = legacy(sf.solution, sf.types);
+      cases[`${base}/own/types.ts`] = sf.types;
+      cases[`${base}/own/contract.ts`] = sf.contract;
+      if (k > 0) {
+        cases[`${base}/prev/solution.ts`] = legacy(list[k - 1].solution, list[k - 1].types);
+        cases[`${base}/prev/types.ts`] = sf.types;
+        cases[`${base}/prev/contract.ts`] = sf.contract;
+      }
+    });
+  }
+  const { diagnostics } = tsc(cases);
+  const diagsOf = (path: string) => diagnostics.filter((d) => d.file === path);
+  for (const p of staged) {
+    const list = files.get(p.id)!;
+    const summary: string[] = [];
+    list.forEach((sf, k) => {
+      if (!sf.contract) return;
+      const c = parseContract(sf.contract);
+      const base = `${p.id}/${k + 1}`;
+      for (const [kind, what] of [['ok', 'the reference'], ['own', 'the reference with its types pasted in']] as const) {
+        const ds = diagsOf(`${base}/${kind}/contract.ts`);
+        if (ds.length) pfail(p.id, `${sf.contractFile} fails on ${what}:\n      ${ds.map((d) => `line ${d.line}: ${d.message.split('\n')[0]}`).join('\n      ')}`);
+      }
+      if (k === 0) return;
+      const failed = explainContract(c, diagsOf(`${base}/prev/contract.ts`).map((d) => ({ line: d.line, message: d.message })));
+      const stageChanges = changes.get(p.id)![k];
+      for (const b of c.blocks) {
+        if (!b.keys.some((ck) => stageChanges.some((key) => covers(ck, key)))) continue;
+        if (!failed.some((f) => f.message === b.message)) pfail(p.id, `${sf.contractFile}: the check for ${b.keys.join(', ')} passes on stage ${k}'s reference (with its own types), so it doesn't catch code that missed the change`);
+        else summary.push(`s${k + 1} ${b.keys.join(', ')}`);
+      }
+    });
+    if (!bad.get(p.id)) ok(`${p.id}: named types${summary.length ? `; contract checks that fail on the previous stage's code: ${summary.join('; ')}` : ''}`);
+  }
 }
 
 // User code sees browser timers in Node too: setTimeout/setInterval return numbers that clearTimeout/clearInterval take.

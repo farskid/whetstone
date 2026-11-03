@@ -18,6 +18,7 @@
     "src/problems/*/solution.ts",
     "src/problems/*/starter.ts",
     "src/problems/*/types.ts",
+    "src/problems/*/contract.ts",
     "src/problems/*/broken/*.ts",
     "src/problems/*/stages/*/*.ts",
     "scripts/usercode/*.ts"

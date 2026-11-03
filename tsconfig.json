@@ -15,5 +15,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src", "scripts", "vite.config.ts"],
-  "exclude": ["src/problems/*/solution.ts", "src/problems/*/starter.ts", "src/problems/*/broken/*.ts", "src/problems/*/stages/*/*.ts", "scripts/usercode"]
+  "exclude": ["src/problems/*/solution.ts", "src/problems/*/starter.ts", "src/problems/*/broken/*.ts", "src/problems/*/stages/*/*.ts", "src/problems/*/contract.ts", "scripts/usercode"]
 }
