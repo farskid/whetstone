@@ -2,7 +2,7 @@ import type { Clock, BucketOptions, KeyedLimiterOptions, KeyedLimiter, WindowOpt
 
 const realClock: Clock = {
   now: () => Date.now(),
-  setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+  setTimeout: (fn, ms) => setTimeout(fn, ms),
   clearTimeout: (id) => clearTimeout(id),
 };
 

@@ -163,7 +163,7 @@ export function createMachine(config: MachineConfig, options: MachineOptions = {
 }
 
 export function interpret(machine: Machine, opts: { clock?: Clock } = {}): Service {
-  const clock: Clock = opts.clock ?? { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms) as unknown as number, clearTimeout: (h) => clearTimeout(h) };
+  const clock: Clock = opts.clock ?? { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms), clearTimeout: (h) => clearTimeout(h) };
   let state = machine.initialState;
   let running = false;
   const listeners = new Set<(s: MachineState) => void>();

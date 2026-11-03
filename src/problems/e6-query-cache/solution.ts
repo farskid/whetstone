@@ -36,7 +36,7 @@ export function createQueryClient(options: QueryClientOptions = {}) {
     gcTime = 300_000,
     retry = 0,
     retryDelay = (n: number) => 1000 * 2 ** (n - 1),
-    clock = { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms) as unknown as number, clearTimeout: (id) => clearTimeout(id) },
+    clock = { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms), clearTimeout: (id) => clearTimeout(id) },
   } = options;
   const cache = new Map<string, Entry>();
   let invalidationSeq = 0;

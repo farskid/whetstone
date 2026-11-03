@@ -46,7 +46,7 @@ function allPaths(v: any, prefix: string, out: string[]) {
 }
 
 export function createForm(options: FormOptions): Form {
-  const clock: Clock = options.clock ?? { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms) as unknown as number, clearTimeout: (h) => clearTimeout(h) };
+  const clock: Clock = options.clock ?? { now: () => Date.now(), setTimeout: (f, ms) => setTimeout(f, ms), clearTimeout: (h) => clearTimeout(h) };
   const fields = options.fields ?? {};
   let initial = options.initialValues;
   let values = initial;

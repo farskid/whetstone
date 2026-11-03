@@ -17,7 +17,7 @@ export interface Debounced<A extends unknown[]> {
 }
 
 const globalClock: Clock = {
-  setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+  setTimeout: (fn, ms) => setTimeout(fn, ms),
   clearTimeout: (id) => clearTimeout(id),
 };
 

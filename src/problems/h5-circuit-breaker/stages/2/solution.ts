@@ -9,7 +9,7 @@ export class OpenCircuitError extends Error {
 
 const realClock: Clock = {
   now: () => Date.now(),
-  setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+  setTimeout: (fn, ms) => setTimeout(fn, ms),
 };
 
 type Outcome<R> = { ok: true; value: R } | { ok: false; error: unknown };

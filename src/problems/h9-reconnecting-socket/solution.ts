@@ -2,7 +2,7 @@ import type { Clock, SocketLike, ReconnectingOptions, SocketState, SocketEvents,
 
 export function createReconnectingSocket(options: ReconnectingOptions): ReconnectingSocket {
   const clock: Clock = options.clock ?? {
-    setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+    setTimeout: (fn, ms) => setTimeout(fn, ms),
     clearTimeout: (id) => clearTimeout(id),
   };
   const minDelay = options.minDelay ?? 1000;

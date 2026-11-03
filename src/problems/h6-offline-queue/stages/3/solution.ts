@@ -14,7 +14,7 @@ export function createOfflineQueue(options: QueueOptions) {
     retryDelay = (n: number) => 1000 * 2 ** (n - 1),
     isRetryable = defaultIsRetryable,
     onSettled,
-    clock = { setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number, clearTimeout: (id) => clearTimeout(id) },
+    clock = { setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (id) => clearTimeout(id) },
   } = options;
 
   let online = options.online ?? true;

@@ -1,7 +1,7 @@
 import type { Clock, DebounceOptions, Debounced } from './types';
 
 const globalClock: Clock = {
-  setTimeout: (fn, ms) => setTimeout(fn, ms) as unknown as number,
+  setTimeout: (fn, ms) => setTimeout(fn, ms),
   clearTimeout: (id) => clearTimeout(id),
 };
 
