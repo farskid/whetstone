@@ -17,8 +17,10 @@ interface PMapOptions {
   signal?: AbortSignal;
 }
 
+type PMapInput<T> = Iterable<T | Promise<T>> | AsyncIterable<T>;
+
 function pMap<T, R>(
-  input: Iterable<T | Promise<T>> | AsyncIterable<T>,
+  input: PMapInput<T>,
   mapper: (item: T, index: number) => R | Promise<R>,
   options?: PMapOptions,
 ): Promise<Exclude<R, typeof pMapSkip>[]>;

@@ -1,4 +1,4 @@
-import type { Received } from './types';
+import type { Received, Selected } from './types';
 
 /** A pending receive. accept() returns false if this waiter was already satisfied elsewhere (select). */
 interface Receiver<T> { accept(r: Received<T>): boolean }
@@ -44,7 +44,7 @@ export class Channel<T> implements AsyncIterable<T> {
     return null;
   }
 
-  /** Register a waiter (used by receive and select). */
+  /** @internal Registers a waiter (used by receive and select). */
   wait(r: Receiver<T>): () => void {
     this.receivers.push(r);
     return () => { const i = this.receivers.indexOf(r); if (i >= 0) this.receivers.splice(i, 1); };
@@ -85,7 +85,7 @@ export function merge<T>(...channels: Channel<T>[]): Channel<T> {
   return out;
 }
 
-export function select<T>(channels: Channel<T>[]): Promise<{ index: number; value: T | undefined; done: boolean }> {
+export function select<T>(channels: Channel<T>[]): Promise<Selected<T>> {
   for (let i = 0; i < channels.length; i++) {
     const r = channels[i].tryReceive();
     if (r) return Promise.resolve({ index: i, ...r });

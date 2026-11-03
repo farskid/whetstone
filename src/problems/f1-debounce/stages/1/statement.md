@@ -15,7 +15,9 @@ interface DebounceOptions {
   clock?: Clock; // default: the global setTimeout / clearTimeout
 }
 
-function debounce<A extends unknown[]>(fn: (...args: A) => unknown, wait: number, options?: DebounceOptions): (...args: A) => void;
+type Debounced<A extends unknown[]> = (...args: A) => void;   // stage 3 adds cancel() and pending()
+
+function debounce<A extends unknown[]>(fn: (...args: A) => unknown, wait: number, options?: DebounceOptions): Debounced<A>;
 ```
 
 - A **burst** is a run of calls where each call comes less than `wait` ms after the previous one. A burst ends `wait` ms after its **last** call: every call restarts the timer. <!-- tests: a burst of calls fires once with the latest args | every call restarts the timer | separate bursts fire separately -->

@@ -9,8 +9,10 @@ interface PMapOptions {
   concurrency?: number;   // default Infinity. Integer >= 1, or Infinity
 }
 
+type PMapInput<T> = Iterable<T | Promise<T>>;
+
 function pMap<T, R>(
-  input: Iterable<T | Promise<T>>,
+  input: PMapInput<T>,
   mapper: (item: T, index: number) => R | Promise<R>,
   options?: PMapOptions,
 ): Promise<R[]>;

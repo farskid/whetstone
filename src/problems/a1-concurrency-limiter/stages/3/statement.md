@@ -1,5 +1,9 @@
 ```ts
-run<T>(fn: () => T | Promise<T>, options?: { priority?: number }): Promise<T>;
+interface RunOptions {
+  priority?: number;
+}
+
+run<T>(fn: () => T | Promise<T>, options?: RunOptions): Promise<T>;
 clearQueue(): void;
 ```
 

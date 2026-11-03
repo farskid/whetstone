@@ -3,8 +3,10 @@ Read the input lazily, accept async iterables, and let the mapper drop items.
 ```ts
 const pMapSkip: unique symbol;
 
+type PMapInput<T> = Iterable<T | Promise<T>> | AsyncIterable<T>;
+
 function pMap<T, R>(
-  input: Iterable<T | Promise<T>> | AsyncIterable<T>,
+  input: PMapInput<T>,
   mapper: (item: T, index: number) => R | Promise<R>,
   options?: PMapOptions,
 ): Promise<Exclude<R, typeof pMapSkip>[]>;

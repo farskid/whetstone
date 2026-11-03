@@ -1,7 +1,7 @@
-import type { PMapOptions } from './types';
+import type { PMapOptions, PMapInput } from './types';
 
 export function pMap<T, R>(
-  input: Iterable<T | Promise<T>>,
+  input: PMapInput<T>,
   mapper: (item: T, index: number) => R | Promise<R>,
   options: PMapOptions = {},
 ): Promise<R[]> {

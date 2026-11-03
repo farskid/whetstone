@@ -1,4 +1,4 @@
-import type { Received } from './types';
+import type { Received, Selected } from './types';
 
 export class Channel<T> implements AsyncIterable<T> {
   constructor(capacity = 0) {
@@ -30,6 +30,6 @@ export function merge<T>(...channels: Channel<T>[]): Channel<T> {
   throw new Error('Not implemented');
 }
 
-export function select<T>(channels: Channel<T>[]): Promise<{ index: number; value: T | undefined; done: boolean }> {
+export function select<T>(channels: Channel<T>[]): Promise<Selected<T>> {
   throw new Error('Not implemented');
 }

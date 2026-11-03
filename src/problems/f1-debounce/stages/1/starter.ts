@@ -1,9 +1,9 @@
-import type { Clock, DebounceOptions } from './types';
+import type { Clock, DebounceOptions, Debounced } from './types';
 
 export function debounce<A extends unknown[]>(
   fn: (...args: A) => unknown,
   wait: number,
   options: DebounceOptions = {},
-): (...args: A) => void {
+): Debounced<A> {
   throw new Error('Not implemented');
 }

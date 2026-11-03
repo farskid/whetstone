@@ -6,3 +6,6 @@ export interface PMapOptions {
   /** Aborting rejects with signal.reason and starts no new calls. */
   signal?: AbortSignal;
 }
+
+/** What `pMap` maps over: values or promises, sync or async iterable. */
+export type PMapInput<T> = Iterable<T | Promise<T>> | AsyncIterable<T>;
