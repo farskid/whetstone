@@ -1,0 +1,31 @@
+name: Send feedback
+description: A bug, a feature idea, a problem or library you'd like to practice, or anything else.
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping shape Whetstone. A rough note is enough. We read everything.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of feedback is it?
+      options:
+        - Bug
+        - Feature idea
+        - Problem or library request
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Tell us more
+      description: For a bug, the problem id, what you did, what you expected and what happened. For a request, the problem, library or pattern you'd like to practice.
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: Optional. The problem and stage, or the page, if it's about one.

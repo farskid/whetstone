@@ -386,6 +386,9 @@ async function main() {
     const sel = '[data-testid="theme-select"]';
     check(await page.inputValue(sel) === 'dark' && await shown() === 'dark', 'a fresh visit starts on Dark');
     check(await page.getAttribute(sel, 'aria-label') === 'Color theme', 'the picker is labelled');
+    const fb = '[data-testid="request-problem"]';
+    check((await page.textContent(fb))?.trim() === 'send feedback or something', 'the topbar feedback link reads "send feedback or something"');
+    check((await page.getAttribute(fb, 'href')) === 'https://github.com/farskid/whetstone/issues/new?template=feedback.yml', 'the feedback link opens the generic feedback issue form');
     await page.selectOption(sel, 'light');
     check(await shown() === 'light' && await monacoIs('vs'), 'Light: page and Monaco go light');
     await page.screenshot({ path: join(SHOTS, 'whetstone-theme-light.png') });

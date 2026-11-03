@@ -6,7 +6,8 @@ import { ProblemPage } from './ProblemPage';
 import { problemsById } from '../problems';
 import { useResolvedTheme, type ThemePref } from '../theme';
 
-const REQUEST_URL = 'https://github.com/farskid/whetstone/issues/new?template=problem-request.yml&title=' + encodeURIComponent('Problem request: ');
+/** The generic feedback issue form: bugs, feature ideas, problem or library requests, anything else. */
+const FEEDBACK_URL = 'https://github.com/farskid/whetstone/issues/new?template=feedback.yml';
 
 export function App() {
   const route = useRoute();
@@ -26,12 +27,12 @@ export function App() {
         <a
           className="btn ghost small request-link"
           data-testid="request-problem"
-          href={REQUEST_URL}
+          href={FEEDBACK_URL}
           target="_blank"
           rel="noopener noreferrer"
-          title="Opens a GitHub issue where you can suggest a problem or a library"
+          title="Opens a GitHub issue for bugs, feature ideas, problem or library requests, or anything else"
         >
-          + Request a problem
+          send feedback or something
         </a>
         <select
           className="theme-select"
