@@ -1,0 +1,25 @@
+{
+  "//": "User code (solutions, starters, types, broken variants) type-checks like the editor does: ES2023 + DOM, no Node types, so setTimeout returns a number.",
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": [
+      "ES2023",
+      "DOM"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "types": []
+  },
+  "include": [
+    "src/problems/*/solution.ts",
+    "src/problems/*/starter.ts",
+    "src/problems/*/types.ts",
+    "src/problems/*/broken/*.ts",
+    "src/problems/*/stages/*/*.ts",
+    "scripts/usercode/*.ts"
+  ]
+}

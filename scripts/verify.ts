@@ -24,7 +24,7 @@ import { problems } from '../src/problems/index';
 import { runTests, stripTypes, compile } from '../src/runner/core';
 import { adoptTypesFile, exportedTypeNames, findTypeDecls, importsTypesFile, ownCopiesOfTypes, TYPES_IMPORT_RE } from '../src/problems/typesFile';
 import { isStaged, testsAddedBy, testsForStage } from '../src/problems/stages';
-import type { RunSummary } from '../src/runner/types';
+import type { RunSummary, TestCase } from '../src/runner/types';
 import { parseRuleMarks } from '../src/problems/ruleMarks';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'problems');
@@ -223,6 +223,44 @@ async function verifyTypesLinking(file: string, src: string, typesSource: string
   if (ownCopiesOfTypes(adopted.code, typesSource).length) fail(`${file}: adoptTypesFile left copies behind`);
   if (!all(await runTests(tests, adopted.code, 'ts', { typesSource }))) fail(`${file} after adoptTypesFile fails`);
   else ok(`${file}: './types' links at runtime; legacy inline types (${names.length}) pass before and after adopting`);
+}
+
+// User code sees browser timers in Node too: setTimeout/setInterval return numbers that clearTimeout/clearInterval take.
+{
+  console.log('\nrunner: browser-style timers');
+  const user = `
+    export function handles() {
+      let fired = 0, ticks = 0;
+      const t: number = setTimeout(() => { fired++; }, 5);
+      const dropped: number = setTimeout(() => { fired += 100; }, 5);
+      clearTimeout(dropped);
+      const i: number = setInterval(() => { if (++ticks === 2) clearInterval(i); }, 1);
+      return { t, dropped, i, done: new Promise<{ fired: number; ticks: number }>((r) => setTimeout(() => r({ fired, ticks }), 30)) };
+    }
+    export const clockStillWorks = (clock: { setTimeout(fn: () => void, ms: number): number }) => clock.setTimeout(() => {}, 1);`;
+  const own = `function setTimeout(fn: () => void) { fn(); return 'mine'; }\nexport const run = () => { let x = 0; const r = setTimeout(() => { x = 1; }); return [r, x]; };`;
+  const tests: TestCase[] = [
+    { title: 'setTimeout and setInterval return numbers; clearTimeout and clearInterval take them', async run(m, { expect }) {
+      const h = m.handles();
+      for (const k of ['t', 'dropped', 'i']) expect(typeof h[k]).toBe('number');
+      expect(await h.done).toEqual({ fired: 1, ticks: 2 });
+    } },
+    { title: 'a numeric handle from user code clears from outside too', async run(m, { expect }) {
+      const h = m.handles();
+      clearTimeout(h.t);
+      clearInterval(h.i);
+      expect(await h.done).toEqual({ fired: 0, ticks: 0 });
+    } },
+    { title: 'the fake clock still hands out numbers', run(m, { expect, clock }) { expect(typeof m.clockStillWorks(clock())).toBe('number'); } },
+  ];
+  for (const lang of ['ts', 'js'] as const) {
+    const s = await runTests(tests, lang === 'ts' ? user : stripTypes(user), lang);
+    if (s.compileError || s.passed !== s.total) fail(`[${lang}] timers:\n${describeFailures(s)}`);
+    else ok(`[${lang}] user code gets numeric timer handles (${s.passed}/${s.total})`);
+  }
+  const mine = await runTests([{ title: 'own setTimeout', run(m, { expect }) { expect(m.run()).toEqual(['mine', 1]); } }], own, 'ts');
+  if (mine.compileError || mine.passed !== 1) fail(`code that declares its own setTimeout:\n${describeFailures(mine)}`);
+  else ok('code that declares its own setTimeout keeps it');
 }
 
 console.log(failures ? `\nverify FAILED: ${failures} problem(s)` : `\nverify OK: ${problems.length} problems`);

@@ -243,6 +243,15 @@ async function main() {
     check(!!(await old.page.waitForSelector('[data-testid="own-types"]', { timeout: 3000 }).catch(() => null)), 'Ctrl/⌘+Z brings the old declarations (and the offer) back');
     await old.ctx.close();
 
+    // In the worker, user code's timers hand back numbers (browser-style), which clearTimeout/clearInterval take.
+    const probe = "const t: number = setTimeout(() => {}, 1); const i: number = setInterval(() => {}, 1); clearTimeout(t); clearInterval(i);\nconsole.log('timer handles:', typeof t, typeof i);\n";
+    const tm = await open(flowId, { lang: 'ts', code: { [flowId]: { ts: s1.replace(/^(import type .*\n)/m, `$1${probe}`) } } });
+    await tm.page.click('[data-testid="run"]');
+    await tm.page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 60000 });
+    const logs = (await tm.page.textContent('.module-logs pre').catch(() => '')) ?? '';
+    check(logs.includes('timer handles: number number') && !!(await tm.page.$('[data-testid="all-passed"]')), `user code's setTimeout/setInterval return numbers in the worker ("${logs.trim()}")`);
+    await tm.ctx.close();
+
     // "Cracked": the final stage passing plays the effect once; the header then says Cracked.
     const last = await open(flowId, { lang: 'ts', code: { [flowId]: { ts: read('solution.ts') } }, stage: { [flowId]: 2 }, stagePassed: { [flowId]: ['2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', null] } });
     check(await runAndCheck('flow: final stage reference', last.page, last.bad), 'the final stage passes');

@@ -8,7 +8,7 @@
     "build": "tsc -p tsconfig.json --noEmit && vite build",
     "build:pages": "BASE_PATH=/whetstone/ npm run build",
     "preview": "vite preview",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.usercode.json",
     "verify": "tsx scripts/verify.ts",
     "screenshots": "tsx scripts/screenshots.ts",
     "verify:browser": "tsx scripts/browser-verify.ts",

@@ -36,17 +36,51 @@ function makeConsole(sinkRef: { current: Sink }) {
 }
 
 const CONSOLE_KEY = '__practical_console__';
+const TIMERS_KEY = '__practical_timers__';
 const inBrowser = typeof (globalThis as { WorkerGlobalScope?: unknown }).WorkerGlobalScope !== 'undefined' || typeof window !== 'undefined';
 let loadCounter = 0;
+
+/** The timer globals user code sees, shadowed per module (like `console`). */
+export const TIMER_NAMES = ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] as const;
+type Timers = Record<(typeof TIMER_NAMES)[number], (...args: any[]) => unknown>;
+
+/**
+ * Browser-style timers: setTimeout/setInterval return a number, and clearTimeout/clearInterval take it. A worker's own
+ * timers already do. Node's return a Timeout object; its numeric form (Symbol.toPrimitive) is an id Node's own
+ * clearTimeout/clearInterval accept, so user code and tests can mix handles freely.
+ */
+export function browserTimers(): Timers {
+  const g = globalThis as unknown as Timers;
+  if (inBrowser) return { setTimeout: g.setTimeout.bind(globalThis), setInterval: g.setInterval.bind(globalThis), clearTimeout: g.clearTimeout.bind(globalThis), clearInterval: g.clearInterval.bind(globalThis) };
+  const st = g.setTimeout, si = g.setInterval, ct = g.clearTimeout, ci = g.clearInterval;
+  return {
+    setTimeout: (...a: unknown[]) => Number(st(...a)),
+    setInterval: (...a: unknown[]) => Number(si(...a)),
+    clearTimeout: (id?: unknown) => { ct(id); },
+    clearInterval: (id?: unknown) => { ci(id); },
+  };
+}
+const timers = browserTimers();
+
+/** The timer names the module doesn't declare itself (shadowing those would be a redeclaration error). */
+function timersToShadow(compiled: string): string[] {
+  return TIMER_NAMES.filter((name) => !new RegExp(
+    `\\b(?:const|let|var|function\\*?|class)\\s+${name}\\b|\\b(?:const|let|var)\\s*[{[][^=;]*\\b${name}\\b|\\bimport\\b[^;]*\\b${name}\\b[^;]*\\bfrom\\b`,
+  ).test(compiled));
+}
 
 /**
  * Evaluate compiled code as a real ES module and return a FRESH instance (new URL each time,
  * so module-level state never leaks between tests). `console` is shadowed by a module-scoped
- * const on line 1, so logs are captured without touching the global console.
+ * const on line 1, so logs are captured without touching the global console; so are the timer
+ * globals, so setTimeout/setInterval hand back numbers as in a browser, in Node too.
  */
 export async function loadModule(compiled: string, consoleObj: unknown): Promise<Record<string, unknown>> {
   (globalThis as Record<string, unknown>)[CONSOLE_KEY] = consoleObj;
-  const code = `const console = globalThis.${CONSOLE_KEY}; ${compiled}\n// load ${++loadCounter}\n`;
+  (globalThis as Record<string, unknown>)[TIMERS_KEY] = timers;
+  const shadow = timersToShadow(compiled);
+  const timerDecl = shadow.length ? ` const { ${shadow.join(', ')} } = globalThis.${TIMERS_KEY};` : '';
+  const code = `const console = globalThis.${CONSOLE_KEY};${timerDecl} ${compiled}\n// load ${++loadCounter}\n`;
   if (inBrowser) {
     const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
     try { return await import(/* @vite-ignore */ url); } finally { URL.revokeObjectURL(url); }

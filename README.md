@@ -2,7 +2,7 @@
 
 Whetstone is a static site of practical coding problems. You rebuild the core of libraries you use every day: concurrency limiters, retries, channels, caches, sorted sets, text buffers, interceptors, routers, signals, query caches, schema validators, virtual lists and offline queues. The problems come from `practical-problems-catalog.md` (70 problems in eight themes, A to H).
 
-You write TypeScript or JavaScript in Monaco, which gives you full types and autocomplete. A real test suite runs in a Web Worker in your browser. There is no backend.
+You write TypeScript or JavaScript in Monaco, which gives you full types and autocomplete. A real test suite runs in a Web Worker in your browser. Timers are browser-style everywhere (in `npm run verify` too): `setTimeout` and `setInterval` return a number, and the editor types them that way. There is no backend.
 
 ## Run it
 
