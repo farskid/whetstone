@@ -19,7 +19,7 @@ export function App() {
   useEffect(() => { pageView(route, problem ? `${problem.title} · Whetstone` : undefined); }, [route, problem]);
 
   return (
-    <div className="app">
+    <div className={`app${route.name === 'problem' ? '' : ' is-home'}`}>
       <header className="topbar">
         <a className="brand" href={href.list()}>
           <span className="brand-mark">{'{ }'}</span> Whetstone
