@@ -30,22 +30,22 @@ interface Logger {
 ```
 
 **Levels**
-- A call below the logger's level does nothing. `isLevelEnabled(l)` is true when `l` is at or above the level.
+- A call below the logger's level does nothing. `isLevelEnabled(l)` is true when `l` is at or above the level. <!-- tests: level filter, isLevelEnabled and runtime level changes -->
 - An unknown level throws, both in `createLogger` and when setting `log.level`.
 
 **Arguments**
 - `log.info('msg')` logs just a message.
 - `log.info(obj, 'msg?')` merges `obj`'s own fields into the line.
-- `log.error(err, 'msg?')` logs `{ err }`, and `msg` defaults to `err.message`.
+- `log.error(err, 'msg?')` logs `{ err }`, and `msg` defaults to `err.message`. <!-- tests: errors as the first argument log under err with msg defaulting to the message; reserved keys ignored -->
 - A top-level field whose value is an `Error` (including that `err`) is written as `{ type: constructor name, message, stack }`. Other values go through `JSON.stringify` as they are.
 
 **Lines**
-- Each line is `JSON.stringify(record) + '\n'`. Keys go in this order:
+- Each line is `JSON.stringify(record) + '\n'`. Keys go in this order: <!-- tests: writes one JSON line per call with level, time, fields and msg -->
   1. `level` (the number) and `time` (from `now()`);
   2. `base` fields;
   3. the call's object fields;
   4. `msg`, only if there is one.
-- If a key appears in both `base` and the object, the object wins. Keys named `level`, `time` or `msg` in `base` or objects are ignored.
+- If a key appears in both `base` and the object, the object wins. Keys named `level`, `time` or `msg` in `base` or objects are ignored. <!-- tests: errors as the first argument log under err with msg defaulting to the message; reserved keys ignored -->
 
 **Transports**
 - Every line goes to every transport's `write`, in the order logged.

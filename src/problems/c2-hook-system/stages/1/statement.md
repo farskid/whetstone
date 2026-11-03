@@ -16,7 +16,7 @@ class SyncHook<A extends unknown[]> {
 }
 ```
 
-- Every tap needs a non-empty `name`, given as a string or as `{ name }`. Otherwise `tap` throws. Names don't have to be unique.
-- `call` calls every tap in registration order with the call's arguments, ignores their return values, and returns `undefined`. With no taps it does nothing.
-- A throwing tap propagates out of `call`, and the remaining taps don't run.
-- A call runs the taps that existed when it started. Taps added during a call run from the next call on.
+- Every tap needs a non-empty `name`, given as a string or as `{ name }`. Otherwise `tap` throws. Names don't have to be unique. <!-- tests: a name is required; a throwing tap propagates -->
+- `call` calls every tap in registration order with the call's arguments, ignores their return values, and returns `undefined`. With no taps it does nothing. <!-- tests: taps run in registration order with the call arguments -->
+- A throwing tap propagates out of `call`, and the remaining taps don't run. <!-- tests: a name is required; a throwing tap propagates -->
+- A call runs the taps that existed when it started. Taps added during a call run from the next call on. <!-- tests: taps added during a call run only from the next call -->

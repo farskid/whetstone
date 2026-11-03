@@ -23,8 +23,8 @@ function createClient(options: { adapter: Adapter; baseURL?: string }): {
 ```
 
 - `request` works on a copy: `{ method: 'GET', ...config, headers: { ...config.headers } }`. It never mutates the caller's object.
-- The adapter gets that copy with `baseURL` joined onto a relative `url`, with exactly one `/` between them (`'https://a/v1/'` + `'/users'` and `'users'` both give `'https://a/v1/users'`). An absolute `url` (`http://` or `https://`) is passed through unchanged, and so is any url when there is no `baseURL`.
-- The response is `{ status, data, headers, config }`, where `config` is the copy with the **un-joined** url. Missing `data` stays `undefined`; missing `headers` becomes `{}`.
-- A status outside 200–299 rejects with an `HttpError` for that response. `status` and `config` are the response's.
-- An adapter error (for example a network failure) rejects with that same error.
+- The adapter gets that copy with `baseURL` joined onto a relative `url`, with exactly one `/` between them (`'https://a/v1/'` + `'/users'` and `'users'` both give `'https://a/v1/users'`). An absolute `url` (`http://` or `https://`) is passed through unchanged, and so is any url when there is no `baseURL`. <!-- tests: baseURL joining -->
+- The response is `{ status, data, headers, config }`, where `config` is the copy with the **un-joined** url. Missing `data` stays `undefined`; missing `headers` becomes `{}`. <!-- tests: request() calls the adapter and builds the response -->
+- A status outside 200–299 rejects with an `HttpError` for that response. `status` and `config` are the response's. <!-- tests: non-2xx rejects with HttpError; adapter errors pass through -->
+- An adapter error (for example a network failure) rejects with that same error. <!-- tests: non-2xx rejects with HttpError; adapter errors pass through -->
 - `get(url, config)` and `post(url, body, config)` are shortcuts for `request({ ...config, url, method })`, with `body` for `post`.

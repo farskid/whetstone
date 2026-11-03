@@ -10,11 +10,11 @@ interface Chunk { /* ...stage 2, plus: */ code: string }
 
 **Cycles**
 - The module walk keeps a stack of the modules it is inside.
-- Reaching a module that is still on the stack doesn't recurse. Record the cycle as the stack slice from that module to the current one, plus that module again, e.g. `['/a.js', '/b.js', '/a.js']`. A module importing itself gives `['/self.js', '/self.js']`.
-- `cycles` lists them in the order found. Loading still visits each module once.
+- Reaching a module that is still on the stack doesn't recurse. Record the cycle as the stack slice from that module to the current one, plus that module again, e.g. `['/a.js', '/b.js', '/a.js']`. A module importing itself gives `['/self.js', '/self.js']`. <!-- tests: circular imports are allowed and reported -->
+- `cycles` lists them in the order found. Loading still visits each module once. <!-- tests: circular imports are allowed and reported -->
 
 **Code**
-- For each module in `modules` order:
+- For each module in `modules` order: <!-- tests: output wraps each module in define() and requires the entry -->
 
   ```
   define("<id>", function (module, exports, require) {

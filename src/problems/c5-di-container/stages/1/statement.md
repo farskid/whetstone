@@ -20,7 +20,7 @@ class Container {
 }
 ```
 
-- A provider has exactly one of `useValue` or `useFactory`. Otherwise `register` throws. Registering a token again replaces it.
-- `useValue` always returns that value, even `undefined`.
-- `useFactory` is called on **every** resolve, with a `Resolver` it can use for its own dependencies.
-- Resolving an unregistered token throws an error whose message starts `No provider for X`, where `X` is the string or the symbol's description.
+- A provider has exactly one of `useValue` or `useFactory`. Otherwise `register` throws. Registering a token again replaces it. <!-- tests: a provider needs exactly one kind; missing tokens throw; re-register replaces -->
+- `useValue` always returns that value, even `undefined`. <!-- tests: useValue and useFactory; factories are transient by default and get a resolver -->
+- `useFactory` is called on **every** resolve, with a `Resolver` it can use for its own dependencies. <!-- tests: useValue and useFactory; factories are transient by default and get a resolver -->
+- Resolving an unregistered token throws an error whose message starts `No provider for X`, where `X` is the string or the symbol's description. <!-- tests: a provider needs exactly one kind; missing tokens throw; re-register replaces -->

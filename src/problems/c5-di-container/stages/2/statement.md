@@ -14,7 +14,7 @@ type Provider<T> =
 ```
 
 - A provider has exactly one of `useValue`, `useFactory` or `useClass`. Otherwise `register` throws.
-- `useClass` resolves each token in the class's `static inject` array, in order (none if it's missing), and calls `new Class(...deps)`. Dependencies are resolved recursively.
+- `useClass` resolves each token in the class's `static inject` array, in order (none if it's missing), and calls `new Class(...deps)`. Dependencies are resolved recursively. <!-- tests: useClass resolves static inject deps recursively -->
 - A class can be a token too. In messages its name is the class name.
-- `lifetime` defaults to `'transient'`: a new instance on every resolve.
-- `'singleton'`: the first resolve creates the instance, and every later resolve returns it. This works for factories and classes. Registering the token again forgets the old instance.
+- `lifetime` defaults to `'transient'`: a new instance on every resolve. <!-- tests: singleton vs transient lifetimes -->
+- `'singleton'`: the first resolve creates the instance, and every later resolve returns it. This works for factories and classes. Registering the token again forgets the old instance. <!-- tests: singleton vs transient lifetimes -->

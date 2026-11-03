@@ -21,9 +21,9 @@ class Emitter<E extends EventMap> {
 }
 ```
 
-- `emit` calls the event's listeners in registration order with the arguments. It returns `true` if any listener ran and `false` otherwise.
-- **Snapshot:** `emit` calls exactly the listeners registered when it started. A listener added during an emit waits for the next one. A listener removed during an emit still runs in the current one.
-- Adding the same function twice registers it twice, so it runs twice. `off` removes the **most recently added** matching registration, only one per call. `off` with an unknown function or event does nothing.
+- `emit` calls the event's listeners in registration order with the arguments. It returns `true` if any listener ran and `false` otherwise. <!-- tests: emit calls listeners in order and reports whether any ran -->
+- **Snapshot:** `emit` calls exactly the listeners registered when it started. A listener added during an emit waits for the next one. A listener removed during an emit still runs in the current one. <!-- tests: snapshot: listeners added or removed mid-emit take effect next time -->
+- Adding the same function twice registers it twice, so it runs twice. `off` removes the **most recently added** matching registration, only one per call. `off` with an unknown function or event does nothing. <!-- tests: same fn twice runs twice; off removes the most recent one; unknown off is a no-op -->
 - `listenerCount(name)` counts registrations (0 for an unknown event).
 - A throwing listener propagates out of `emit`, and the remaining listeners don't run.
 - `on` and `off` return the emitter, for chaining. The signatures should make `em.emit('data', 42)` a type error for the `Events` above; the tests check behaviour at runtime.

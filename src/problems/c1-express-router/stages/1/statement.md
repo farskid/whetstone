@@ -22,7 +22,7 @@ interface Router {
 }
 ```
 
-- Middleware runs in the order it was added. A middleware that calls `next()` passes control to the next one. One that doesn't call `next()` ends the chain there.
-- Calling `next` a second time from the same middleware does nothing.
+- Middleware runs in the order it was added. A middleware that calls `next()` passes control to the next one. One that doesn't call `next()` ends the chain there. <!-- tests: middleware runs in order through next() until one ends the response -->
+- Calling `next` a second time from the same middleware does nothing. <!-- tests: calling next twice is a no-op -->
 - `handle` resolves when `res.end` is first called. If nobody ever ends the response, it never resolves.
-- If the chain runs out, `handle` sets `statusCode = 404` and ends with ``Cannot ${METHOD} ${path}``: the method in upper case, and `req.url` without its query string (`/a?x=1` gives `Cannot POST /a`).
+- If the chain runs out, `handle` sets `statusCode = 404` and ends with ``Cannot ${METHOD} ${path}``: the method in upper case, and `req.url` without its query string (`/a?x=1` gives `Cannot POST /a`). <!-- tests: falling off the end is a 404 naming the method and path (no query) -->
