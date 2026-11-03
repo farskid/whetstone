@@ -17,6 +17,7 @@ npm run preview          # serve dist/ locally
 npm run verify           # Node: every reference solution passes, the starter fails, every broken/ solution fails ≥1 test; plus the stage checks
 npm run verify:browser   # after build: every reference solution (TS and JS) passes in the real browser worker, staged ones per stage too, plus a clicked-through stage 1 → 2 flow
 VERIFY_BASE=/whetstone/ npm run verify:browser   # after build:pages: the same, served under /whetstone/
+npm run verify:analytics # after build: GoatCounter page views and events, with count.js stubbed and goatcounter.com blocked (no real hits)
 npm run screenshots      # after build: writes screenshots/*.png (needs Chrome; set CHROME_PATH if not /usr/bin/google-chrome)
 npm run verify -- e2-signals   # verify only one problem
 ```
@@ -51,6 +52,29 @@ One-time setup: in the repo, go to Settings → Pages → Build and deployment a
   - Progress on the old F10 warm-up counts towards F1 stage 1.
   - `#/p/f10-debounce-basic` redirects to F1.
   - The v1 key is left in place.
+
+## Analytics (GoatCounter)
+
+The site uses [GoatCounter](https://www.goatcounter.com) (cookieless, no personal data). Stats: https://trywhetstonedev.goatcounter.com. The tag in `index.html` loads `count.js` with `no_onload` and `no_events`, and `src/analytics.ts` sends everything:
+
+- **Page views**: one per hash route change, with the `#` dropped: `/` (list), `/tag/<name>` (list filtered by a tag), `/p/<problemId>` (a problem; old ids such as `f10-debounce-basic` count under the problem they redirect to). The same path twice in a row counts once. Problem views carry the problem title.
+- **Events** (GoatCounter "events", sent with `event: true`; the name is the path):
+
+  | Event | When |
+  | --- | --- |
+  | `run/<problemId>` | Run (button or Ctrl/⌘+Enter) on a single-stage problem |
+  | `run/<problemId>/s<n>` | Run on stage `n` (1-based) of a staged problem |
+  | `run/<problemId>/full` | Run in "Full problem" mode |
+  | `pass/<problemId>/s<n>` | Stage `n` passes for the first time in this browser (a full-mode run that passes sends one per newly passed stage) |
+  | `solved/<problemId>` | The whole problem is solved for the first time in this browser |
+  | `lang/<problemId>/<ts\|js>` | The language toggle changes to TypeScript or JavaScript (clicking the current one sends nothing) |
+  | `solution-tab/<problemId>` | The Solution tab is opened (switching to it, not clicking it again) |
+  | `feedback-click` | The "send feedback or something" link is clicked |
+
+  "First time" comes from the saved progress (`stagePassed`, `solved`), so clearing progress can send them again.
+- **Never sent**: code, test results, timings or anything typed. Only route ids, stage numbers and the language.
+- **Local development**: `count.js` itself skips `localhost`, `127.*`, private IPs and `file:` (it logs "not counting because of: localhost"), so `npm run dev` and `vite preview` send nothing.
+- **Blocked script** (adblocker, offline): calls made before `count.js` loads are queued and dropped if it fails; nothing else changes. The script tag's id is `gc-script`, not `goatcounter`, because an element id becomes a `window` property and would shadow `window.goatcounter`.
 
 ## Add a problem
 

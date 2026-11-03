@@ -18,6 +18,8 @@ Whetstone is a practice site for real-world coding problems. Instead of puzzles,
 - **Write in TypeScript or JavaScript**, in an editor with autocomplete.
 - **Your progress stays in your browser.** You can export it and import it on another computer.
 
+Whetstone counts visits with [GoatCounter](https://www.goatcounter.com), a privacy-friendly counter that uses no cookies and collects nothing personal. [See the public stats](https://trywhetstonedev.goatcounter.com).
+
 ## Feedback and ideas
 
 Found a bug, have an idea, or want a problem about a library you use? Click **"send feedback or something"** at the top of the site, or [open a feedback issue](https://github.com/farskid/whetstone/issues/new?template=feedback.yml). A rough note is enough.
