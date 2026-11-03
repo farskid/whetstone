@@ -36,3 +36,11 @@ export interface BundleResult {
   /** Always [] in this stage. */
   cycles: string[][];
 }
+
+/** Import specifiers found in one module, in source order. */
+export interface ScannedImports {
+  /** `import … from 'x'`, `import 'x'` and `export … from 'x'`. */
+  static: string[];
+  /** `import('x')` with a string literal. */
+  dynamic: string[];
+}

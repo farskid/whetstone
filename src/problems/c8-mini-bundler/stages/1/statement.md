@@ -12,7 +12,8 @@ chunks[0].modules; // ['/src/math.js', '/src/main.js']
 interface Chunk { name: string; entry: string; isEntry: boolean; modules: string[] }
 function bundle(opts: { input: string; files: Record<string, string> }):
   Promise<{ chunks: Chunk[]; cycles: string[][] }>;
-function scanImports(code: string): { static: string[]; dynamic: string[] }; // provided in the starter
+interface ScannedImports { static: string[]; dynamic: string[] }
+function scanImports(code: string): ScannedImports; // provided in the starter
 ```
 
 `scanImports` is already written. It returns the specifiers of `import … from 'x'`, `import 'x'` and `export … from 'x'` (static), and of `import('x')` (dynamic), in source order. In this stage, use only the static ones and ignore dynamic imports.

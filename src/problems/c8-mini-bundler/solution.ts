@@ -1,7 +1,7 @@
-import type { BundleOptions, Chunk, BundleResult } from './types';
+import type { BundleOptions, Chunk, BundleResult, ScannedImports } from './types';
 
 /** Provided: finds import specifiers in source order. */
-export function scanImports(code: string): { static: string[]; dynamic: string[] } {
+export function scanImports(code: string): ScannedImports {
   const stat: string[] = [];
   const dyn: string[] = [];
   const re = /\bimport\s*\(\s*(['"])([^'"]+)\1\s*\)|(?:^|[\n;])\s*(?:import\s*(['"])([^'"]+)\3|(?:import|export)\b[^'";]*?\bfrom\s*(['"])([^'"]+)\5)/g;
