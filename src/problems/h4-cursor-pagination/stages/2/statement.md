@@ -9,12 +9,12 @@ for await (const item of paginate(fetchPage)) console.log(item.id); // 1, 2, 3
 
 ## Dedupe and guards
 
-- **Dedupe.** Data can shift while you page, so an item can show up twice. Skip any item whose id was already yielded. The id comes from `options.getId(item)`, which defaults to `item.id`.
+- **Dedupe.** Data can shift while you page, so an item can show up twice. Skip any item whose id was already yielded. The id comes from `options.getId(item)`, which defaults to `item.id`. <!-- tests: items are deduped by id across pages -->
 - **Loop guard.** A page whose `hasNextPage` is true would loop forever if:
   - its `endCursor` is `null`, or
   - its `endCursor` was already used, and the start cursor counts as used.
 
-  In either case, throw an `Error` as soon as that page arrives, before yielding any of its items. For a repeated cursor, the message must contain "repeat".
-- **Errors.** If `fetchPage` rejects, the generator throws that error. `.cursor` still points at the page that failed, so `paginate(fetchPage, { startCursor: gen.cursor })` resumes there.
+  In either case, throw an `Error` as soon as that page arrives, before yielding any of its items. For a repeated cursor, the message must contain "repeat". <!-- tests: a repeated or missing cursor throws instead of looping -->
+- **Errors.** If `fetchPage` rejects, the generator throws that error. `.cursor` still points at the page that failed, so `paginate(fetchPage, { startCursor: gen.cursor })` resumes there. <!-- tests: an error part-way can be resumed from .cursor -->
 
 Everything from earlier stages still applies.

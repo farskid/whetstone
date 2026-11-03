@@ -9,9 +9,9 @@ w.hit(); // { allowed: true, remaining: 9, resetAt: 1000, retryAfter: 0 }
 
 ## `new SlidingWindow({ limit, windowMs, clock? })`
 
-Time is cut into fixed windows `[k·windowMs, (k+1)·windowMs)`. The limiter keeps two counts: the current window and the one just before it. A gap of a whole window or more means the previous count is 0.
+Time is cut into fixed windows `[k·windowMs, (k+1)·windowMs)`. The limiter keeps two counts: the current window and the one just before it. A gap of a whole window or more means the previous count is 0. <!-- tests: no double burst at a window boundary; a gap clears the history -->
 
-**The estimate.** At `e` ms into the current window, the estimated number of requests in the last `windowMs` is:
+**The estimate.** At `e` ms into the current window, the estimated number of requests in the last `windowMs` is: <!-- tests: counts the previous window by how much of it still overlaps -->
 
 ```
 count = previous × (windowMs − e) / windowMs + current
@@ -21,7 +21,7 @@ count = previous × (windowMs − e) / windowMs + current
 
 - **`remaining`** is `floor(limit − count)`, never below 0. When the hit is allowed, `count` includes it.
 - **`resetAt`** is when the current window ends.
-- **`retryAfter`** is 0 when allowed. Otherwise it's the ms, rounded up, until the same `hit(n)` would be allowed if nothing else happened. That moment can fall later in this window, or in the next one, when the current count becomes the previous count.
+- **`retryAfter`** is 0 when allowed. Otherwise it's the ms, rounded up, until the same `hit(n)` would be allowed if nothing else happened. That moment can fall later in this window, or in the next one, when the current count becomes the previous count. <!-- tests: retryAfter can land in the next window -->
 
 **Not counted and not allowed.**
 - A denied hit isn't counted.

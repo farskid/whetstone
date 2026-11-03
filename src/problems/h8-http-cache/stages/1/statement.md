@@ -14,19 +14,19 @@ await cache.fetch({ url: '/a' }); // HIT, with an age header
 
 ## Rules
 
-- **What gets stored.** Only `GET` requests are cached, and only responses with status 200, 203, 204, 300, 301, 404 or 410.
-- **Other methods.** Requests with any other method go straight to the origin and come back as `MISS`. When a `POST`, `PUT`, `PATCH` or `DELETE` succeeds (status < 400), it removes everything stored for that URL. Method names are case-insensitive.
+- **What gets stored.** Only `GET` requests are cached, and only responses with status 200, 203, 204, 300, 301, 404 or 410. <!-- tests: caches only GET responses with cacheable statuses; unsafe methods invalidate -->
+- **Other methods.** Requests with any other method go straight to the origin and come back as `MISS`. When a `POST`, `PUT`, `PATCH` or `DELETE` succeeds (status < 400), it removes everything stored for that URL. Method names are case-insensitive. <!-- tests: caches only GET responses with cacheable statuses; unsafe methods invalidate -->
 - **Freshness lifetime.** Take the first rule that applies:
-  1. `max-age` from `Cache-Control`;
-  2. `Expires − Date`. An invalid `Expires` means the response is already stale.
-  3. 10% of `Date − Last-Modified`;
+  1. `max-age` from `Cache-Control`; <!-- tests: serves from the cache while max-age lasts, then fetches again -->
+  2. `Expires − Date`. An invalid `Expires` means the response is already stale. <!-- tests: falls back to Expires, then to the Last-Modified heuristic -->
+  3. 10% of `Date − Last-Modified`; <!-- tests: falls back to Expires, then to the Last-Modified heuristic -->
   4. otherwise 0.
 
   If a response has no `Date` header, use the time it arrived.
-- **Current age** (RFC 9111 §4.2.3), in seconds:
+- **Current age** (RFC 9111 §4.2.3), in seconds: <!-- tests: computes the age from the Age header, the Date header and the response delay -->
   - `apparent = max(0, responseTime − Date)`;
   - `corrected = Age header + (responseTime − requestTime)`;
   - `age = max(apparent, corrected) + (now − responseTime)`.
-- **Fresh hits.** A response is fresh while `age < lifetime`. A fresh hit returns the stored response with `cache: 'HIT'` and an `age` header (whole seconds, rounded down).
+- **Fresh hits.** A response is fresh while `age < lifetime`. A fresh hit returns the stored response with `cache: 'HIT'` and an `age` header (whole seconds, rounded down). <!-- tests: serves from the cache while max-age lasts, then fetches again -->
 - **Stale entries.** In this stage a stale response is simply fetched again with the caller's headers. The new reply is returned as `MISS` and replaces the stored copy; a reply with a status that can't be stored removes it.
 - **One copy per URL.** Store at most one response per URL. Other `Cache-Control` directives are ignored in this stage.

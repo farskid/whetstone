@@ -13,12 +13,12 @@ l.size;               // 1
 
 `createKeyedLimiter({ capacity, refillPerSec, tokens?, clock?, idleMs? })` gives each key its own bucket:
 
-- **`tryRemove(key, n = 1)`** creates the key's bucket on first use.
+- **`tryRemove(key, n = 1)`** creates the key's bucket on first use. <!-- tests: buckets are created per key on first use -->
 - **`tokens(key)`** reports the key's level. For a key with no bucket it reports the starting level, without creating a bucket.
 - **`size`** is the number of buckets kept.
 
-**Idle eviction.** A bucket is dropped once `idleMs` have passed since the key's last `tryRemove` call, including a call that returned `false`. Eviction is checked on every call and when reading `size`.
+**Idle eviction.** A bucket is dropped once `idleMs` have passed since the key's last `tryRemove` call, including a call that returned `false`. Eviction is checked on every call and when reading `size`. <!-- tests: idle buckets are evicted -->
 
-`idleMs` defaults to the time an empty bucket takes to refill completely (`capacity / refillPerSec` seconds), so dropping a bucket can't hand out extra tokens. A shorter `idleMs` is allowed. A dropped key simply starts again with a fresh bucket.
+`idleMs` defaults to the time an empty bucket takes to refill completely (`capacity / refillPerSec` seconds), so dropping a bucket can't hand out extra tokens. A shorter `idleMs` is allowed. A dropped key simply starts again with a fresh bucket. <!-- tests: idle buckets are evicted -->
 
 Everything from earlier stages still applies.

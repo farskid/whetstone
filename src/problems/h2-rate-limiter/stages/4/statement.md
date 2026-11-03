@@ -16,12 +16,12 @@ The `clock` now also needs `setTimeout(fn, ms)` returning an id, and `clearTimeo
 `removeTokens` returns a promise that resolves once `n` tokens have been taken:
 
 - **Right away.** If nobody is waiting and there are enough tokens, it takes them and resolves.
-- **Waiting.** Otherwise the call joins a **FIFO** line and is served strictly in order. A large request at the front holds back smaller ones behind it.
-- **No cutting in.** While anyone is waiting, `tryRemove` returns `false`.
+- **Waiting.** Otherwise the call joins a **FIFO** line and is served strictly in order. A large request at the front holds back smaller ones behind it. <!-- tests: removeTokens waits in FIFO order, and tryRemove does not cut in -->
+- **No cutting in.** While anyone is waiting, `tryRemove` returns `false`. <!-- tests: removeTokens waits in FIFO order, and tryRemove does not cut in -->
 - **Timers.** Wait with one `clock.setTimeout` for the front of the line, no polling. When nobody is waiting, no timer is left.
 - **Impossible requests.** An `n` above `capacity` can never succeed, so the promise rejects with a `RangeError` right away.
 - **Aborting.**
   - **Already aborted:** a `signal` that's already aborted rejects with `signal.reason` without joining the line.
-  - **Aborted while waiting:** the call leaves the line and rejects with `signal.reason`. The next caller in line can then be served at once.
+  - **Aborted while waiting:** the call leaves the line and rejects with `signal.reason`. The next caller in line can then be served at once. <!-- tests: an aborted waiter leaves the line and lets the next one through -->
 
 Everything from earlier stages still applies.

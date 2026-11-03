@@ -19,15 +19,15 @@ setOnline(online: boolean): void;
 
 ## Rules
 
-**Starting.** Sending now also starts on `setOnline(true)` and at startup, again on a microtask.
+**Starting.** Sending now also starts on `setOnline(true)` and at startup, again on a microtask. <!-- tests: restored queue is sent at startup when online; custom storageKey -->
 
 **Offline**
-- While offline, nothing new is sent.
+- While offline, nothing new is sent. <!-- tests: offline: nothing is sent until setOnline(true), then order is kept -->
 - A send that is already in flight finishes, and its outcome is handled normally.
 
 **Persistence**
-- After every change to the queue (enqueue and success), write `JSON.stringify(pending())` to `storage` under `storageKey`.
-- On creation, restore the queue from storage. New ids continue after the largest restored id; ids start at 1.
+- After every change to the queue (enqueue and success), write `JSON.stringify(pending())` to `storage` under `storageKey`. <!-- tests: persists after every change and restores on startup -->
+- On creation, restore the queue from storage. New ids continue after the largest restored id; ids start at 1. <!-- tests: persists after every change and restores on startup -->
 
 - Restored mutations keep their stored fields, including `attempts`. You can still assume `send` always resolves.
 

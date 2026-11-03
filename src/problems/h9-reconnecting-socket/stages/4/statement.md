@@ -10,9 +10,9 @@ createReconnectingSocket({ url, createSocket, heartbeat: { intervalMs: 10_000, t
 
 With `heartbeat: { intervalMs, timeoutMs, ping, isPong }`:
 
-- **Pinging.** `intervalMs` after the connection opens, send `ping()`.
-- **Pongs.** If a message for which `isPong(data)` is true arrives within `timeoutMs`, the next ping goes out `intervalMs` after that pong. Pongs are never emitted as messages. A pong you weren't waiting for is ignored.
-- **No pong.** If no pong arrives within `timeoutMs`, treat the connection as lost: close that socket and reconnect as usual.
-- **Stopping.** Heartbeat timers stop while disconnected and after `close()`.
+- **Pinging.** `intervalMs` after the connection opens, send `ping()`. <!-- tests: pings on an interval while pongs come back -->
+- **Pongs.** If a message for which `isPong(data)` is true arrives within `timeoutMs`, the next ping goes out `intervalMs` after that pong. Pongs are never emitted as messages. A pong you weren't waiting for is ignored. <!-- tests: pings on an interval while pongs come back -->
+- **No pong.** If no pong arrives within `timeoutMs`, treat the connection as lost: close that socket and reconnect as usual. <!-- tests: a missing pong drops the socket and reconnects -->
+- **Stopping.** Heartbeat timers stop while disconnected and after `close()`. <!-- tests: heartbeat timers stop while disconnected and after close -->
 
 Everything from earlier stages still applies.

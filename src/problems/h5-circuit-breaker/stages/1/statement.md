@@ -14,9 +14,9 @@ await breaker.fire(42); // rejects with OpenCircuitError without calling fetchUs
 
 `new CircuitBreaker(fn, options)` wraps an async function. `breaker.fire(...args)` calls `fn(...args)` and returns its result or its error.
 
-- **Failures.** A rejection counts as a failure, and so does a synchronous throw. The caller gets the original error.
-- **Opening.** After `failureThreshold` failures in a row (default 5), the breaker **opens**. Any success resets that count.
-- **While open.** `fire()` rejects right away with an `OpenCircuitError` and does not call `fn`.
+- **Failures.** A rejection counts as a failure, and so does a synchronous throw. The caller gets the original error. <!-- tests: a success resets the count; sync throws are failures -->
+- **Opening.** After `failureThreshold` failures in a row (default 5), the breaker **opens**. Any success resets that count. <!-- tests: passes calls through, then opens after 5 failures in a row | a success resets the count; sync throws are failures -->
+- **While open.** `fire()` rejects right away with an `OpenCircuitError` and does not call `fn`. <!-- tests: passes calls through, then opens after 5 failures in a row -->
 - **`breaker.state`** is `'closed'` or `'open'`.
 - **Staying open.** In this stage an open breaker stays open for good, and results of calls that were already running when it opened are ignored by the breaker (their callers still get them).
 - **`clock`** may be passed in the options. This stage doesn't use it.

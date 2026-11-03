@@ -12,13 +12,13 @@ The `clock` now also needs `clearTimeout(id)`.
 
 ## Timeouts and extend
 
-- **`timeout`** is in ms per attempt (default 10000), and `false` turns it off.
+- **`timeout`** is in ms per attempt (default 10000), and `false` turns it off. <!-- tests: timeouts and your own AbortSignal -->
   - When time runs out, the `fetch` is aborted through the request's signal, and the call rejects with a **`TimeoutError`**.
   - Timeouts are not retried.
-- **`signal`** is your own `AbortSignal`. Aborting it aborts the `fetch` in progress, or cancels the wait before a retry, and the call rejects with `signal.reason` right away.
-- **`api.extend(options)`** returns a new client. It doesn't change the old one. The new options are merged over the old ones like this:
-  - **Headers** merge by name, ignoring case. A header set to `undefined` is removed.
-  - **Hooks** are added after the parent's hooks.
+- **`signal`** is your own `AbortSignal`. Aborting it aborts the `fetch` in progress, or cancels the wait before a retry, and the call rejects with `signal.reason` right away. <!-- tests: timeouts and your own AbortSignal -->
+- **`api.extend(options)`** returns a new client. It doesn't change the old one. The new options are merged over the old ones like this: <!-- tests: extend merges headers case-insensitively and adds hooks -->
+  - **Headers** merge by name, ignoring case. A header set to `undefined` is removed. <!-- tests: extend merges headers case-insensitively and adds hooks -->
+  - **Hooks** are added after the parent's hooks. <!-- tests: extend merges headers case-insensitively and adds hooks -->
   - **`retry`** objects merge field by field.
   - **Everything else** is replaced.
 - **`clock`** (`now`, `setTimeout`, `clearTimeout`) is used for every timer and for `Retry-After` dates.

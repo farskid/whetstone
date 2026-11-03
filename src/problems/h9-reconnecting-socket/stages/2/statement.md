@@ -10,9 +10,9 @@ sock.close();        // for good
 ## Rules
 
 - **While open.** `send` sends at once and returns `true`.
-- **Otherwise.** Messages are buffered, up to `maxBuffer` (default 100). Once the buffer is full, `send` returns `false`.
-- **Flushing.** On open, the buffer is flushed in order, and each message is sent once.
-- **`close()`.** It's permanent:
+- **Otherwise.** Messages are buffered, up to `maxBuffer` (default 100). Once the buffer is full, `send` returns `false`. <!-- tests: caps the buffer, and close() is permanent -->
+- **Flushing.** On open, the buffer is flushed in order, and each message is sent once. <!-- tests: buffers while disconnected and flushes in order on open -->
+- **`close()`.** It's permanent: <!-- tests: caps the buffer, and close() is permanent -->
   - close the current socket, cancel every timer and drop the buffer;
   - `state` becomes `'closed'`, and no events fire;
   - later calls to `send` or `subscribe` throw.

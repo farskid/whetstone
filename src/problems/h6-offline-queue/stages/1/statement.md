@@ -25,10 +25,10 @@ function createOfflineQueue(options: {
 ## Rules
 
 - Ids start at 1 and go up by one. `attempts` is always 0 in this stage.
-- `send` gets a **copy** of the mutation, so changing it doesn't change the queue. The same goes for `pending()`.
+- `send` gets a **copy** of the mutation, so changing it doesn't change the queue. The same goes for `pending()`. <!-- tests: pending() and send() get copies, including the in-flight mutation -->
 - A mutation leaves the queue when its `send` promise resolves.
 - In this stage you can assume `send` always resolves.
 
 **Order**
-- Mutations are sent **one at a time**, in FIFO order. The next one isn't sent until the current one's promise has resolved.
+- Mutations are sent **one at a time**, in FIFO order. The next one isn't sent until the current one's promise has resolved. <!-- tests: online: sends one at a time in FIFO order -->
 - Sending starts on its own after `enqueue`. Each start is on a microtask, never synchronously inside the call.

@@ -9,10 +9,10 @@ const hooks = createWebhookHandler({ handle, getKey: (e) => e.data.object.id, ge
 
 ## Rotation and ordering
 
-- **Secret rotation.** `secrets` can now be one string or an array. The header is valid if **any** `v1` value matches the expected signature for **any** of the secrets. An empty array matches nothing (`no_match`).
-- **`getKey(event)`** names the object an event is about. Events with the same key run **one at a time, in arrival order**. Events with different keys don't wait for each other. A failed event doesn't block the events behind it.
+- **Secret rotation.** `secrets` can now be one string or an array. The header is valid if **any** `v1` value matches the expected signature for **any** of the secrets. An empty array matches nothing (`no_match`). <!-- tests: secret rotation: several secrets and several v1 values -->
+- **`getKey(event)`** names the object an event is about. Events with the same key run **one at a time, in arrival order**. Events with different keys don't wait for each other. A failed event doesn't block the events behind it. <!-- tests: events for one object run one at a time, in arrival order -->
 - **`getVersion(event)`** works together with `getKey`. When an event's turn comes:
-  - If its version isn't newer than the last version **applied** for that key, it is skipped with `status: 'stale'` and `handle` isn't called.
+  - If its version isn't newer than the last version **applied** for that key, it is skipped with `status: 'stale'` and `handle` isn't called. <!-- tests: out-of-order events older than the stored version are skipped -->
   - Only a successful `handle` records a new version.
   - Stale outcomes are remembered for duplicates too.
 - **Without `getKey`**, events don't wait for each other and are never stale.

@@ -14,9 +14,9 @@ Time comes from an injected `clock` with `now()` in ms. It defaults to the real 
 
 ## `new TokenBucket({ capacity, refillPerSec, tokens?, clock? })`
 
-The bucket holds up to `capacity` tokens and starts with `tokens` (default: full). It gains `refillPerSec` tokens per second, continuously, so fractions count: after 250 ms at 2 per second it has gained 0.5.
+The bucket holds up to `capacity` tokens and starts with `tokens` (default: full). It gains `refillPerSec` tokens per second, continuously, so fractions count: after 250 ms at 2 per second it has gained 0.5. <!-- tests: a burst up to capacity, then refill over time -->
 
-- **Validation.** `capacity` must be a positive number and `refillPerSec` a number ≥ 0. Otherwise the constructor throws a `RangeError`.
+- **Validation.** `capacity` must be a positive number and `refillPerSec` a number ≥ 0. Otherwise the constructor throws a `RangeError`. <!-- tests: bad counts, n above capacity, and a starting level -->
 - **`tokens`** is a getter that returns the current level after refilling.
-- **`tryRemove(n = 1)`** takes `n` tokens and returns `true` if there are enough. Otherwise it changes nothing and returns `false`. An `n` that isn't a positive number throws a `RangeError`.
-- **Time going backwards.** If `clock.now()` is earlier than the last time the bucket looked, nothing is added. Time that was already counted is never counted again.
+- **`tryRemove(n = 1)`** takes `n` tokens and returns `true` if there are enough. Otherwise it changes nothing and returns `false`. An `n` that isn't a positive number throws a `RangeError`. <!-- tests: a burst up to capacity, then refill over time | bad counts, n above capacity, and a starting level -->
+- **Time going backwards.** If `clock.now()` is earlier than the last time the bucket looked, nothing is added. Time that was already counted is never counted again. <!-- tests: a clock that goes backwards neither refills nor double-counts -->

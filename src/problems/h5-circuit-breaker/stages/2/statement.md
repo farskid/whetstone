@@ -15,11 +15,11 @@ b.state;           // 'closed'
 
 ## Half-open
 
-- **When.** `resetTimeout` ms after opening (default 30000, timed with the injected `clock`), the breaker becomes **half-open**.
-- **Trials.** While half-open, up to `halfOpenMax` calls (default 1) are let through at once as trials. Any more are rejected with `OpenCircuitError`.
+- **When.** `resetTimeout` ms after opening (default 30000, timed with the injected `clock`), the breaker becomes **half-open**. <!-- tests: after resetTimeout one trial call can close it -->
+- **Trials.** While half-open, up to `halfOpenMax` calls (default 1) are let through at once as trials. Any more are rejected with `OpenCircuitError`. <!-- tests: only halfOpenMax trials at once; the first result decides -->
 - **The first trial decides.**
-  - If it succeeds, the breaker **closes** with all counts reset.
-  - If it fails, the breaker **opens** again for another full `resetTimeout`.
+  - If it succeeds, the breaker **closes** with all counts reset. <!-- tests: after resetTimeout one trial call can close it -->
+  - If it fails, the breaker **opens** again for another full `resetTimeout`. <!-- tests: a failed trial reopens it for another full resetTimeout -->
 - **Results that arrive too late.** A call that was started before the breaker last changed state, and finishes after that change, doesn't affect the breaker. Its caller still gets its result or error.
 
 Everything from earlier stages still applies.
