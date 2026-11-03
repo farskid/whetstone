@@ -21,7 +21,8 @@
     "verify": "tsx scripts/verify.ts",
     "screenshots": "tsx scripts/screenshots.ts",
     "verify:browser": "tsx scripts/browser-verify.ts",
-    "verify:rules": "tsx scripts/rules-paint-check.ts"
+    "verify:rules": "tsx scripts/rules-paint-check.ts",
+    "verify:tags": "tsx scripts/sticky-tags-check.ts"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
