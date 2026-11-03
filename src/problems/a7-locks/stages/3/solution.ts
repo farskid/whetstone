@@ -1,4 +1,4 @@
-import type { Clock, Release } from './types';
+import type { Clock, Release, LockOptions, AcquireOptions } from './types';
 
 const globalClock: Clock = {
   setTimeout: (fn, ms) => setTimeout(fn, ms),
@@ -12,7 +12,7 @@ export class Semaphore {
   private queue: Waiter[] = [];
   private clock: Clock;
 
-  constructor(private capacity: number, options: { clock?: Clock } = {}) {
+  constructor(private capacity: number, options: LockOptions = {}) {
     if (!(Number.isInteger(capacity) && capacity >= 1)) throw new RangeError('capacity must be a positive integer');
     this.free = capacity;
     this.clock = options.clock ?? globalClock;
@@ -42,7 +42,7 @@ export class Semaphore {
     while (this.queue.length && this.queue[0].weight <= this.free) this.queue.shift()!.grant();
   }
 
-  acquire(weight = 1, options: { timeout?: number } = {}): Promise<Release> {
+  acquire(weight = 1, options: AcquireOptions = {}): Promise<Release> {
     this.check(weight);
     if (!this.queue.length && weight <= this.free) return Promise.resolve(this.take(weight));
     return new Promise((resolve, reject) => {
@@ -84,11 +84,11 @@ export class Semaphore {
 
 export class Mutex {
   private sem: Semaphore;
-  constructor(options: { clock?: Clock } = {}) {
+  constructor(options: LockOptions = {}) {
     this.sem = new Semaphore(1, options);
   }
   get locked(): boolean { return this.sem.available === 0; }
-  acquire(options: { timeout?: number } = {}): Promise<Release> { return this.sem.acquire(1, options); }
+  acquire(options: AcquireOptions = {}): Promise<Release> { return this.sem.acquire(1, options); }
   tryAcquire(): Release | null { return this.sem.tryAcquire(1); }
   runExclusive<T>(fn: () => T | Promise<T>): Promise<T> { return this.sem.runExclusive(fn, 1); }
 }

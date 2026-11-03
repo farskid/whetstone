@@ -2,16 +2,18 @@ Let a waiter give up.
 
 ```ts
 interface Clock { setTimeout(fn: () => void, ms: number): number; clearTimeout(id: number): void }
+interface LockOptions { clock?: Clock }
+interface AcquireOptions { timeout?: number }
 
 class Semaphore {
-  constructor(capacity: number, options?: { clock?: Clock });
-  acquire(weight?: number, options?: { timeout?: number }): Promise<Release>;
+  constructor(capacity: number, options?: LockOptions);
+  acquire(weight?: number, options?: AcquireOptions): Promise<Release>;
   // ...
 }
 
 class Mutex {
-  constructor(options?: { clock?: Clock });
-  acquire(options?: { timeout?: number }): Promise<Release>;
+  constructor(options?: LockOptions);
+  acquire(options?: AcquireOptions): Promise<Release>;
   // ...
 }
 ```

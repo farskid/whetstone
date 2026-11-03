@@ -1,22 +1,22 @@
-import type { Clock, Release } from './types';
+import type { Clock, Release, LockOptions, AcquireOptions } from './types';
 
 export class Semaphore {
-  constructor(capacity: number, options: { clock?: Clock } = {}) {
+  constructor(capacity: number, options: LockOptions = {}) {
     throw new Error('Not implemented');
   }
   get available(): number { throw new Error('Not implemented'); }
   get waiting(): number { throw new Error('Not implemented'); }
-  acquire(weight = 1, options: { timeout?: number } = {}): Promise<Release> { throw new Error('Not implemented'); }
+  acquire(weight = 1, options: AcquireOptions = {}): Promise<Release> { throw new Error('Not implemented'); }
   tryAcquire(weight = 1): Release | null { throw new Error('Not implemented'); }
   runExclusive<T>(fn: () => T | Promise<T>, weight = 1): Promise<T> { throw new Error('Not implemented'); }
 }
 
 export class Mutex {
-  constructor(options: { clock?: Clock } = {}) {
+  constructor(options: LockOptions = {}) {
     throw new Error('Not implemented');
   }
   get locked(): boolean { throw new Error('Not implemented'); }
-  acquire(options: { timeout?: number } = {}): Promise<Release> { throw new Error('Not implemented'); }
+  acquire(options: AcquireOptions = {}): Promise<Release> { throw new Error('Not implemented'); }
   tryAcquire(): Release | null { throw new Error('Not implemented'); }
   runExclusive<T>(fn: () => T | Promise<T>): Promise<T> { throw new Error('Not implemented'); }
 }

@@ -14,10 +14,12 @@ try { await migrate(); } finally { release(); }
 ```ts
 interface Clock { setTimeout(fn: () => void, ms: number): unknown; clearTimeout(id: unknown): void }
 type Release = () => void;
+interface LockOptions { clock?: Clock }
+interface AcquireOptions { timeout?: number }
 
 class Semaphore {
-  constructor(capacity: number, options?: { clock?: Clock });
-  acquire(weight?: number, options?: { timeout?: number }): Promise<Release>;   // weight default 1
+  constructor(capacity: number, options?: LockOptions);
+  acquire(weight?: number, options?: AcquireOptions): Promise<Release>;   // weight default 1
   tryAcquire(weight?: number): Release | null;
   runExclusive<T>(fn: () => T | Promise<T>, weight?: number): Promise<T>;
   readonly available: number;   // free capacity right now
@@ -25,8 +27,8 @@ class Semaphore {
 }
 
 class Mutex {   // a Semaphore of capacity 1
-  constructor(options?: { clock?: Clock });
-  acquire(options?: { timeout?: number }): Promise<Release>;
+  constructor(options?: LockOptions);
+  acquire(options?: AcquireOptions): Promise<Release>;
   tryAcquire(): Release | null;
   runExclusive<T>(fn: () => T | Promise<T>): Promise<T>;
   readonly locked: boolean;

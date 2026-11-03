@@ -5,7 +5,7 @@ interface Options {
   failFast?: boolean;
   concurrency?: number;   // default Infinity
   targets?: string[];     // default: every task
-  onEvent?: (e: { type: 'start' | 'success' | 'failed' | 'skipped'; id: string }) => void;
+  onEvent?: (e: TaskEvent) => void;   // TaskEvent: { type: 'start' | TaskStatus; id: string }
 }
 ```
 

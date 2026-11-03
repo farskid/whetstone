@@ -25,7 +25,7 @@ interface Options {
   concurrency?: number;     // default Infinity
   failFast?: boolean;       // default false
   targets?: string[];       // only run these and everything they (transitively) depend on
-  onEvent?: (e: { type: 'start' | 'success' | 'failed' | 'skipped'; id: string }) => void;
+  onEvent?: (e: TaskEvent) => void;   // TaskEvent: { type: 'start' | TaskStatus; id: string }
 }
 interface Report {
   status: Record<string, 'success' | 'failed' | 'skipped'>;

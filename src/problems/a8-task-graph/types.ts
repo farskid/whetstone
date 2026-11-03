@@ -14,6 +14,12 @@ export interface Task {
 
 export type TaskStatus = 'success' | 'failed' | 'skipped';
 
+/** One lifecycle event: `start`, then the task's final status. */
+export interface TaskEvent {
+  type: 'start' | TaskStatus;
+  id: string;
+}
+
 export interface Options {
   /** Max tasks running at once. Default Infinity. */
   concurrency?: number;
@@ -22,7 +28,7 @@ export interface Options {
   /** Only run these and everything they (transitively) depend on. Default: all tasks. */
   targets?: string[];
   /** Lifecycle events: `start`, then one final event per task. */
-  onEvent?: (e: { type: 'start' | TaskStatus; id: string }) => void;
+  onEvent?: (e: TaskEvent) => void;
 }
 
 export interface Report {
