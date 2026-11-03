@@ -1,4 +1,4 @@
-import type { Entry, Bound } from './types';
+import type { Entry, Bound, RankRangeOptions, ScoreRangeOptions } from './types';
 
 const cmp = (a: Entry, b: Entry) =>
   a.score < b.score ? -1 : a.score > b.score ? 1 : a.member < b.member ? -1 : a.member > b.member ? 1 : 0;
@@ -59,7 +59,7 @@ export class SortedSet {
     return r === undefined ? undefined : this.size - 1 - r;
   }
 
-  rangeByRank(start: number, stop: number, options: { rev?: boolean } = {}): Entry[] {
+  rangeByRank(start: number, stop: number, options: RankRangeOptions = {}): Entry[] {
     const n = this.size;
     if (start < 0) start += n;
     if (stop < 0) stop += n;
@@ -70,7 +70,7 @@ export class SortedSet {
     return list.slice(start, stop + 1).map((e) => ({ ...e }));
   }
 
-  rangeByScore(min: Bound, max: Bound, options: { offset?: number; count?: number } = {}): Entry[] {
+  rangeByScore(min: Bound, max: Bound, options: ScoreRangeOptions = {}): Entry[] {
     const lo = parseBound(min), hi = parseBound(max);
     const hits = this.order.filter((e) =>
       (lo.exclusive ? e.score > lo.value : e.score >= lo.value) && (hi.exclusive ? e.score < hi.value : e.score <= hi.value));

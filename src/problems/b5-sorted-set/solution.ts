@@ -1,4 +1,4 @@
-import type { Entry, Bound } from './types';
+import type { Entry, Bound, RankRangeOptions, ScoreRangeOptions } from './types';
 
 type Node<K> = { key: K; pri: number; size: number; left: Node<K> | null; right: Node<K> | null };
 
@@ -139,7 +139,7 @@ export class SortedSet {
     return out;
   }
 
-  rangeByRank(start: number, stop: number, options: { rev?: boolean } = {}): Entry[] {
+  rangeByRank(start: number, stop: number, options: RankRangeOptions = {}): Entry[] {
     const n = this.size;
     if (start < 0) start += n;
     if (stop < 0) stop += n;
@@ -149,7 +149,7 @@ export class SortedSet {
     return this.slice(start, stop, !!options.rev);
   }
 
-  rangeByScore(min: Bound, max: Bound, options: { offset?: number; count?: number } = {}): Entry[] {
+  rangeByScore(min: Bound, max: Bound, options: ScoreRangeOptions = {}): Entry[] {
     const lo = parseBound(min), hi = parseBound(max);
     const from = this.order.count((k) => (lo.exclusive ? k.score <= lo.value : k.score < lo.value));
     const to = this.order.count((k) => (hi.exclusive ? k.score < hi.value : k.score <= hi.value)) - 1;

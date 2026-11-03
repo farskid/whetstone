@@ -4,10 +4,12 @@ Read ranges of the set.
 type Entry = { member: string; score: number };
 type Bound = number | string;   // 5, '5', '(5' (exclusive), '-inf', '+inf'
 
+interface RankRangeOptions { rev?: boolean }
+interface ScoreRangeOptions { offset?: number; count?: number }
 class SortedSet {
   // ...stage 1, plus:
-  rangeByRank(start: number, stop: number, options?: { rev?: boolean }): Entry[];
-  rangeByScore(min: Bound, max: Bound, options?: { offset?: number; count?: number }): Entry[];
+  rangeByRank(start: number, stop: number, options?: RankRangeOptions): Entry[];
+  rangeByScore(min: Bound, max: Bound, options?: ScoreRangeOptions): Entry[];
 }
 ```
 

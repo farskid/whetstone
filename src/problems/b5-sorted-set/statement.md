@@ -17,6 +17,8 @@ board.rangeByScore('(100', '+inf');
 type Entry = { member: string; score: number };
 type Bound = number | string;   // 5, '5', '(5' (exclusive), '-inf', '+inf'
 
+interface RankRangeOptions { rev?: boolean }
+interface ScoreRangeOptions { offset?: number; count?: number }
 class SortedSet {
   readonly size: number;
   add(member: string, score: number): boolean;     // true if the member is new
@@ -24,8 +26,8 @@ class SortedSet {
   remove(member: string): boolean;
   rank(member: string): number | undefined;        // 0 = lowest
   revRank(member: string): number | undefined;     // 0 = highest
-  rangeByRank(start: number, stop: number, options?: { rev?: boolean }): Entry[];
-  rangeByScore(min: Bound, max: Bound, options?: { offset?: number; count?: number }): Entry[];
+  rangeByRank(start: number, stop: number, options?: RankRangeOptions): Entry[];
+  rangeByScore(min: Bound, max: Bound, options?: ScoreRangeOptions): Entry[];
   incrBy(member: string, delta: number): number;   // returns the new score
   denseRevRank(member: string): number | undefined;
   around(member: string, k: number): Entry[];
