@@ -22,7 +22,7 @@ class TextBuffer {
 }
 ```
 
-- Offsets count UTF-16 code units, like `string.length`. Insert at `0` prepends and at `length` appends.
-- `insert`/`delete` with an offset outside `0..length`, or one that isn't an integer, throw a `RangeError` and change nothing.
-- `delete` stops at the end of the document if `length` runs past it. Deleting 0 characters, or inserting `''`, does nothing.
-- A delete can span many pieces.
+- Offsets count UTF-16 code units, like `string.length`. Insert at `0` prepends and at `length` appends. <!-- tests: edits at 0 and at the end; empty buffer -->
+- `insert`/`delete` with an offset outside `0..length`, or one that isn't an integer, throw a `RangeError` and change nothing. <!-- tests: out-of-range offsets throw RangeError -->
+- `delete` stops at the end of the document if `length` runs past it. Deleting 0 characters, or inserting `''`, does nothing. <!-- tests: delete across many pieces; delete past the end stops at the end -->
+- A delete can span many pieces. <!-- tests: delete across many pieces; delete past the end stops at the end -->

@@ -9,7 +9,7 @@ class VirtualTimers {
 }
 ```
 
-- `setTimeout(cb, ms)` schedules `cb` at `now() + max(0, ms)` and returns a numeric id. `clearTimeout` cancels it; unknown or already-run ids are ignored.
-- `advance(ms)` moves time forward to `now() + ms`, running every timer due at or before that time in order of due time, and for equal times in the order they were scheduled. While a callback runs, `now()` equals that timer's due time. After `advance` returns, `now()` is the target time.
-- Timers scheduled by a callback that fall due within the same `advance` also run in it, including a `setTimeout(cb, 0)` (it runs at the current time, after the timers already due then).
-- A callback can cancel other timers, and canceled timers don't run.
+- `setTimeout(cb, ms)` schedules `cb` at `now() + max(0, ms)` and returns a numeric id. `clearTimeout` cancels it; unknown or already-run ids are ignored. <!-- tests: clearTimeout cancels, also from inside a callback -->
+- `advance(ms)` moves time forward to `now() + ms`, running every timer due at or before that time in order of due time, and for equal times in the order they were scheduled. While a callback runs, `now()` equals that timer's due time. After `advance` returns, `now()` is the target time. <!-- tests: timers run in due order with now() set to their time -->
+- Timers scheduled by a callback that fall due within the same `advance` also run in it, including a `setTimeout(cb, 0)` (it runs at the current time, after the timers already due then). <!-- tests: timers added by callbacks run in the same advance, including 0 ms -->
+- A callback can cancel other timers, and canceled timers don't run. <!-- tests: clearTimeout cancels, also from inside a callback -->

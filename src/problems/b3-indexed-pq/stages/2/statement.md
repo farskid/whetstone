@@ -9,7 +9,7 @@ class IndexedPQ<V = undefined, P = number> {
 }
 ```
 
-- `push` of an id that's already in the queue throws an `Error`. Once an id has been popped or removed it may be pushed again.
-- `has(id)` is `true` while the id is in the queue.
-- `update` may raise or lower the priority. `update` and `remove` return `false` (and do nothing) for an unknown id, `true` otherwise.
-- Both must be O(log n). Keep an id → heap index map and keep it right on every swap. There's a performance test with 100k pushes, 50k updates and 100k pops.
+- `push` of an id that's already in the queue throws an `Error`. Once an id has been popped or removed it may be pushed again. <!-- tests: duplicate push throws; has() tracks membership -->
+- `has(id)` is `true` while the id is in the queue. <!-- tests: duplicate push throws; has() tracks membership -->
+- `update` may raise or lower the priority. `update` and `remove` return `false` (and do nothing) for an unknown id, `true` otherwise. <!-- tests: update can move an item up or down | update/remove of a missing id return false -->
+- Both must be O(log n). Keep an id → heap index map and keep it right on every swap. There's a performance test with 100k pushes, 50k updates and 100k pops. <!-- tests: perf: 100k pushes, 50k updates, 100k pops -->

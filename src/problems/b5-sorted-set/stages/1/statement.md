@@ -19,8 +19,8 @@ class SortedSet {
 }
 ```
 
-- Order is by score ascending, and equal scores are ordered by member name. Compare names with `<` (code-unit order, so `'Zed' < 'al'`), not `localeCompare`.
-- Re-adding a member replaces its score and moves it. It returns `false` and `size` doesn't change.
-- A score of `NaN` throws a `RangeError` and changes nothing. `±Infinity` are valid scores.
-- `score` and `rank` of a missing member return `undefined`. `remove` of a missing member returns `false`.
+- Order is by score ascending, and equal scores are ordered by member name. Compare names with `<` (code-unit order, so `'Zed' < 'al'`), not `localeCompare`. <!-- tests: add, score, rank and size | equal scores order by member name -->
+- Re-adding a member replaces its score and moves it. It returns `false` and `size` doesn't change. <!-- tests: re-adding a member moves it and keeps size -->
+- A score of `NaN` throws a `RangeError` and changes nothing. `±Infinity` are valid scores. <!-- tests: remove; NaN rejected; ±Infinity allowed -->
+- `score` and `rank` of a missing member return `undefined`. `remove` of a missing member returns `false`. <!-- tests: add, score, rank and size | remove; NaN rejected; ±Infinity allowed -->
 - A sorted array is fine for now. The last stage adds a performance test that needs O(log n) operations.

@@ -24,12 +24,12 @@ class Table<T extends Row> {
 ```
 
 **Rows**
-- `insert` stores a frozen shallow copy and returns it. Later changes to the object you passed in don't affect the table. A duplicate `id` throws.
-- `update` returns a new frozen row `{ ...old, ...patch }` that replaces the old one. It throws for an unknown id, or for a patch that changes `id`. If every patched field already has that value (`Object.is`), nothing changes and the old row object is returned.
-- `remove` returns whether a row was removed. `get` of a missing id returns `undefined`.
+- `insert` stores a frozen shallow copy and returns it. Later changes to the object you passed in don't affect the table. A duplicate `id` throws. <!-- tests: insert, get, update, remove | errors: duplicate id, unknown id, changing id; no-op update keeps the row object -->
+- `update` returns a new frozen row `{ ...old, ...patch }` that replaces the old one. It throws for an unknown id, or for a patch that changes `id`. If every patched field already has that value (`Object.is`), nothing changes and the old row object is returned. <!-- tests: insert, get, update, remove | errors: duplicate id, unknown id, changing id; no-op update keeps the row object -->
+- `remove` returns whether a row was removed. `get` of a missing id returns `undefined`. <!-- tests: insert, get, update, remove -->
 
 **Queries**
 - A row matches when every field in the query matches. `{}` matches every row.
-- A value matches by `===`. `null` (or `undefined`) matches rows where the field is `null` or missing.
-- Results come back in insertion order.
+- A value matches by `===`. `null` (or `undefined`) matches rows where the field is `null` or missing. <!-- tests: where without indexes: equality, null matches missing, insertion order -->
+- Results come back in insertion order. <!-- tests: where without indexes: equality, null matches missing, insertion order -->
 - There are no indexes yet, so `where` looks at every row. `lastScanned` is the number of rows the last `where` looked at.

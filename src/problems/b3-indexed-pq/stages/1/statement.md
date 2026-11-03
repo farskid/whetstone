@@ -21,8 +21,8 @@ class IndexedPQ<V = undefined, P = number> {
 }
 ```
 
-- `pop` removes and returns the entry with the smallest priority according to `compare` (negative means `a` comes first). `peek` returns the same entry without removing it.
-- On an empty queue, `pop` and `peek` return `undefined`.
+- `pop` removes and returns the entry with the smallest priority according to `compare` (negative means `a` comes first). `peek` returns the same entry without removing it. <!-- tests: pops in ascending priority order | custom comparator (max-heap) -->
+- On an empty queue, `pop` and `peek` return `undefined`. <!-- tests: pop and peek on an empty queue return undefined -->
 - `value` is whatever was passed to `push`, or `undefined` if it was omitted.
 - `push` and `pop` must be O(log n): use an array-backed binary heap, not a sorted array.
 - For now, ids are just carried along, and the order of equal priorities doesn't matter.
