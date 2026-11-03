@@ -332,10 +332,18 @@ async function verifyTypesLinking(file: string, src: string, typesSource: string
       if (k === 0) return;
       const failed = explainContract(c, diagsOf(`${base}/prev/contract.ts`).map((d) => ({ line: d.line, message: d.message })));
       const stageChanges = changes.get(p.id)![k];
+      // A block carried unchanged from the previous stage's contract may pass there (it checks an older change);
+      // a new block must fail, and every key this stage changes needs at least one failing block that covers it.
+      const prevMessages = new Set(k > 0 && list[k - 1].contract ? parseContract(list[k - 1].contract!).blocks.map((b) => b.message) : []);
+      const fails = (b: (typeof c.blocks)[number]) => failed.some((f) => f.message === b.message);
       for (const b of c.blocks) {
         if (!b.keys.some((ck) => stageChanges.some((key) => covers(ck, key)))) continue;
-        if (!failed.some((f) => f.message === b.message)) pfail(p.id, `${sf.contractFile}: the check for ${b.keys.join(', ')} passes on stage ${k}'s reference (with its own types), so it doesn't catch code that missed the change`);
-        else summary.push(`s${k + 1} ${b.keys.join(', ')}`);
+        if (fails(b)) summary.push(`s${k + 1} ${b.keys.join(', ')}`);
+        else if (!prevMessages.has(b.message)) pfail(p.id, `${sf.contractFile}: the check for ${b.keys.join(', ')} passes on stage ${k}'s reference (with its own types), so it doesn't catch code that missed the change`);
+      }
+      for (const key of stageChanges) {
+        const blocks = c.blocks.filter((b) => b.keys.some((ck) => covers(ck, key)));
+        if (blocks.length && !blocks.some(fails)) pfail(p.id, `${sf.contractFile}: no check for ${key} fails on stage ${k}'s reference (with its own types), so none catches code that missed the change`);
       }
     });
     if (!bad.get(p.id)) ok(`${p.id}: named types${summary.length ? `; contract checks that fail on the previous stage's code: ${summary.join('; ')}` : ''}`);
