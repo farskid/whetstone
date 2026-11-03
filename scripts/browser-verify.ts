@@ -83,9 +83,8 @@ async function main() {
   async function runAndCheck(label: string, page: Page, bad: string[]) {
     await page.click('[data-testid="run"]');
     await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 60000 });
-    // A first pass of a stage that isn't the last moves on to the next stage at once (its tests start fresh), so the
-    // "Stage k passed — now on stage k+1" notice counts as passing too.
-    const passed = (await page.$('[data-testid="all-passed"]')) ?? (await page.$('[data-testid="stage-unlocked"]'));
+    // Passing a stage stays on it with its results (the "Stage k cleared" banner offers the next one).
+    const passed = await page.$('[data-testid="all-passed"]');
     if (bad.length) fail(`${label} bad requests:\n    ${bad.join('\n    ')}`);
     if (passed) console.log(`  ✓ ${label} ${await passed.textContent()}`);
     else fail(`${label} ${(await page.textContent((await page.$('.results')) ? '.results' : 'main'))?.slice(0, Number(process.env.VERIFY_DETAIL ?? 300))}`);
@@ -141,13 +140,19 @@ async function main() {
     await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-0-readonly.png') });
     await paste(page, s1);
     check(await runAndCheck(`flow: ${flowId} stage 1 typed in the editor`, page, bad), 'stage 1 passes');
-    check(!(await page.$('[data-testid="cracked-fx"]')), 'passing stage 1 does not play "Cracked" (only the whole problem does)');
-    // A first pass moves straight on to stage 2, with a notice saying stage 1 passed.
-    const notice = await page.waitForSelector('[data-testid="stage-unlocked"]', { timeout: 5000 }).catch(() => null);
-    check(!!notice && /Stage 1 passed.*now on stage 2/.test((await notice.textContent()) ?? ''), '"Stage 1 passed — now on stage 2" notice');
-    await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-1-stage1-passed.png') });
-    check(await page.getAttribute('[data-testid="stage-tab-2"]', 'aria-selected') === 'true', 'stage 2 tab selected');
+    // A stage pass plays the effect with a "Stage 1 cleared" banner and stays on stage 1 until "Go to stage 2".
+    const cleared = await page.$('[data-testid="stage-cleared"]');
+    const clearedText = (await cleared?.textContent()) ?? '';
+    check(/Stage 1 cleared/.test(clearedText) && /Next: stage 2/.test(clearedText), `the "Stage 1 cleared" banner shows ("${clearedText.trim()}")`);
+    check(await page.getAttribute('[data-testid="cracked-fx"]', 'data-kind') === 'stage' && !(await page.$('[data-testid="solved-badge"]')), 'it is the stage banner, not "Cracked"');
+    check(((await page.textContent('[data-testid="go-next-stage"]')) ?? '').includes('Go to stage 2'), 'the banner has a "Go to stage 2" button');
+    await page.waitForTimeout(2500);
+    check((await page.textContent('.stage-label'))?.trim() === 'Stage 1 of 3' && !!(await page.$('[data-testid="stage-cleared"]')), 'no silent jump: still on stage 1 with the banner up after 2.5 s');
     check(!(await page.isDisabled('[data-testid="stage-tab-2"]')), 'stage 2 tab enabled');
+    await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-1-stage1-passed.png') });
+    await page.click('[data-testid="go-next-stage"]');
+    check(await page.getAttribute('[data-testid="stage-tab-2"]', 'aria-selected') === 'true', '"Go to stage 2" selects the stage 2 tab');
+    check(!(await page.$('[data-testid="cracked-fx"]')), 'the banner goes away on stage 2');
     check(await page.isDisabled('[data-testid="stage-tab-3"]'), 'stage 3 still locked');
     check((await page.textContent('[data-testid="stage-tab-1"]'))?.includes('✓') ?? false, 'stage 1 tab shows ✓');
     check((await page.textContent('.stage-label'))?.trim() === 'Stage 2 of 3', 'label reads "Stage 2 of 3"');
@@ -175,9 +180,15 @@ async function main() {
     check(!(await page.$('[data-testid="all-passed"]')), 'the stage-1 code does not pass stage 2');
     await paste(page, s2);
     check(await runAndCheck(`flow: ${flowId} stage 2 reference in the editor`, page, bad), 'stage 2 passes with the stage-2 solution');
-    check((await page.textContent('.stage-label'))?.trim() === 'Stage 3 of 3', 'passing stage 2 moves on to stage 3');
-    check(!(await page.$('[data-testid="cracked-fx"]')), 'passing stage 2 does not play "Cracked"');
+    check(/Stage 2 cleared/.test((await page.textContent('[data-testid="stage-cleared"]').catch(() => '')) ?? ''), 'passing stage 2 shows "Stage 2 cleared"');
+    check((await page.textContent('.stage-label'))?.trim() === 'Stage 2 of 3', 'and stays on stage 2');
     await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-3-stage2-passed.png') });
+    // "Stay on stage 2" puts the banner away into a bar above the tests, which still offers the next stage.
+    await page.click('[data-testid="stay-on-stage"]');
+    const bar = await page.$('[data-testid="stage-unlocked"]');
+    check(!(await page.$('[data-testid="cracked-fx"]')) && /Stage 2 cleared.*stage 3/.test((await bar?.textContent()) ?? ''), '"Stay on stage 2" leaves a "Stage 2 cleared" bar');
+    await page.click('[data-testid="stage-unlocked"] [data-testid="go-next-stage"]');
+    check((await page.textContent('.stage-label'))?.trim() === 'Stage 3 of 3' && !(await page.$('[data-testid="stage-unlocked"]')), 'the bar\'s "Go to stage 3" moves on to stage 3');
     // Statement borders: passed stages are the pass colour (the viewed one too, once passed); the viewed stage that
     // isn't passed yet is the accent.
     const border = (k: number) => page.$eval(`[data-testid="stage-section-${k}"]`, (e) => getComputedStyle(e).borderLeftColor);
@@ -215,7 +226,8 @@ async function main() {
     const banner = await old.page.waitForSelector('[data-testid="own-types"]', { timeout: 5000 }).catch(() => null);
     check(!!banner && ((await banner.textContent()) ?? '').includes(t1Names.join(', ')), `legacy code gets the "Import from types.ts" offer, naming ${t1Names.join(', ')}`);
     check(await runAndCheck('flow: legacy code with its own types', old.page, old.bad), 'legacy code still passes stage 1');
-    // That first pass moved on to stage 2; back on stage 1, re-passing it stays put.
+    // That first pass shows the stage banner; clicking the stage-1 tab puts it away, and re-passing stays put.
+    check(!!(await old.page.$('[data-testid="stage-cleared"]')), 'the legacy code\'s first pass shows the stage banner');
     await old.page.click('[data-testid="stage-tab-1"]');
     await old.page.waitForTimeout(300);
     await old.page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-4-legacy-offer.png') });
@@ -225,7 +237,7 @@ async function main() {
     check(!(await old.page.$('[data-testid="own-types"]')), 'the offer goes away after importing');
     check(adopted.startsWith(`import type { ${t1Names.join(', ')} } from './types';`) && !/^export interface/m.test(adopted), 'the saved code imports the types instead of declaring them');
     check(await runAndCheck('flow: legacy code after importing types.ts', old.page, old.bad), 'it still passes after importing');
-    check((await old.page.textContent('.stage-label'))?.trim() === 'Stage 1 of 3' && !!(await old.page.$('[data-testid="all-passed"]')), 're-passing stage 1 stays on stage 1 with its results');
+    check((await old.page.textContent('.stage-label'))?.trim() === 'Stage 1 of 3' && !!(await old.page.$('[data-testid="all-passed"]')) && !(await old.page.$('[data-testid="cracked-fx"]')), 're-passing stage 1 stays on stage 1 with its results, no banner again');
     await old.page.click(SOL);
     await old.page.keyboard.press('ControlOrMeta+Z');
     check(!!(await old.page.waitForSelector('[data-testid="own-types"]', { timeout: 3000 }).catch(() => null)), 'Ctrl/⌘+Z brings the old declarations (and the offer) back');

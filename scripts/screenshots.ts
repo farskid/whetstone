@@ -118,10 +118,11 @@ async function main() {
     const page = await open(browser, '#/p/f1-debounce', baseState({ code: { 'f1-debounce': { ts: s1 } } }));
     await waitEditor(page);
     await page.click('[data-testid="run"]');
-    await page.waitForSelector('[data-testid="stage-unlocked"]', { timeout: 30000 });
-    console.log('  ✓ stage 1 passes and moves on to stage 2:', await page.textContent('[data-testid="stage-unlocked"]'));
-    await page.waitForTimeout(500);
+    await page.waitForSelector('[data-testid="stage-cleared"]', { timeout: 30000 });
+    console.log('  ✓ stage 1 passes and offers stage 2:', await page.textContent('[data-testid="stage-cleared"]'));
+    await page.waitForTimeout(700);
     await shot(page, '07-stage1-passed.png');
+    await page.click('[data-testid="go-next-stage"]');
     await page.click('[data-testid="run"]');
     await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 30000 });
     await page.waitForTimeout(300);

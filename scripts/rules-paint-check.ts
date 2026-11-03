@@ -3,8 +3,8 @@
  * Rendering check for painted rules: runs F1's stage-1 reference on stage 3 (in a vite dev server) and checks that
  * stage 1's linked rules are green, stage 3's are red, the rest neutral, and each rule's tooltip lists its tests. Then
  * Reset must return the rules, test list and summary to neutral while keeping saved progress. Last, a first pass of A4
- * stage 3 must move straight on to stage 4 (fresh tests, a "passed" notice), while re-passing or passing the last
- * stage stays put.
+ * stage 3 must stay on stage 3 with a "Stage 3 cleared" banner whose button goes to stage 4 (fresh tests), while
+ * re-passing or passing the last stage stays put without it.
  * Screenshots (dark and light) go to SHOTS_DIR (default /workspace) as whetstone-rules-*.png.
  */
 import { spawn } from 'node:child_process';
@@ -78,7 +78,7 @@ async function main() {
     await ctx.close();
   }
 
-  // A first pass of a stage moves straight on: A4 with the stage-3 reference on stage 3 lands on stage 4, fresh.
+  // A first pass of a stage shows the "cleared" banner; its button lands on stage 4, fresh.
   {
     const a4 = 'a4-singleflight';
     const s3 = readFileSync(join(root, 'src/problems', a4, 'stages/3/solution.ts'), 'utf8');
@@ -90,10 +90,13 @@ async function main() {
     await page.waitForSelector('[data-testid="run"]', { timeout: 30000 });
     check((await page.textContent('.stage-label'))?.trim() === 'Stage 3 of 4', 'a4: opens on "Stage 3 of 4"');
     await page.click('[data-testid="run"]');
-    const notice = await page.waitForSelector('[data-testid="stage-unlocked"]', { timeout: 60000 }).catch(() => null);
+    const notice = await page.waitForSelector('[data-testid="stage-cleared"]', { timeout: 60000 }).catch(() => null);
     const text = (await notice?.textContent()) ?? '';
-    check(/Stage 3 passed 🎉 — now on stage 4/.test(text), `a4: notice "${text.trim()}"`);
-    check((await page.textContent('.stage-label'))?.trim() === 'Stage 4 of 4', 'a4: label says "Stage 4 of 4"');
+    check(/Stage 3 cleared/.test(text) && /Go to stage 4/.test(text), `a4: banner "${text.trim()}"`);
+    check((await page.textContent('.stage-label'))?.trim() === 'Stage 3 of 4' && !!(await page.$('[data-testid="all-passed"]')), 'a4: still on stage 3 with its results');
+    await page.screenshot({ path: join(SHOTS, 'whetstone-stage-cleared.png') });
+    await page.click('[data-testid="go-next-stage"]');
+    check((await page.textContent('.stage-label'))?.trim() === 'Stage 4 of 4' && !(await page.$('[data-testid="cracked-fx"]')), 'a4: "Go to stage 4" lands on "Stage 4 of 4"');
     const tab = (k: number) => page.getAttribute(`[data-testid="stage-tab-${k}"]`, 'class').then((c) => c ?? '');
     check(/\bon\b/.test(await tab(4)) && !/\bon\b/.test(await tab(3)), 'a4: the stage-4 pill is on');
     check(/\bdone\b/.test(await tab(3)) && ((await page.textContent('[data-testid="stage-tab-3"]')) ?? '').includes('✓'), 'a4: the stage-3 pill is done with ✓');
@@ -103,15 +106,15 @@ async function main() {
     const code = await page.evaluate((id) => JSON.parse(localStorage.getItem('practical:v2') ?? '{}').code?.[id]?.ts, a4);
     check(code === s3, 'a4: the passing code carried over');
     await page.screenshot({ path: join(SHOTS, 'whetstone-stage-advance.png') });
-    // The next run dismisses the notice; the stage-3 code doesn't pass stage 4, so it stays on stage 4.
+    // The stage-3 code doesn't pass stage 4, so it stays on stage 4 with no banner.
     await page.click('[data-testid="run"]');
     await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 60000 });
-    check(!(await page.$('[data-testid="stage-unlocked"]')), 'a4: the next run dismisses the notice');
+    check(!(await page.$('[data-testid="stage-unlocked"], [data-testid="cracked-fx"]')), 'a4: a red run on stage 4 shows no banner');
     // Re-passing stage 3 stays on stage 3.
     await page.click('[data-testid="stage-tab-3"]');
     await page.click('[data-testid="run"]');
     await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 60000 });
-    check((await page.textContent('.stage-label'))?.trim() === 'Stage 3 of 4' && !!(await page.$('[data-testid="all-passed"]')) && !(await page.$('[data-testid="stage-unlocked"]')), 'a4: re-passing stage 3 stays on stage 3 with its results');
+    check((await page.textContent('.stage-label'))?.trim() === 'Stage 3 of 4' && !!(await page.$('[data-testid="all-passed"]')) && !(await page.$('[data-testid="stage-cleared"]')), 'a4: re-passing stage 3 stays on stage 3 with its results');
     await ctx.close();
   }
   // Passing the last stage stays on it.
@@ -127,7 +130,7 @@ async function main() {
     await page.waitForSelector('[data-testid="run"]', { timeout: 30000 });
     await page.click('[data-testid="run"]');
     await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 60000 });
-    check((await page.textContent('.stage-label'))?.trim() === 'Stage 4 of 4' && !!(await page.$('[data-testid="all-passed"]')) && !(await page.$('[data-testid="stage-unlocked"]')), 'a4: passing the last stage stays on it with its results');
+    check((await page.textContent('.stage-label'))?.trim() === 'Stage 4 of 4' && !!(await page.$('[data-testid="all-passed"]')) && !(await page.$('[data-testid="stage-cleared"]')) && (await page.getAttribute('[data-testid="cracked-fx"]', 'data-kind')) === 'cracked', 'a4: passing the last stage stays on it with its results and plays "Cracked"');
     await ctx.close();
   }
 
