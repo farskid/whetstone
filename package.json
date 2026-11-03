@@ -25,7 +25,8 @@
     "verify:tags": "tsx scripts/sticky-tags-check.ts",
     "verify:analytics": "tsx scripts/analytics-check.ts",
     "verify:theme": "tsx scripts/theme-check.ts",
-    "verify:status": "tsx scripts/status-check.ts"
+    "verify:status": "tsx scripts/status-check.ts",
+    "verify:home-mobile": "tsx scripts/home-mobile-check.ts"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",

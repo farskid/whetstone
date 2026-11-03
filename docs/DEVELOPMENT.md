@@ -18,6 +18,7 @@ npm run verify           # Node: every reference solution passes, the starter fa
 npm run verify:browser   # after build: every reference solution (TS and JS) passes in the real browser worker, staged ones per stage too, plus a clicked-through stage 1 → 2 flow
 VERIFY_BASE=/whetstone/ npm run verify:browser   # after build:pages: the same, served under /whetstone/
 npm run verify:status    # after build: the Attempted status, its filter and counts, in light and dark
+npm run verify:home-mobile # after build: home page at 360/390/430/768px, dark and light (shots in /workspace/shots-home-mobile)
 npm run verify:theme     # after build: System by default, live OS changes, saved picks kept, no flash on load
 npm run verify:analytics # after build: GoatCounter page views and events, with count.js stubbed and goatcounter.com blocked (no real hits)
 npm run screenshots      # after build: writes screenshots/*.png (needs Chrome; set CHROME_PATH if not /usr/bin/google-chrome)
