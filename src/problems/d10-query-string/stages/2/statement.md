@@ -8,7 +8,8 @@ stringify({ user: { name: 'Sam', tags: ['a', 'b'] } });
 
 type Value = string | Value[] | { [k: string]: Value };
 function parse(input: string): Record<string, Value>;
-function stringify(obj: Record<string, unknown>, opts?: { arrayFormat?: 'indices' | 'brackets' | 'repeat' }): string;
+function stringify(obj: Record<string, unknown>, opts?: StringifyOptions): string;
+interface StringifyOptions { arrayFormat?: 'indices' | 'brackets' | 'repeat' }
 ```
 
 **Keys in `parse`**

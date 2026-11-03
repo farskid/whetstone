@@ -1,6 +1,4 @@
-import type { ParseOptions, StringifyOptions } from './types';
-
-type Value = string | Value[] | { [k: string]: Value };
+import type { ParseOptions, StringifyOptions, Value } from './types';
 
 export function parse(input: string, opts: ParseOptions = {}): Record<string, Value> {
   throw new Error('Not implemented');

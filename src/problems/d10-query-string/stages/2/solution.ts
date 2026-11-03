@@ -1,6 +1,4 @@
-import type { StringifyOptions } from './types';
-
-type Value = string | Value[] | { [k: string]: Value };
+import type { StringifyOptions, Value } from './types';
 
 function decode(s: string): string {
   const plus = s.replace(/\+/g, ' ');

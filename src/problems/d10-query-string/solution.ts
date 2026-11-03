@@ -1,6 +1,4 @@
-import type { ParseOptions, StringifyOptions } from './types';
-
-type Value = string | Value[] | { [k: string]: Value };
+import type { ParseOptions, StringifyOptions, Value } from './types';
 
 const BLOCKED = new Set(['__proto__', 'constructor', 'prototype']);
 

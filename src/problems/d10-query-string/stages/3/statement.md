@@ -5,7 +5,8 @@ parse('a[b][c][d]=1', { depth: 1 });          // { a: { b: { '[c][d]': '1' } } }
 parse('a[999999]=x');                         // { a: { '999999': 'x' } }
 parse('__proto__[polluted]=1&ok=1');          // { ok: '1' }
 
-function parse(input: string, opts?: { depth?: number; parameterLimit?: number; arrayLimit?: number }): Record<string, Value>;
+function parse(input: string, opts?: ParseOptions): Record<string, Value>;
+interface ParseOptions { depth?: number; parameterLimit?: number; arrayLimit?: number }
 ```
 
 - **`depth`** (default 5): at most `depth` bracket groups are split off. Anything left over becomes one literal key: with `depth: 1`, `a[b][c][d]` gives `{ a: { b: { '[c][d]': … } } }`. <!-- tests: depth limit keeps the rest as one literal key -->
