@@ -1,4 +1,4 @@
-import type { Argv, OptionSpec, CommandSpec, CliSpec, CliResult } from './types';
+import type { Argv, OptionSpec, CommandSpec, CliSpec, CliResult, Cli } from './types';
 
 const NUMBER = /^-?\d+(\.\d+)?$/;
 const isFlag = (t: string | undefined) => t !== undefined && t.length > 1 && t[0] === '-' && !NUMBER.test(t);
@@ -59,7 +59,7 @@ function suggest(word: string, candidates: string[]): string | null {
 const aliases = (o: OptionSpec) => (o.alias === undefined ? [] : Array.isArray(o.alias) ? o.alias : [o.alias]);
 const dashed = (n: string) => (n.length === 1 ? `-${n}` : `--${n}`);
 
-export function createCli(spec: CliSpec) {
+export function createCli(spec: CliSpec): Cli {
   function merged(path: CommandSpec[]): Record<string, OptionSpec> {
     return Object.assign({}, ...path.map((c) => c.options ?? {}));
   }

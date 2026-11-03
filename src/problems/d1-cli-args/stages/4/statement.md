@@ -2,7 +2,8 @@ Add "did you mean" suggestions and generated help text.
 
 ```ts
 // CommandSpec and OptionSpec gain: description?: string
-createCli(spec): { parse(argv): CliResult; help(path?: string[]): string }
+createCli(spec): Cli
+interface Cli { parse(argv: string[]): CliResult; help(path?: string[]): string }   // new: help
 ```
 
 **Suggestions** use the edit distance between two strings (insertions, deletions and substitutions).

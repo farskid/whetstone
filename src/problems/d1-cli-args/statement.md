@@ -34,7 +34,8 @@ cli.parse(['remote', 'add', '-f', '--name', 'origin', 'git@host:repo']);
 interface OptionSpec { type: 'string' | 'number' | 'boolean' | 'array'; alias?: string | string[];
                        default?: unknown; required?: boolean; description?: string }
 interface CommandSpec { description?: string; options?: Record<string, OptionSpec>; commands?: Record<string, CommandSpec> }
-createCli(spec: CommandSpec & { name: string }): { parse(argv): CliResult; help(path?: string[]): string }
+createCli(spec: CommandSpec & { name: string }): Cli
+interface Cli { parse(argv: string[]): CliResult; help(path?: string[]): string }
 interface CliResult { command: string[]; options: Record<string, unknown>; _: string[]; errors: string[] }
 ```
 

@@ -12,7 +12,8 @@ cli.parse(['-v', 'file.txt']);
 ```ts
 interface OptionSpec { type: 'string' | 'number' | 'boolean' | 'array'; alias?: string | string[];
                        default?: unknown; required?: boolean }
-createCli(spec: { name: string; options?: Record<string, OptionSpec> }): { parse(argv: string[]): CliResult }
+createCli(spec: CliSpec): Cli   // CliSpec: { name: string; options?: Record<string, OptionSpec> }
+interface Cli { parse(argv: string[]): CliResult }
 interface CliResult { command: string[]; options: Record<string, unknown>; _: string[]; errors: string[] }
 ```
 

@@ -29,3 +29,8 @@ export interface CliResult {
   /** Messages in the order found; parse never throws. */
   errors: string[];
 }
+
+/** What `createCli` returns. */
+export interface Cli {
+  parse(argv: string[]): CliResult;
+}

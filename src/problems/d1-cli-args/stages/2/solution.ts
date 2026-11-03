@@ -1,4 +1,4 @@
-import type { Argv, OptionSpec, CliSpec, CliResult } from './types';
+import type { Argv, OptionSpec, CliSpec, CliResult, Cli } from './types';
 
 const NUMBER = /^-?\d+(\.\d+)?$/;
 const isFlag = (t: string | undefined) => t !== undefined && t.length > 1 && t[0] === '-' && !NUMBER.test(t);
@@ -36,7 +36,7 @@ export function parseArgs(argv: string[]): Argv {
 
 const aliases = (o: OptionSpec) => (o.alias === undefined ? [] : Array.isArray(o.alias) ? o.alias : [o.alias]);
 
-export function createCli(spec: CliSpec) {
+export function createCli(spec: CliSpec): Cli {
   function parse(argv: string[]): CliResult {
     const options: Record<string, unknown> = {};
     const positionals: string[] = [];
