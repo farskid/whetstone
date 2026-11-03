@@ -17,7 +17,7 @@ The `Stripe-Signature` header looks like `t=1700000000,v1=5257a8…,v0=…`.
 
 **`timingSafeEqual(a, b)`** compares two strings in time that doesn't depend on where they first differ. Strings of different lengths are simply not equal.
 
-**`verifySignature({ payload, header, secrets, toleranceSec = 300, clock })`** resolves to `{ timestamp }` or rejects with a `WebhookError`.
+**`verifySignature({ payload, header, secrets, toleranceSec = 300, clock })`** resolves to a `VerifyResult` (`{ timestamp }`) or rejects with a `WebhookError`.
 
 - **The expected signature** is the HMAC-SHA256 of `` `${t}.${payload}` ``, written as lowercase hex. Compute it with `crypto.subtle`.
 - **Use the raw body.** `payload` must be the body exactly as received. Re-serialized JSON has different bytes, so it won't match.
@@ -32,7 +32,7 @@ The `Stripe-Signature` header looks like `t=1700000000,v1=5257a8…,v0=…`.
 
 ## Idempotency
 
-`createWebhookHandler({ handle, getKey?, getVersion? })` returns `{ process(event) }`. Each event has an `id`, and `process` resolves to one of:
+`createWebhookHandler({ handle, getKey?, getVersion? })` returns a `WebhookHandler` (`{ process(event) }`). Each event has an `id`, and `process` resolves to one of:
 
 - `{ status: 'applied', result, duplicate }`
 - `{ status: 'stale', duplicate }`

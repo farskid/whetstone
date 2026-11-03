@@ -34,3 +34,14 @@ export interface HandlerOptions<E, R> {
   /** With getKey: an event is applied only if its version is newer than the last applied one for its key. */
   getVersion?: (event: E) => number;
 }
+
+/** What `verifySignature` resolves to. */
+export interface VerifyResult {
+  /** The header's timestamp, in seconds. */
+  timestamp: number;
+}
+
+/** What `createWebhookHandler` returns. */
+export interface WebhookHandler<E, R> {
+  process(event: E): Promise<ProcessResult<R>>;
+}

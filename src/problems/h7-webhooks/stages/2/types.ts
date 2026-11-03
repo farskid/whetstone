@@ -27,3 +27,14 @@ export type ProcessResult<R> = { status: 'applied'; result: R; duplicate: boolea
 export interface HandlerOptions<E, R> {
   handle: (event: E) => Promise<R>;
 }
+
+/** What `verifySignature` resolves to. */
+export interface VerifyResult {
+  /** The header's timestamp, in seconds. */
+  timestamp: number;
+}
+
+/** What `createWebhookHandler` returns. */
+export interface WebhookHandler<E, R> {
+  process(event: E): Promise<ProcessResult<R>>;
+}

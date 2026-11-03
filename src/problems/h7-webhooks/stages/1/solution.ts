@@ -1,4 +1,4 @@
-import type { WebhookErrorCode, ParsedSignature, VerifyOptions } from './types';
+import type { WebhookErrorCode, ParsedSignature, VerifyOptions, VerifyResult } from './types';
 
 export class WebhookError extends Error {
   readonly code: WebhookErrorCode;
@@ -44,7 +44,7 @@ async function hmacHex(secret: string, message: string): Promise<string> {
   return [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function verifySignature(options: VerifyOptions): Promise<{ timestamp: number }> {
+export async function verifySignature(options: VerifyOptions): Promise<VerifyResult> {
   const { timestamp, signatures } = parseSignatureHeader(options.header);
   const expected = await hmacHex(options.secrets, `${timestamp}.${options.payload}`);
   let matched = false;

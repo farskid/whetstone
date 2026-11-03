@@ -1,4 +1,4 @@
-import type { WebhookErrorCode, ParsedSignature, VerifyOptions } from './types';
+import type { WebhookErrorCode, ParsedSignature, VerifyOptions, VerifyResult } from './types';
 
 export class WebhookError extends Error {
   readonly code: WebhookErrorCode;
@@ -18,6 +18,6 @@ export function timingSafeEqual(a: string, b: string): boolean {
   throw new Error('Not implemented');
 }
 
-export function verifySignature(options: VerifyOptions): Promise<{ timestamp: number }> {
+export function verifySignature(options: VerifyOptions): Promise<VerifyResult> {
   throw new Error('Not implemented');
 }

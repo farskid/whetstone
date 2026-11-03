@@ -10,7 +10,7 @@ await hooks.process(event); // { status: 'applied', result, duplicate: true }; h
 
 ## Idempotency
 
-`createWebhookHandler({ handle })` returns `{ process(event) }`. Each event has an `id`, and `process` resolves to `{ status: 'applied', result, duplicate }`, where `result` is what `handle` resolved to.
+`createWebhookHandler({ handle })` returns a `WebhookHandler` (`{ process(event) }`). Each event has an `id`, and `process` resolves to `{ status: 'applied', result, duplicate }`, where `result` is what `handle` resolved to.
 
 The rules:
 

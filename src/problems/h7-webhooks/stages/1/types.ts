@@ -20,3 +20,9 @@ export interface VerifyOptions {
   toleranceSec?: number;
   clock?: Clock;
 }
+
+/** What `verifySignature` resolves to. */
+export interface VerifyResult {
+  /** The header's timestamp, in seconds. */
+  timestamp: number;
+}

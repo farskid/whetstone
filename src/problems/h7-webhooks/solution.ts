@@ -1,4 +1,4 @@
-import type { WebhookErrorCode, ParsedSignature, VerifyOptions, ProcessResult, HandlerOptions } from './types';
+import type { WebhookErrorCode, ParsedSignature, VerifyOptions, ProcessResult, HandlerOptions, VerifyResult, WebhookHandler } from './types';
 
 export class WebhookError extends Error {
   readonly code: WebhookErrorCode;
@@ -44,7 +44,7 @@ async function hmacHex(secret: string, message: string): Promise<string> {
   return [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function verifySignature(options: VerifyOptions): Promise<{ timestamp: number }> {
+export async function verifySignature(options: VerifyOptions): Promise<VerifyResult> {
   const { timestamp, signatures } = parseSignatureHeader(options.header);
   const secrets = typeof options.secrets === 'string' ? [options.secrets] : options.secrets;
   let matched = false;
@@ -60,7 +60,7 @@ export async function verifySignature(options: VerifyOptions): Promise<{ timesta
 
 type Outcome<R> = { status: 'applied'; result: R } | { status: 'stale' };
 
-export function createWebhookHandler<E extends { id: string }, R>(options: HandlerOptions<E, R>): { process(event: E): Promise<ProcessResult<R>> } {
+export function createWebhookHandler<E extends { id: string }, R>(options: HandlerOptions<E, R>): WebhookHandler<E, R> {
   const byId = new Map<string, Promise<Outcome<R>>>();
   const tails = new Map<string, Promise<unknown>>();
   const versions = new Map<string, number>();
