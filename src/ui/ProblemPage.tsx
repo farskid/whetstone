@@ -59,8 +59,13 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     const rs = run.phase === 'done' ? run.summary.results : run.phase === 'running' ? run.results : [];
     return new Map<string, TestStatus>(rs.map((r) => [r.title, r.status]));
   }, [run]);
-  /** Set (to the stage just passed) when a run passed a stage for the first time and moved on to the next one. */
-  const [justPassed, setJustPassed] = useState<number | null>(null);
+  /**
+   * What the last run cracked, if it newly went green: the whole problem ("Cracked", plays and goes) or a stage that
+   * isn't the last ("Stage k cleared" with a button to the next stage). `docked`: the stamp was dismissed and only the
+   * bar above the tests is left. `epoch` replays the animation.
+   */
+  const [cracked, setCracked] = useState<{ kind: 'cracked' | 'stage'; stage: number; epoch: number; docked: boolean } | null>(null);
+  const endCracked = useCallback(() => setCracked(null), []);
   const [leftW, setLeftW] = useState(() => Math.round(window.innerWidth * 0.4));
   const [resultsH, setResultsH] = useState(() => Math.round(window.innerHeight * 0.36));
   const editorRef = useRef<Ed | null>(null);
@@ -74,13 +79,12 @@ export function ProblemPage({ problem }: { problem: Problem }) {
 
   const solved = !!progress.solved[problem.id];
   /**
-   * Whether the last finished run of the whole problem (single-stage, the final stage, or full mode) passed. Starts as
-   * "solved", so opening a solved problem and re-running it green plays nothing; going red and back to green does.
+   * Per view (a stage, full mode, or the single-stage problem): whether its last finished run passed. A view not run yet
+   * on this page counts as green if it is already passed, so re-running a passed stage or a solved problem green plays
+   * nothing; going red and back to green does.
    */
-  const wholeGreen = useRef(solved);
-  /** Bumped each time the problem newly goes green, which (re)plays the "Cracked" effect; null when it isn't showing. */
-  const [cracked, setCracked] = useState<number | null>(null);
-  const endCracked = useCallback(() => setCracked(null), []);
+  const green = useRef<Record<string, boolean>>({});
+  const viewKey = !staged ? 'one' : full ? 'full' : `s${viewStage}`;
   const revealed = staged && !full
     ? solved || !!stagePassed[viewStage] || (progress.stageRevealed[problem.id] ?? []).includes(viewStage) || (viewStage === n - 1 && !!progress.revealed[problem.id])
     : solved || !!progress.revealed[problem.id];
@@ -141,7 +145,6 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   const clearRun = () => {
     handleRef.current?.cancel();
     handleRef.current = null;
-    setJustPassed(null);
     setCracked(null);
     setRun({ phase: 'idle' });
     setRunEpoch((e) => e + 1);
@@ -160,7 +163,6 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     actions.setCode(problem.id, lang, source);
     const partial: TestResult[] = [];
     setRun({ phase: 'running', results: [] });
-    setJustPassed(null);
     setCracked(null);
     const stage = staged ? viewStage : undefined;
     // Pin the stage being run, so unlocking the next one doesn't move the view mid-run.
@@ -176,22 +178,19 @@ export function ProblemPage({ problem }: { problem: Problem }) {
       setRun({ phase: 'done', summary });
       if (summary.aborted !== 'Cancelled.') {
         const passedAll = !summary.compileError && summary.passed === summary.total;
-        const before = unlockedStage(progressNow(), problem.id);
+        const p = progressNow();
+        const wasGreen = green.current[viewKey] ?? (viewKey.startsWith('s') ? !!p.stagePassed[problem.id]?.[viewStage] : !!p.solved[problem.id]);
+        green.current[viewKey] = passedAll;
         actions.recordAttempt(problem.id, passedAll, lang, stage, source);
-        // The whole problem (not an intermediate stage) went from red or unsolved to all green: it's cracked.
-        if (!staged || full || stage === n - 1) {
-          if (passedAll && !wholeGreen.current) setCracked((c) => (c ?? 0) + 1);
-          wholeGreen.current = passedAll;
-        }
-        // A first pass of a stage that isn't the last moves straight on; the code carries over (it is the saved code).
-        if (passedAll && staged && !full && stage !== undefined && stage < n - 1 && stage === before) {
-          handleRef.current = null;
-          goStage(stage + 1);
-          setJustPassed(stage);
+        // Newly green. The whole problem is cracked; a stage that isn't the last is cleared, and its banner offers the
+        // next stage (no jump without it). The code carries over either way (it is the saved code).
+        if (passedAll && !wasGreen) {
+          const kind = staged && !full && stage !== undefined && stage < n - 1 ? 'stage' : 'cracked';
+          setCracked((c) => ({ kind, stage: stage ?? 0, epoch: (c?.epoch ?? 0) + 1, docked: false }));
         }
       }
     });
-  }, [problem.id, titles, lang, staged, viewStage, full, n, typesTs]);
+  }, [problem.id, titles, lang, staged, viewStage, full, n, typesTs, viewKey]);
 
   const runRef = useRef(doRun);
   runRef.current = doRun;
@@ -216,7 +215,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     }
     if (snapshot !== undefined) actions.setCode(problem.id, lang, snapshot);
     else actions.resetCode(problem.id, lang);
-    wholeGreen.current = false; // the code that passed is gone, so passing again cracks it again
+    green.current[viewKey] = false; // the code that passed is gone, so passing again cracks it again
     clearRun(); // the last run tested code that is gone now
   };
 
@@ -243,7 +242,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
         <h1 className="pb-title"><span className="cat-id">{problem.catalogId}</span>{problem.title}</h1>
         <span className={`diff d-${problem.difficulty.toLowerCase()}`}>{problem.difficulty}</span>
         <span className="tag">{problem.theme}</span>
-        {solved && <span className={`solved-badge ${cracked !== null ? 'just' : ''}`} data-testid="solved-badge" title="Solved: every test passes"><CrackLock /> Cracked</span>}
+        {solved && <span className={`solved-badge ${cracked?.kind === 'cracked' ? 'just' : ''}`} data-testid="solved-badge" title="Solved: every test passes"><CrackLock /> Cracked</span>}
         <div className="spacer" />
         <span className="muted small">{attempts} {attempts === 1 ? 'submission' : 'submissions'}</span>
       </div>
@@ -317,8 +316,14 @@ export function ProblemPage({ problem }: { problem: Problem }) {
         </section>
         <Splitter direction="horizontal" label="Resize statement and editor" getStart={() => leftRef.current?.offsetWidth ?? leftW} onResize={(w) => setLeftW(Math.max(260, Math.min(window.innerWidth - 360, w)))} />
         <section className="right-pane">
-          {cracked !== null && <CrackedEffect key={cracked} total={titles.length} onDone={endCracked} />}
-          <span className="sr-only" role="status">{cracked !== null ? `Problem cracked: all ${titles.length} tests pass.` : ''}</span>
+          {cracked?.kind === 'cracked' && <CrackedEffect key={cracked.epoch} kind="cracked" total={titles.length} onDone={endCracked} />}
+          {cracked?.kind === 'stage' && !cracked.docked && (
+            <CrackedEffect key={cracked.epoch} kind="stage" stage={cracked.stage} nextTitle={problem.stages[cracked.stage + 1].title}
+              onGo={() => goStage(cracked.stage + 1)} onStay={() => setCracked({ ...cracked, docked: true })} />
+          )}
+          <span className="sr-only" role="status">
+            {cracked?.kind === 'cracked' ? `Problem cracked: all ${titles.length} tests pass.` : cracked?.kind === 'stage' ? `Stage ${cracked.stage + 1} cleared. Stage ${cracked.stage + 2} is unlocked.` : ''}
+          </span>
           <div className="editor-bar">
             <div className="seg" role="group" aria-label="Language">
               <button className={lang === 'ts' ? 'on' : ''} onClick={() => actions.setLang('ts')}>TypeScript</button>
@@ -399,10 +404,11 @@ export function ProblemPage({ problem }: { problem: Problem }) {
           </div>
           <Splitter direction="vertical" label="Resize editor and tests" getStart={() => -(resultsRef.current?.offsetHeight ?? resultsH)} onResize={(h) => setResultsH(Math.max(120, Math.min(window.innerHeight - 220, -h)))} />
           <div className="results-wrap" ref={resultsRef} style={{ height: resultsH }}>
-            {justPassed !== null && justPassed + 1 === viewStage && (
-              <div className="stage-unlocked" role="status" data-testid="stage-unlocked">
-                <span>Stage {justPassed + 1} passed 🎉 — now on <strong>stage {justPassed + 2}: {problem.stages[justPassed + 1].title}</strong>. Your code carried over.</span>
-                <button className="btn ghost small" onClick={() => setJustPassed(null)} aria-label="Dismiss" data-testid="stage-unlocked-dismiss">✕</button>
+            {cracked?.kind === 'stage' && cracked.docked && (
+              <div className="stage-unlocked" data-testid="stage-unlocked">
+                <span><CrackLock /> Stage {cracked.stage + 1} cleared. Next: <strong>stage {cracked.stage + 2}, {problem.stages[cracked.stage + 1].title}</strong>. Your code carries over.</span>
+                <button className="btn primary small" onClick={() => goStage(cracked.stage + 1)} data-testid="go-next-stage">Go to stage {cracked.stage + 2} →</button>
+                <button className="btn ghost small" onClick={() => setCracked(null)} aria-label="Dismiss" data-testid="stage-unlocked-dismiss">✕</button>
               </div>
             )}
             <Results key={runEpoch} titles={titles} groups={groups} state={run} />

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-/** How long the effect stays on screen. Matches the `crack-*` animations in styles.css. */
+/** How long the "Cracked" effect stays on screen. Matches the `crack-*` animations in styles.css. */
 export const CRACKED_MS = 1900;
 
 /** An open padlock. The shackle lifts and swings, a crack runs across the body. */
@@ -15,21 +15,44 @@ export function CrackLock({ className = '' }: { className?: string }) {
 }
 
 /**
- * The moment a problem is fully solved: a green sweep over the editor and tests, and a "Cracked" stamp with the lock
- * springing open. Purely decorative and click-through; calls onDone when it has played. Reduced motion gets a fade only.
+ * A green sweep over the editor and tests and a stamp whose padlock springs open. Two uses:
+ * - the whole problem passed: "Cracked", click-through, gone after CRACKED_MS (calls onDone);
+ * - a stage passed: "Stage k cleared", which stays with a button to the next stage (the way forward) and a dismiss.
+ * Reduced motion gets a fade only.
  */
-export function CrackedEffect({ total, onDone }: { total: number; onDone: () => void }) {
+export function CrackedEffect(props:
+  | { kind: 'cracked'; total: number; onDone: () => void }
+  | { kind: 'stage'; stage: number; nextTitle: string; onGo: () => void; onStay: () => void }) {
+  const onDone = props.kind === 'cracked' ? props.onDone : undefined;
   useEffect(() => {
+    if (!onDone) return;
     const t = setTimeout(onDone, CRACKED_MS);
     return () => clearTimeout(t);
   }, [onDone]);
+  if (props.kind === 'cracked') {
+    return (
+      <div className="cracked-fx" data-testid="cracked-fx" data-kind="cracked" aria-hidden="true">
+        <div className="cracked-sweep" />
+        <div className="cracked-stamp">
+          <CrackLock className="open" />
+          <span className="cracked-word">Cracked</span>
+          <span className="cracked-sub">All {props.total} tests green</span>
+        </div>
+      </div>
+    );
+  }
+  const { stage, nextTitle, onGo, onStay } = props;
   return (
-    <div className="cracked-fx" data-testid="cracked-fx" aria-hidden="true">
-      <div className="cracked-sweep" />
-      <div className="cracked-stamp">
+    <div className="cracked-fx stay" data-testid="cracked-fx" data-kind="stage">
+      <div className="cracked-sweep" aria-hidden="true" />
+      <div className="cracked-stamp stay" role="dialog" aria-label={`Stage ${stage + 1} cleared`} data-testid="stage-cleared">
         <CrackLock className="open" />
-        <span className="cracked-word">Cracked</span>
-        <span className="cracked-sub">All {total} tests green</span>
+        <span className="cracked-word">Stage {stage + 1} cleared</span>
+        <span className="cracked-sub">Next: stage {stage + 2}, {nextTitle}. Your code carries over.</span>
+        <div className="cracked-actions">
+          <button className="btn primary go-next" onClick={onGo} data-testid="go-next-stage">Go to stage {stage + 2} →</button>
+          <button className="btn ghost small" onClick={onStay} data-testid="stay-on-stage">Stay on stage {stage + 1}</button>
+        </div>
       </div>
     </div>
   );

@@ -320,6 +320,19 @@ a.problem-row:hover, .link-row:hover { background: var(--bg-3); }
 .crack-lock.open .cl-body { animation: crack-jolt .3s ease-out .2s both; transform-box: view-box; transform-origin: 12px 16px; }
 .solved-badge.just { animation: crack-pop .5s cubic-bezier(.2, .9, .3, 1.4) .9s both; }
 .solved-badge.just::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 30%, color-mix(in srgb, #fff 45%, transparent) 50%, transparent 70%); transform: translateX(-120%); animation: crack-shine .7s ease-out 1.05s both; }
+.cracked-fx.stay { animation-name: crack-frame-stay; animation-duration: 1.2s; }
+.cracked-stamp.stay { grid-template-rows: auto auto auto; pointer-events: auto; animation: crack-stamp-in .5s cubic-bezier(.2, .9, .3, 1.2) both; max-width: calc(100% - 32px); }
+.cracked-stamp.stay .crack-lock { grid-row: 1 / span 3; align-self: start; margin-top: 4px; }
+.cracked-stamp.stay .cracked-word { font-size: 26px; }
+.cracked-actions { grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+.btn.go-next { background: var(--pass); border-color: var(--pass); color: #06200f; font-size: 14px; font-weight: 700; padding: 8px 18px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--pass) 22%, transparent); animation: crack-beckon 1.6s ease-in-out .9s 2; }
+.btn.go-next:hover { background: color-mix(in srgb, var(--pass) 85%, #fff); border-color: var(--pass); }
+.stage-unlocked .crack-lock { color: var(--pass); vertical-align: -2px; margin-right: 4px; }
+.stage-unlocked span { flex: 1; }
+.stage-unlocked .btn.primary { background: var(--pass); border-color: var(--pass); color: #06200f; font-weight: 700; }
+@keyframes crack-frame-stay { 0% { box-shadow: inset 0 0 0 0 transparent; } 20% { box-shadow: inset 0 0 0 2px var(--pass), inset 0 0 60px color-mix(in srgb, var(--pass) 22%, transparent); } 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pass) 45%, transparent); } }
+@keyframes crack-stamp-in { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.72) rotate(-4deg); } 60% { opacity: 1; transform: translate(-50%, -50%) scale(1.03); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes crack-beckon { 0%, 100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--pass) 22%, transparent); } 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--pass) 6%, transparent); } }
 @keyframes crack-frame { 0% { box-shadow: inset 0 0 0 0 transparent; } 12% { box-shadow: inset 0 0 0 2px var(--pass), inset 0 0 60px color-mix(in srgb, var(--pass) 22%, transparent); } 70% { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--pass) 60%, transparent), inset 0 0 30px color-mix(in srgb, var(--pass) 8%, transparent); } 100% { box-shadow: inset 0 0 0 0 transparent; } }
 @keyframes crack-sweep { to { transform: translateX(70%); } }
 @keyframes crack-stamp { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.72) rotate(-5deg); } 16% { opacity: 1; transform: translate(-50%, -50%) scale(1.04) rotate(-2deg); } 26%, 78% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(-2deg); } 100% { opacity: 0; transform: translate(-50%, -62%) scale(.96) rotate(-2deg); } }
@@ -328,10 +341,14 @@ a.problem-row:hover, .link-row:hover { background: var(--bg-3); }
 @keyframes crack-jolt { 0% { transform: none; } 35% { transform: translateX(-.6px) rotate(-3deg); } 70% { transform: translateX(.4px) rotate(2deg); } 100% { transform: none; } }
 @keyframes crack-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
 @keyframes crack-shine { to { transform: translateX(120%); } }
+@keyframes crack-fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes crack-fade { 0% { opacity: 0; } 10%, 85% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
   .cracked-sweep, .solved-badge.just::after { display: none; }
   .cracked-fx { animation: none; box-shadow: inset 0 0 0 2px var(--pass); }
   .cracked-stamp { animation: crack-fade 1.9s linear both; }
+  .cracked-fx.stay { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pass) 45%, transparent); }
+  .cracked-stamp.stay { animation: crack-fade-in .3s linear both; }
+  .btn.go-next { animation: none; }
   .crack-lock.open .cl-shackle, .crack-lock.open .cl-crack, .crack-lock.open .cl-body, .solved-badge.just, .solved-badge.just .cl-shackle, .solved-badge.just .cl-crack { animation: none; }
 }
