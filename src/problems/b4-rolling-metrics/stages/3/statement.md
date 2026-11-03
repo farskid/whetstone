@@ -4,7 +4,7 @@ Add the same window over time instead of count.
 interface Clock { now(): number }
 
 class TimeWindow {
-  constructor(options: { windowMs: number; clock?: Clock });
+  constructor(options: TimeWindowOptions);   // { windowMs: number; clock?: Clock }
   push(x: number): void;
   toArray(): number[];   // oldest first
   count(): number;

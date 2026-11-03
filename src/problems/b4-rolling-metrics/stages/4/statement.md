@@ -2,7 +2,7 @@ Add a bounded-memory histogram window.
 
 ```ts
 class HistogramWindow {
-  constructor(options: { windowMs: number; sliceMs: number; buckets: number[]; clock?: Clock });
+  constructor(options: HistogramWindowOptions);   // { windowMs; sliceMs; buckets: number[]; clock? }
   push(x: number): void;
   count(): number;
   percentile(p: number): number | undefined;

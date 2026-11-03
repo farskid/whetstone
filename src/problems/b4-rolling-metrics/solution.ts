@@ -1,4 +1,4 @@
-import type { Clock } from './types';
+import type { Clock, TimeWindowOptions, HistogramWindowOptions } from './types';
 
 function checkValue(x: number) {
   if (typeof x !== 'number' || Number.isNaN(x)) throw new RangeError(`Expected a number, got ${String(x)}`);
@@ -80,7 +80,7 @@ export class TimeWindow {
   private q = new SampleQueue();
   private windowMs: number;
   private clock: Clock;
-  constructor(options: { windowMs: number; clock?: Clock }) {
+  constructor(options: TimeWindowOptions) {
     this.windowMs = options.windowMs;
     this.clock = options.clock ?? Date;
   }
@@ -105,7 +105,7 @@ export class HistogramWindow {
   private sliceMs: number;
   private clock: Clock;
 
-  constructor(options: { windowMs: number; sliceMs: number; buckets: number[]; clock?: Clock }) {
+  constructor(options: HistogramWindowOptions) {
     this.bounds = [...options.buckets, Infinity];
     this.windowMs = options.windowMs;
     this.sliceMs = options.sliceMs;

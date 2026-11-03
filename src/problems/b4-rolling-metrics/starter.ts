@@ -1,4 +1,4 @@
-import type { Clock } from './types';
+import type { Clock, TimeWindowOptions, HistogramWindowOptions } from './types';
 
 export class RollingWindow {
   constructor(size: number) { throw new Error('Not implemented'); }
@@ -12,7 +12,7 @@ export class RollingWindow {
 }
 
 export class TimeWindow {
-  constructor(options: { windowMs: number; clock?: Clock }) { throw new Error('Not implemented'); }
+  constructor(options: TimeWindowOptions) { throw new Error('Not implemented'); }
   push(x: number): void { throw new Error('Not implemented'); }
   toArray(): number[] { throw new Error('Not implemented'); }
   count(): number { throw new Error('Not implemented'); }
@@ -23,7 +23,7 @@ export class TimeWindow {
 }
 
 export class HistogramWindow {
-  constructor(options: { windowMs: number; sliceMs: number; buckets: number[]; clock?: Clock }) { throw new Error('Not implemented'); }
+  constructor(options: HistogramWindowOptions) { throw new Error('Not implemented'); }
   push(x: number): void { throw new Error('Not implemented'); }
   count(): number { throw new Error('Not implemented'); }
   percentile(p: number): number | undefined { throw new Error('Not implemented'); }

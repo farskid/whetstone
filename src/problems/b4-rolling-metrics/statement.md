@@ -24,10 +24,10 @@ interface Window {
 }
 
 class RollingWindow implements Window { constructor(size: number) }
-class TimeWindow implements Window { constructor(options: { windowMs: number; clock?: Clock }) }
+class TimeWindow implements Window { constructor(options: TimeWindowOptions) }   // { windowMs: number; clock?: Clock }
 
 class HistogramWindow {
-  constructor(options: { windowMs: number; sliceMs: number; buckets: number[]; clock?: Clock });
+  constructor(options: HistogramWindowOptions);   // { windowMs; sliceMs; buckets: number[]; clock? }
   push(x: number): void;
   count(): number;
   percentile(p: number): number | undefined;
