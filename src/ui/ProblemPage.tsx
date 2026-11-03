@@ -472,7 +472,11 @@ function StagedStatement({ problem, sections, contracts, unlocked, current, pass
   results: ReadonlyMap<string, TestStatus>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => { ref.current?.querySelector('.stage-section.current')?.scrollIntoView({ block: 'start' }); }, [current]);
+  // Stage 1 opens at the top, so the title and tags above it stay in view; later stages scroll to their section.
+  useEffect(() => {
+    if (current === 0) ref.current?.closest('.left-body')?.scrollTo({ top: 0 });
+    else ref.current?.querySelector('.stage-section.current')?.scrollIntoView({ block: 'start' });
+  }, [current]);
   return (
     <div className="staged-statement" ref={ref}>
       <h1 className="staged-h1">{problem.title}</h1>
