@@ -1,11 +1,9 @@
-import type { EventMap } from './types';
+import type { EventMap, Listener, Wildcard, EmitterOptions, OnceOptions } from './types';
 
 type AnyMap = Record<string, any[]>;
-type Listener<A extends unknown[]> = (...args: A) => void;
-type Wildcard<E extends EventMap> = (name: keyof E & string, ...args: any[]) => void;
 
 export class Emitter<E extends EventMap = AnyMap> {
-  constructor(options: { onWarning?: (message: string) => void } = {}) {}
+  constructor(options: EmitterOptions = {}) {}
 
   on<K extends keyof E & string>(name: K, fn: Listener<E[K]>): this;
   on(name: '*', fn: Wildcard<E>): this;
@@ -41,7 +39,7 @@ export class Emitter<E extends EventMap = AnyMap> {
 export function once<E extends EventMap, K extends keyof E & string>(
   emitter: Emitter<E>,
   name: K,
-  options: { signal?: AbortSignal } = {},
+  options: OnceOptions = {},
 ): Promise<E[K]> {
   throw new Error('Not implemented');
 }

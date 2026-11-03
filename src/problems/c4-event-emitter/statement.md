@@ -16,7 +16,7 @@ const [chunk] = await once(em, 'data', { signal: AbortSignal.timeout(1000) });
 
 ```ts
 class Emitter<E extends Record<string, unknown[]>> {
-  constructor(options?: { onWarning?: (message: string) => void }); // default: console.warn
+  constructor(options?: EmitterOptions); // { onWarning?: (message: string) => void }, default console.warn
   on(name, fn): this;                // also on('*', (name, ...args) => void)
   once(name, fn): this;
   prependListener(name, fn): this;
@@ -26,7 +26,7 @@ class Emitter<E extends Record<string, unknown[]>> {
   setMaxListeners(n: number): this;
 }
 
-function once(emitter, name, options?: { signal?: AbortSignal }): Promise<args>;
+function once(emitter, name, options?: OnceOptions): Promise<args>;   // OnceOptions: { signal?: AbortSignal }
 ```
 
 ## Rules

@@ -1,7 +1,6 @@
-import type { EventMap } from './types';
+import type { EventMap, Listener } from './types';
 
 type AnyMap = Record<string, any[]>;
-type Listener<A extends unknown[]> = (...args: A) => void;
 
 export class Emitter<E extends EventMap = AnyMap> {
   on<K extends keyof E & string>(name: K, fn: Listener<E[K]>): this {

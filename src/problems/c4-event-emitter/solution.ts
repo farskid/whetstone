@@ -1,8 +1,6 @@
-import type { EventMap } from './types';
+import type { EventMap, Listener, Wildcard, EmitterOptions, OnceOptions } from './types';
 
 type AnyMap = Record<string, any[]>;
-type Listener<A extends unknown[]> = (...args: A) => void;
-type Wildcard<E extends EventMap> = (name: keyof E & string, ...args: any[]) => void;
 interface Entry { fn: (...args: any[]) => void; once: boolean }
 
 export class Emitter<E extends EventMap = AnyMap> {
@@ -11,7 +9,7 @@ export class Emitter<E extends EventMap = AnyMap> {
   private warned = new Set<string>();
   private onWarning: (message: string) => void;
 
-  constructor(options: { onWarning?: (message: string) => void } = {}) {
+  constructor(options: EmitterOptions = {}) {
     this.onWarning = options.onWarning ?? ((m) => console.warn(m));
   }
 
@@ -94,7 +92,7 @@ export class Emitter<E extends EventMap = AnyMap> {
 export function once<E extends EventMap, K extends keyof E & string>(
   emitter: Emitter<E>,
   name: K,
-  options: { signal?: AbortSignal } = {},
+  options: OnceOptions = {},
 ): Promise<E[K]> {
   const { signal } = options;
   const abortError = () => Object.assign(new Error('The operation was aborted'), { name: 'AbortError' });

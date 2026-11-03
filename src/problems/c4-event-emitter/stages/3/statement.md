@@ -6,11 +6,11 @@ em.emit('error', new Error('boom'));        // throws if nobody listens for 'err
 const [chunk] = await once(em, 'data', { signal: AbortSignal.timeout(1000) });
 
 class Emitter<E> {
-  constructor(options?: { onWarning?: (message: string) => void }); // default: console.warn
+  constructor(options?: EmitterOptions); // { onWarning?: (message: string) => void }, default console.warn
   // ...stage 2, plus:
   setMaxListeners(n: number): this;
 }
-function once(emitter, name, options?: { signal?: AbortSignal }): Promise<args>;
+function once(emitter, name, options?: OnceOptions): Promise<args>;   // OnceOptions: { signal?: AbortSignal }
 ```
 
 **Errors**

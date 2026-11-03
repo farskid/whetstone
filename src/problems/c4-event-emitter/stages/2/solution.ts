@@ -1,8 +1,6 @@
-import type { EventMap } from './types';
+import type { EventMap, Listener, Wildcard } from './types';
 
 type AnyMap = Record<string, any[]>;
-type Listener<A extends unknown[]> = (...args: A) => void;
-type Wildcard<E extends EventMap> = (name: keyof E & string, ...args: any[]) => void;
 interface Entry { fn: (...args: any[]) => void; once: boolean }
 
 export class Emitter<E extends EventMap = AnyMap> {
