@@ -136,6 +136,14 @@ export function unlockedStage(s: Progress, id: string): number {
   return Math.max(0, Math.min(n - 1, s.stage[id] ?? 0));
 }
 
+/**
+ * Tests were run at least once (or a stage passed, which needs a run; old saves may only have that) but the whole problem
+ * isn't solved. Derived from saved progress only: editing code without running it doesn't count.
+ */
+export function isAttempted(s: Progress, id: string): boolean {
+  return !s.solved[id] && ((s.attempts[id] ?? 0) > 0 || passedStages(s, id) > 0);
+}
+
 /** How many stages are passed. */
 export function passedStages(s: Progress, id: string): number {
   return (s.stagePassed[id] ?? []).filter(Boolean).length;

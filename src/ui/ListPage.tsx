@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { problems } from '../problems';
 import type { Difficulty, Theme } from '../problems/types';
-import { useProgress, actions, passedStages } from '../store';
+import { useProgress, actions, passedStages, isAttempted } from '../store';
 import { stageCount } from '../problems/stages';
 import { href } from './router';
 import { CrackLock } from './Cracked';
@@ -14,7 +14,7 @@ export function ListPage({ tag }: { tag: string | null }) {
   const [query, setQuery] = useState('');
   const [diff, setDiff] = useState<Difficulty | 'All'>('All');
   const [theme, setTheme] = useState<Theme | 'All'>('All');
-  const [status, setStatus] = useState<'All' | 'Solved' | 'Unsolved'>('All');
+  const [status, setStatus] = useState<'All' | 'Solved' | 'Attempted' | 'Unsolved' | 'NotStarted'>('All');
   const fileRef = useRef<HTMLInputElement>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -33,6 +33,7 @@ export function ListPage({ tag }: { tag: string | null }) {
     }));
   }, []);
   const solvedCount = problems.filter((p) => progress.solved[p.id]).length;
+  const attemptedCount = problems.filter((p) => isAttempted(progress, p.id)).length;
 
   const visible = problems.filter((p) => {
     if (diff !== 'All' && p.difficulty !== diff) return false;
@@ -41,6 +42,8 @@ export function ListPage({ tag }: { tag: string | null }) {
     const solved = !!progress.solved[p.id];
     if (status === 'Solved' && !solved) return false;
     if (status === 'Unsolved' && solved) return false;
+    if (status === 'Attempted' && !isAttempted(progress, p.id)) return false;
+    if (status === 'NotStarted' && (solved || isAttempted(progress, p.id))) return false;
     const q = query.trim().toLowerCase();
     if (q && !`${p.title} ${p.summary} ${p.inspiredBy} ${p.catalogId} ${p.tags.map((t) => t.name).join(' ')}`.toLowerCase().includes(q)) return false;
     return true;
@@ -73,7 +76,7 @@ export function ListPage({ tag }: { tag: string | null }) {
         </div>
         <div className="progress-card">
           <div className="progress-num">{solvedCount}<span>/{problems.length}</span></div>
-          <div className="muted small">solved</div>
+          <div className="muted small">solved{attemptedCount > 0 && <span data-testid="attempted-count"> · {attemptedCount} attempted</span>}</div>
           <div className="bar"><div style={{ width: `${(solvedCount / Math.max(1, problems.length)) * 100}%` }} /></div>
           <div className="row gap-s">
             <button className="btn small" onClick={doExport}>Export progress</button>
@@ -97,8 +100,10 @@ export function ListPage({ tag }: { tag: string | null }) {
         </select>
         <select className="input select" value={status} onChange={(e) => setStatus(e.target.value as typeof status)} aria-label="Status">
           <option value="All">Any status</option>
-          <option value="Solved">Solved</option>
-          <option value="Unsolved">Unsolved</option>
+          <option value="Solved">Solved ({solvedCount})</option>
+          <option value="Attempted">Attempted ({attemptedCount})</option>
+          <option value="Unsolved">Unsolved ({problems.length - solvedCount})</option>
+          <option value="NotStarted">Not started ({problems.length - solvedCount - attemptedCount})</option>
         </select>
       </section>
 
@@ -138,10 +143,11 @@ export function ListPage({ tag }: { tag: string | null }) {
           const solved = !!progress.solved[p.id];
           const n = stageCount(p);
           const passedN = n > 1 ? passedStages(progress, p.id) : 0;
-          const started = passedN > 0 || (!!progress.code[p.id] && Object.keys(progress.code[p.id]).length > 0);
+          const attempted = isAttempted(progress, p.id);
+          const label = solved ? 'Solved: every test passes' : attempted ? 'Attempted: tests run, not solved yet' : 'Not started';
           return (
-            <div key={p.id} className={`problem-row link-row ${solved ? 'solved' : ''}`}>
-              <span className={`status-dot ${solved ? 'ok' : started ? 'started' : ''}`} title={solved ? 'Cracked: every test passes' : started ? 'Started' : 'Not started'}>
+            <div key={p.id} className={`problem-row link-row ${solved ? 'solved' : attempted ? 'attempted' : ''}`} data-status={solved ? 'solved' : attempted ? 'attempted' : 'none'}>
+              <span className={`status-dot ${solved ? 'ok' : attempted ? 'attempted' : ''}`} role="img" aria-label={label} title={label} data-testid={`status-${p.id}`}>
                 {solved ? <CrackLock /> : ''}
               </span>
               <span className="p-main">
@@ -156,6 +162,7 @@ export function ListPage({ tag }: { tag: string | null }) {
                     {passedN}/{n} stages
                   </span>
                 )}
+                {attempted && <span className="attempted-badge small" aria-hidden="true">Attempted</span>}
                 <TagChips tags={p.tags} active={tag} />
               </span>
               <span><span className="tag">{p.theme}</span></span>

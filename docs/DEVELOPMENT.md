@@ -17,6 +17,7 @@ npm run preview          # serve dist/ locally
 npm run verify           # Node: every reference solution passes, the starter fails, every broken/ solution fails ≥1 test; plus the stage checks
 npm run verify:browser   # after build: every reference solution (TS and JS) passes in the real browser worker, staged ones per stage too, plus a clicked-through stage 1 → 2 flow
 VERIFY_BASE=/whetstone/ npm run verify:browser   # after build:pages: the same, served under /whetstone/
+npm run verify:status    # after build: the Attempted status, its filter and counts, in light and dark
 npm run verify:theme     # after build: System by default, live OS changes, saved picks kept, no flash on load
 npm run verify:analytics # after build: GoatCounter page views and events, with count.js stubbed and goatcounter.com blocked (no real hits)
 npm run screenshots      # after build: writes screenshots/*.png (needs Chrome; set CHROME_PATH if not /usr/bin/google-chrome)
@@ -35,7 +36,7 @@ One-time setup: in the repo, go to Settings → Pages → Build and deployment a
 
 ## How it works
 
-- **List** (`#/`) shows search, difficulty, theme and status filters, a solved marker, a progress count, and JSON export and import of progress.
+- **List** (`#/`) shows search, difficulty, theme and status filters (Any, Solved, Attempted, Unsolved, Not started, each with its count), a status marker per row, a progress count (solved, plus how many are attempted), and JSON export and import of progress. A row's status is **Solved** (filled green dot with the cracked padlock), **Attempted** (half-filled amber ring plus an "Attempted" label: tests were run at least once, or a stage passed, but the problem isn't solved; derived from `attempts` and `stagePassed`, so editing code without running it doesn't count), or **Not started** (empty ring). The marker has an `aria-label`.
 - **Tags**: every problem carries small tag chips for the libraries, frameworks, companies and patterns it relates to. Click a chip, or open "Browse by…" above the list, to filter the list to that tag (`#/?tag=<name>`); click it again or "Clear" to drop the filter. Search also matches tag names. The problem page shows the same chips above the statement.
 - **Problem** (`#/p/<id>`) has the following parts:
   - A markdown statement.
