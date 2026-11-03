@@ -1,4 +1,4 @@
-import type { QueryKey, QueryFn, QueryState, QueryClientOptions } from './types';
+import type { QueryKey, QueryFn, QueryState, QueryClientOptions, QueryClient } from './types';
 
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && Object.getPrototypeOf(v) === Object.prototype;
@@ -21,7 +21,7 @@ interface Entry {
   inflight: Promise<unknown> | null;
 }
 
-export function createQueryClient(options: QueryClientOptions = {}) {
+export function createQueryClient(options: QueryClientOptions = {}): QueryClient {
   const { staleTime = 0, clock = { now: () => Date.now() } } = options;
   const cache = new Map<string, Entry>();
 

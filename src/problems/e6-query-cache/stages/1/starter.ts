@@ -1,10 +1,10 @@
-import type { QueryKey, QueryFn, QueryState, QueryClientOptions } from './types';
+import type { QueryKey, QueryFn, QueryState, QueryClientOptions, QueryClient } from './types';
 
 export function hashKey(key: QueryKey): string {
   throw new Error('Not implemented');
 }
 
-export function createQueryClient(options: QueryClientOptions = {}) {
+export function createQueryClient(options: QueryClientOptions = {}): QueryClient {
   return {
     fetchQuery<T>(key: QueryKey, fn: QueryFn<T>): Promise<T> {
       throw new Error('Not implemented');

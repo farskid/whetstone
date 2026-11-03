@@ -26,3 +26,12 @@ export interface QueryClientOptions {
   staleTime?: number;
   clock?: Clock;
 }
+
+/** What `createQueryClient` returns. */
+export interface QueryClient {
+  fetchQuery<T>(key: QueryKey, fn: QueryFn<T>): Promise<T>;
+  setQueryData<T>(key: QueryKey, updater: T | ((old: T | undefined) => T)): void;
+  getQueryData<T>(key: QueryKey): T | undefined;
+  /** `undefined` if the key isn't in the cache. */
+  getState<T>(key: QueryKey): QueryState<T> | undefined;
+}

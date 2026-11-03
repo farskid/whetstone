@@ -7,7 +7,7 @@ stop();
 ```
 
 ```ts
-// client gains:
+// QueryClient gains:
 watch<T>(key: QueryKey, fn: QueryFn<T>, listener: (state: QueryState<T>) => void): () => void;
 invalidateQueries(prefix: QueryKey): Promise<void>;
 ```

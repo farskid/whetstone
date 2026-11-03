@@ -10,7 +10,7 @@ client.setQueryData(['k'], (old) => old + 1);
 
 ```ts
 // options gain:  staleTime?: number   (default 0: data is stale immediately)
-// client gains:
+// QueryClient gains:
 setQueryData<T>(key: QueryKey, updater: T | ((old: T | undefined) => T)): void;
 ```
 

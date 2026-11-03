@@ -13,11 +13,13 @@ type QueryKey = readonly unknown[];
 type QueryFn<T> = (ctx: { queryKey: QueryKey; signal: AbortSignal }) => Promise<T>;
 
 function hashKey(key: QueryKey): string;
-function createQueryClient(options?: { clock?: { now(): number } }): {
+function createQueryClient(options?: { clock?: { now(): number } }): QueryClient;
+
+interface QueryClient {
   fetchQuery<T>(key: QueryKey, fn: QueryFn<T>): Promise<T>;
   getQueryData<T>(key: QueryKey): T | undefined;
   getState<T>(key: QueryKey): QueryState<T> | undefined;   // undefined if not in the cache
-};
+}
 ```
 
 `QueryState` is `{ status, fetchStatus, data, error, updatedAt, isStale }` (see the types file).

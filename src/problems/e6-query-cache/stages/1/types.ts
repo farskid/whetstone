@@ -24,3 +24,11 @@ export interface Clock { now(): number }
 export interface QueryClientOptions {
   clock?: Clock;
 }
+
+/** What `createQueryClient` returns. */
+export interface QueryClient {
+  fetchQuery<T>(key: QueryKey, fn: QueryFn<T>): Promise<T>;
+  getQueryData<T>(key: QueryKey): T | undefined;
+  /** `undefined` if the key isn't in the cache. */
+  getState<T>(key: QueryKey): QueryState<T> | undefined;
+}

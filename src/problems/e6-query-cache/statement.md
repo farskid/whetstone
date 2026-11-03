@@ -33,14 +33,16 @@ function createQueryClient(options?: {
   retry?: number;                              // extra attempts after a failure, default 0
   retryDelay?: (failureCount: number) => number; // default n => 1000 * 2 ** (n - 1)
   clock?: { now(): number; setTimeout(fn: () => void, ms: number): number; clearTimeout(id: number): void };
-}): {
+}): QueryClient;
+
+interface QueryClient {
   fetchQuery<T>(key: QueryKey, fn: QueryFn<T>): Promise<T>;
   watch<T>(key: QueryKey, fn: QueryFn<T>, listener: (state: QueryState<T>) => void): () => void;
   invalidateQueries(prefix: QueryKey): Promise<void>;
   setQueryData<T>(key: QueryKey, updater: T | ((old: T | undefined) => T)): void;
   getQueryData<T>(key: QueryKey): T | undefined;
   getState<T>(key: QueryKey): QueryState<T> | undefined;   // undefined if not in the cache
-};
+}
 ```
 
 ## Rules

@@ -26,3 +26,16 @@ export interface QueryClientOptions {
   staleTime?: number;
   clock?: Clock;
 }
+
+/** What `createQueryClient` returns. */
+export interface QueryClient {
+  fetchQuery<T>(key: QueryKey, fn: QueryFn<T>): Promise<T>;
+  /** Fetches if stale and calls `listener` on every change; returns unsubscribe. */
+  watch<T>(key: QueryKey, fn: QueryFn<T>, listener: (state: QueryState<T>) => void): () => void;
+  /** Marks every query under `prefix` stale and refetches the watched ones. */
+  invalidateQueries(prefix: QueryKey): Promise<void>;
+  setQueryData<T>(key: QueryKey, updater: T | ((old: T | undefined) => T)): void;
+  getQueryData<T>(key: QueryKey): T | undefined;
+  /** `undefined` if the key isn't in the cache. */
+  getState<T>(key: QueryKey): QueryState<T> | undefined;
+}
