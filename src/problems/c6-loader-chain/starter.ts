@@ -1,6 +1,6 @@
-import type { RunOptions, RunResult } from './types';
+import type { RunOptions, RunResult, ParsedLoader } from './types';
 
-export function parseLoader(request: string): { name: string; options: Record<string, unknown> } {
+export function parseLoader(request: string): ParsedLoader {
   throw new Error('Not implemented');
 }
 

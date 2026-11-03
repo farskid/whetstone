@@ -8,7 +8,8 @@ interface LoaderContext {
   options: Record<string, unknown>;
   async(): (err?: unknown, result?: unknown) => void;
 }
-function parseLoader(request: string): { name: string; options: Record<string, unknown> };
+interface ParsedLoader { name: string; options: Record<string, unknown> }
+function parseLoader(request: string): ParsedLoader;
 ```
 
 **Options**

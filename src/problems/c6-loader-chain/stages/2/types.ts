@@ -24,3 +24,9 @@ export interface RunOptions {
 export interface RunResult {
   result: unknown;
 }
+
+/** A loader request split into its name and parsed query. */
+export interface ParsedLoader {
+  name: string;
+  options: Record<string, unknown>;
+}

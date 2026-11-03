@@ -32,3 +32,9 @@ export interface RunResult {
   /** The resource first, then addDependency() files in call order. */
   dependencies: string[];
 }
+
+/** A loader request split into its name and parsed query. */
+export interface ParsedLoader {
+  name: string;
+  options: Record<string, unknown>;
+}

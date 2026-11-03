@@ -26,7 +26,8 @@ interface Loader {
   pitch?(this: LoaderContext, remainingRequest: string, precedingRequest: string, data: Record<string, unknown>): unknown;
 }
 
-function parseLoader(request: string): { name: string; options: Record<string, unknown> };
+interface ParsedLoader { name: string; options: Record<string, unknown> }
+function parseLoader(request: string): ParsedLoader;
 function runLoaders(opts: {
   resource: string;
   loaders: string[];                    // left to right as written

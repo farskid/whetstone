@@ -1,6 +1,6 @@
-import type { LoaderContext, RunOptions, RunResult } from './types';
+import type { LoaderContext, RunOptions, RunResult, ParsedLoader } from './types';
 
-export function parseLoader(request: string): { name: string; options: Record<string, unknown> } {
+export function parseLoader(request: string): ParsedLoader {
   const q = request.indexOf('?');
   if (q < 0) return { name: request, options: {} };
   const name = request.slice(0, q);
