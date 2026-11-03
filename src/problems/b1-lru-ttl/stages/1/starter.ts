@@ -1,7 +1,7 @@
 import type { Options } from './types';
 
 export class LRUCache<K, V> {
-  constructor(options: Options) {
+  constructor(options: Options<K, V>) {
     throw new Error('Not implemented');
   }
 

@@ -12,9 +12,9 @@ export class LRUCache<K, V> {
   private map = new Map<K, Entry<K, V>>();
   private head: Entry<K, V> | null = null; // most recent
   private tail: Entry<K, V> | null = null; // least recent
-  private readonly opts: Options;
+  private readonly opts: Options<K, V>;
 
-  constructor(options: Options) {
+  constructor(options: Options<K, V>) {
     if (!Number.isInteger(options.max) || options.max < 1) throw new TypeError('max must be an integer >= 1');
     this.opts = options;
   }

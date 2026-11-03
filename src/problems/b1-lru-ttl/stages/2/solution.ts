@@ -1,4 +1,4 @@
-import type { Options } from './types';
+import type { Options, Clock, SetOptions } from './types';
 
 interface Entry<K, V> {
   key: K;
@@ -13,10 +13,10 @@ export class LRUCache<K, V> {
   private map = new Map<K, Entry<K, V>>();
   private head: Entry<K, V> | null = null; // most recent
   private tail: Entry<K, V> | null = null; // least recent
-  private readonly opts: Options;
-  private readonly clock: { now(): number };
+  private readonly opts: Options<K, V>;
+  private readonly clock: Clock;
 
-  constructor(options: Options) {
+  constructor(options: Options<K, V>) {
     if (!Number.isInteger(options.max) || options.max < 1) throw new TypeError('max must be an integer >= 1');
     this.opts = options;
     this.clock = options.clock ?? Date;
@@ -68,7 +68,7 @@ export class LRUCache<K, V> {
     return this.live(key) !== undefined;
   }
 
-  set(key: K, value: V, options: { ttl?: number } = {}): this {
+  set(key: K, value: V, options: SetOptions = {}): this {
     const ttl = options.ttl ?? this.opts.ttl ?? 0;
     const expiresAt = ttl > 0 ? this.clock.now() + ttl : Infinity;
     const existing = this.live(key);
