@@ -1,4 +1,4 @@
-import type { RequestConfig, Response, Adapter, Client } from './types';
+import type { RequestConfig, Response, Adapter, Client, ClientOptions } from './types';
 
 export class HttpError extends Error {
   constructor(public response: Response) {
@@ -13,7 +13,7 @@ const isAbsolute = (url: string) => /^https?:\/\//i.test(url);
 const joinURL = (base: string | undefined, url: string) =>
   !base || isAbsolute(url) ? url : `${base.replace(/\/+$/, '')}/${url.replace(/^\/+/, '')}`;
 
-export function createClient(options: { adapter: Adapter; baseURL?: string }): Client {
+export function createClient(options: ClientOptions): Client {
   const { adapter, baseURL } = options;
 
   const dispatch = async (config: RequestConfig): Promise<Response> => {

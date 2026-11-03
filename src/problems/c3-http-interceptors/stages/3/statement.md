@@ -5,10 +5,12 @@ const uninstall = installAuthRefresh(api, { getToken: () => store.token, refresh
 
 interface RequestConfig { /* ...stage 2, plus: */ retried?: boolean }
 
-function installAuthRefresh(client, options: {
+interface AuthRefreshOptions {
   getToken(): string | null;
   refresh(): Promise<string>;   // obtains and stores a new token (getToken() returns it afterwards)
-}): () => void;                  // uninstall
+}
+
+function installAuthRefresh(client: Client, options: AuthRefreshOptions): () => void;   // returns uninstall
 ```
 
 - It adds a request interceptor that sets `headers.Authorization = 'Bearer <token>'` whenever `getToken()` isn't `null`. With `null` the headers are left alone. <!-- tests: auth: adds the bearer token (and nothing when there is none) -->

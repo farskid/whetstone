@@ -26,17 +26,21 @@ interface InterceptorManager<V> {
   eject(id: number): void;
 }
 
-function createClient(options: { adapter: Adapter; baseURL?: string }): {
+interface ClientOptions { adapter: Adapter; baseURL?: string }
+
+function createClient(options: ClientOptions): {
   request<T = unknown>(config: RequestConfig): Promise<Response<T>>;
   get<T = unknown>(url: string, config?: Partial<RequestConfig>): Promise<Response<T>>;
   post<T = unknown>(url: string, body: unknown, config?: Partial<RequestConfig>): Promise<Response<T>>;
   interceptors: { request: InterceptorManager<RequestConfig>; response: InterceptorManager<Response> };
 };
 
-function installAuthRefresh(client, options: {
+interface AuthRefreshOptions {
   getToken(): string | null;
   refresh(): Promise<string>;   // obtains and stores a new token (getToken() returns it afterwards)
-}): () => void;                  // uninstall
+}
+
+function installAuthRefresh(client: Client, options: AuthRefreshOptions): () => void;   // returns uninstall
 ```
 
 ## Client rules

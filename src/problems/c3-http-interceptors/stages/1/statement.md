@@ -15,7 +15,9 @@ class HttpError extends Error {        // message: `Request failed with status $
   status: number; response: Response; config: RequestConfig;
 }
 
-function createClient(options: { adapter: Adapter; baseURL?: string }): {
+interface ClientOptions { adapter: Adapter; baseURL?: string }
+
+function createClient(options: ClientOptions): {
   request<T = unknown>(config: RequestConfig): Promise<Response<T>>;
   get<T = unknown>(url: string, config?: Partial<RequestConfig>): Promise<Response<T>>;
   post<T = unknown>(url: string, body: unknown, config?: Partial<RequestConfig>): Promise<Response<T>>;

@@ -36,3 +36,18 @@ export interface Client {
   post<T = unknown>(url: string, body: unknown, config?: Partial<RequestConfig>): Promise<Response<T>>;
   interceptors: { request: InterceptorManager<RequestConfig>; response: InterceptorManager<Response> };
 }
+
+/** Options for `createClient`. */
+export interface ClientOptions {
+  adapter: Adapter;
+  /** Joined onto relative urls. */
+  baseURL?: string;
+}
+
+/** Options for `installAuthRefresh`. */
+export interface AuthRefreshOptions {
+  /** The current token, or null for none. */
+  getToken(): string | null;
+  /** Fetches a new token after a 401. */
+  refresh(): Promise<string>;
+}

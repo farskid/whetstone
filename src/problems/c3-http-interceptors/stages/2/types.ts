@@ -34,3 +34,10 @@ export interface Client {
   post<T = unknown>(url: string, body: unknown, config?: Partial<RequestConfig>): Promise<Response<T>>;
   interceptors: { request: InterceptorManager<RequestConfig>; response: InterceptorManager<Response> };
 }
+
+/** Options for `createClient`. */
+export interface ClientOptions {
+  adapter: Adapter;
+  /** Joined onto relative urls. */
+  baseURL?: string;
+}

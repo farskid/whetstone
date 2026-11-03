@@ -26,3 +26,10 @@ export interface Client {
   /** request() with method 'POST' and this body. */
   post<T = unknown>(url: string, body: unknown, config?: Partial<RequestConfig>): Promise<Response<T>>;
 }
+
+/** Options for `createClient`. */
+export interface ClientOptions {
+  adapter: Adapter;
+  /** Joined onto relative urls. */
+  baseURL?: string;
+}

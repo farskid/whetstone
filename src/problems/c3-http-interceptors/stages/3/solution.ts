@@ -1,4 +1,4 @@
-import type { RequestConfig, Response, Adapter, InterceptorManager, Client } from './types';
+import type { RequestConfig, Response, Adapter, InterceptorManager, Client, ClientOptions, AuthRefreshOptions } from './types';
 
 export class HttpError extends Error {
   constructor(public response: Response) {
@@ -30,7 +30,7 @@ const isAbsolute = (url: string) => /^https?:\/\//i.test(url);
 const joinURL = (base: string | undefined, url: string) =>
   !base || isAbsolute(url) ? url : `${base.replace(/\/+$/, '')}/${url.replace(/^\/+/, '')}`;
 
-export function createClient(options: { adapter: Adapter; baseURL?: string }): Client {
+export function createClient(options: ClientOptions): Client {
   const { adapter, baseURL } = options;
   const requestManager = createManager<RequestConfig>();
   const responseManager = createManager<Response>();
@@ -62,7 +62,7 @@ export function createClient(options: { adapter: Adapter; baseURL?: string }): C
   return client;
 }
 
-export function installAuthRefresh(client: Client, options: { getToken(): string | null; refresh(): Promise<string> }) {
+export function installAuthRefresh(client: Client, options: AuthRefreshOptions) {
   const a = client.interceptors.request.use((c) => {
     const t = options.getToken();
     return t === null ? c : { ...c, headers: { ...c.headers, Authorization: `Bearer ${t}` } };
