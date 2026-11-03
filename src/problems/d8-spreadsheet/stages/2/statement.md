@@ -7,14 +7,14 @@ s.set('B2', '=IF(A1>0, "pos", 1/0)');       // 'pos'
 ```
 
 **Syntax**
-- Ranges `A1:B3`: any two corners. Cells are taken in row-major order.
+- Ranges `A1:B3`: any two corners. Cells are taken in row-major order. <!-- tests: aggregate functions over ranges -->
 - Calls `NAME(arg, ...)`, with zero or more arguments. Names are case-insensitive.
 - A range used outside a function argument gives `#VALUE!`.
 - An unknown function gives `#NAME?`.
 - A malformed call or range (`SUM(1,)`, `A1:`) gives `#ERROR!`.
 
 **`SUM`, `AVERAGE`, `MIN`, `MAX`**
-- A reference or range argument contributes only its number cells. Text, booleans and empty cells are skipped, but an error cell propagates.
+- A reference or range argument contributes only its number cells. Text, booleans and empty cells are skipped, but an error cell propagates. <!-- tests: aggregate functions over ranges -->
 - Any other argument is coerced like arithmetic.
 - With no numbers, `MIN` and `MAX` return 0 and `AVERAGE` returns `#DIV/0!`.
 
@@ -26,6 +26,6 @@ s.set('B2', '=IF(A1>0, "pos", 1/0)');       // 'pos'
   - `null` is false;
   - text gives `#VALUE!`;
   - an error gives that error.
-- `IF` evaluates **only the chosen branch**. A missing else gives `FALSE`, and a wrong argument count gives `#VALUE!`.
+- `IF` evaluates **only the chosen branch**. A missing else gives `FALSE`, and a wrong argument count gives `#VALUE!`. <!-- tests: IF evaluates only the chosen branch; CONCAT -->
 
-**`CONCAT(...)`** joins its arguments and the cells they reference as text, like `&`. An error value gives that error.
+**`CONCAT(...)`** joins its arguments and the cells they reference as text, like `&`. An error value gives that error. <!-- tests: IF evaluates only the chosen branch; CONCAT -->

@@ -17,14 +17,14 @@ function createRouter<H>(): Router<H>;
 ```
 
 **Patterns.** A pattern is a list of `/`-separated segments (empty ones are ignored, so `/` has zero segments). Each segment is either:
-- static text like `users`, which matches exactly that segment (case-sensitive); or
-- `:name`, which matches any one non-empty segment and captures it as `params.name`.
+- static text like `users`, which matches exactly that segment (case-sensitive); or <!-- tests: static routes and the root -->
+- `:name`, which matches any one non-empty segment and captures it as `params.name`. <!-- tests: params are captured and decoded -->
 
 **Paths**
-- Strip any `?query` and `#hash` first.
-- Ignore empty segments. `/a//b/` is the same as `/a/b`, and `/` is the root (zero segments).
+- Strip any `?query` and `#hash` first. <!-- tests: query, hash, trailing and duplicate slashes are ignored -->
+- Ignore empty segments. `/a//b/` is the same as `/a/b`, and `/` is the root (zero segments). <!-- tests: query, hash, trailing and duplicate slashes are ignored -->
 - A route matches when the path has the same number of segments and every segment matches.
-- Param values are **decoded** with `decodeURIComponent`. If decoding throws, keep the raw text.
+- Param values are **decoded** with `decodeURIComponent`. If decoding throws, keep the raw text. <!-- tests: params are captured and decoded -->
 
 **Matching**
 - `match` returns `{ handler, params, pattern }`, where `pattern` is the string passed to `add`, or `null` if no route matches.

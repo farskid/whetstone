@@ -8,12 +8,12 @@ parse('name,age\nAda,36\n"Hopper, Grace",85\n', { header: true, dynamicTyping: t
 // result:  { data: unknown[]; errors: ParseError[] }
 ```
 
-- `delimiter: 'auto'` picks whichever of `,` `\t` `;` `|` occurs most often in the first record, ignoring quoted text. Ties go to that order, and if none occur it uses `,`.
+- `delimiter: 'auto'` picks whichever of `,` `\t` `;` `|` occurs most often in the first record, ignoring quoted text. Ties go to that order, and if none occur it uses `,`. <!-- tests: delimiter detection uses the first record and ignores quoted text -->
 - Without `header`, `data` is the array of field arrays.
-- With `header`, the first record gives the keys and each later record becomes an object.
-  - A record with a different field count is left out of `data` and reported as `{ row, message: 'Expected N fields, got M' }`.
-  - Rows are numbered from 1, counting the header row.
-- `dynamicTyping` converts every value, in arrays and objects alike (header keys stay strings):
+- With `header`, the first record gives the keys and each later record becomes an object. <!-- tests: header rows become object keys; ragged rows are reported by row number -->
+  - A record with a different field count is left out of `data` and reported as `{ row, message: 'Expected N fields, got M' }`. <!-- tests: header rows become object keys; ragged rows are reported by row number -->
+  - Rows are numbered from 1, counting the header row. <!-- tests: header rows become object keys; ragged rows are reported by row number -->
+- `dynamicTyping` converts every value, in arrays and objects alike (header keys stay strings): <!-- tests: dynamic typing: numbers, booleans and empty as null -->
   - `''` → `null`;
   - `'true'`/`'false'` → booleans;
   - strings matching `-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?` → numbers;

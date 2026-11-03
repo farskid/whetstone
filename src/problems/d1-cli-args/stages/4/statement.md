@@ -6,13 +6,13 @@ createCli(spec): { parse(argv): CliResult; help(path?: string[]): string }
 ```
 
 **Suggestions** use the edit distance between two strings (insertions, deletions and substitutions).
-- ``Unknown command: <tok>`` gets ``. Did you mean <name>?`` when a subcommand name of the current command is within edit distance 2.
-- ``Unknown option: --<x>`` gets ``. Did you mean --<name>?`` when an available option name or long alias (more than one letter) is within edit distance 2. Short flags (`-q`) get no suggestion.
+- ``Unknown command: <tok>`` gets ``. Did you mean <name>?`` when a subcommand name of the current command is within edit distance 2. <!-- tests: "did you mean" for options and commands -->
+- ``Unknown option: --<x>`` gets ``. Did you mean --<name>?`` when an available option name or long alias (more than one letter) is within edit distance 2. Short flags (`-q`) get no suggestion. <!-- tests: "did you mean" for options and commands -->
 - In both cases pick the nearest, and the earliest in definition order on ties (names before their aliases).
 
 ## `help(path = [])`
 
-`help` throws ``Unknown command: <p>`` for a bad path. Otherwise it returns these lines joined with `\n`:
+`help` throws ``Unknown command: <p>`` for a bad path. Otherwise it returns these lines joined with `\n`: <!-- tests: help text for a leaf command | help text for the root and bad paths -->
 
 ```
 Usage: git remote add [options]          ← name + path, then " <command>" if it has subcommands

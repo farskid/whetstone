@@ -15,18 +15,18 @@ render('- one\n- two\n  - nested\n> quoted');
 // </blockquote>
 ```
 
-**Blockquotes.** Consecutive lines starting with `>` (at column 0).
+**Blockquotes.** Consecutive lines starting with `>` (at column 0). <!-- tests: nested lists and blockquotes -->
 - Strip `>` plus one optional space from each line.
 - Render the result as blocks: `<blockquote>\n…\n</blockquote>`.
-- Quotes nest, and can hold any block.
+- Quotes nest, and can hold any block. <!-- tests: nested lists and blockquotes -->
 
-**Lists.** A list item line is `indent marker space text`, where indent is spaces (list markers may be indented). The marker is `-`, `*` or `+` for `<ul>`, or `N.` for `<ol>`.
-- A list continues while lines are items with the **same indent and the same kind** (ordered or unordered). A different kind starts a new list.
-- After an item line, the following non-blank lines indented at least `indent + 2` belong to that item. Remove their smallest common indentation and render them as blocks after the item's text.
+**Lists.** A list item line is `indent marker space text`, where indent is spaces (list markers may be indented). The marker is `-`, `*` or `+` for `<ul>`, or `N.` for `<ol>`. <!-- tests: lists: kinds, start numbers, and what ends them -->
+- A list continues while lines are items with the **same indent and the same kind** (ordered or unordered). A different kind starts a new list. <!-- tests: lists: kinds, start numbers, and what ends them -->
+- After an item line, the following non-blank lines indented at least `indent + 2` belong to that item. Remove their smallest common indentation and render them as blocks after the item's text. <!-- tests: nested lists and blockquotes -->
 - Item output:
   - `<li>inline</li>`, with the text trimmed;
   - `<li>inline\n…children…\n</li>` when the item has nested content.
-- List output: `<ul>\n…items…\n</ul>`. An ordered list whose first number isn't 1 gets `<ol start="N">`.
-- A blank line or any other line ends the list.
+- List output: `<ul>\n…items…\n</ul>`. An ordered list whose first number isn't 1 gets `<ol start="N">`. <!-- tests: lists: kinds, start numbers, and what ends them -->
+- A blank line or any other line ends the list. <!-- tests: lists: kinds, start numbers, and what ends them -->
 
 **Paragraphs** now also stop before a line that starts a blockquote or a list item.

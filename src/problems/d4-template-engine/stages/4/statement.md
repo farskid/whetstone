@@ -8,8 +8,8 @@ compile('{{#a}}{{#b}}x{{/a}}{{/b}}');  // throws 'Unexpected closing tag "a" (li
 function compile(template: string, options?: RenderOptions): (data: unknown) => string;
 ```
 
-- `compile` parses the template once and returns a function that renders it with any data. `render(t, d, o)` is the same as `compile(t, o)(d)`.
-- Templates can now be malformed. Syntax errors are `TemplateError`s, thrown by `compile` (and so by `render`) before any output:
+- `compile` parses the template once and returns a function that renders it with any data. `render(t, d, o)` is the same as `compile(t, o)(d)`. <!-- tests: compile returns a reusable function -->
+- Templates can now be malformed. Syntax errors are `TemplateError`s, thrown by `compile` (and so by `render`) before any output: <!-- tests: syntax errors carry line and column of the responsible tag -->
   - ``Unclosed tag``: a `{{` (or `{{{`) without its closing braces;
   - ``Unclosed section "<name>"``: points at the opening tag of the innermost unclosed section;
   - ``Unexpected closing tag "<name>"``: the closing tag doesn't match the innermost open section, or nothing is open. Points at the closing tag.

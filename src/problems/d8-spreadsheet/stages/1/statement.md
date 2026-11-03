@@ -28,8 +28,8 @@ function createSheet(): Sheet;
 - In this stage no formula refers to itself, directly or indirectly.
 
 **Inputs**
-- A number is stored as that number.
-- A string is interpreted by its form:
+- A number is stored as that number. <!-- tests: inputs: numbers, numeric strings, text, clearing -->
+- A string is interpreted by its form: <!-- tests: inputs: numbers, numeric strings, text, clearing -->
   - starting with `=`, it's a formula;
   - matching `-?\d+(\.\d+)?` (surrounding spaces allowed), it's a number;
   - empty or whitespace only, it clears the cell;
@@ -37,8 +37,8 @@ function createSheet(): Sheet;
 
 **Formula syntax**
 - Literals: numbers (`\d+(\.\d+)?`), `"strings"` (`""` escapes a quote), `TRUE` and `FALSE` (case-insensitive).
-- References like `A1`. An empty cell's value is `null`.
-- Precedence, from lowest to highest:
+- References like `A1`. An empty cell's value is `null`. <!-- tests: precedence, unary minus and references -->
+- Precedence, from lowest to highest: <!-- tests: precedence, unary minus and references -->
   1. comparisons `= <> < > <= >=`
   2. `&`
   3. `+ -`
@@ -52,11 +52,11 @@ function createSheet(): Sheet;
   - booleans become 1/0;
   - `null` becomes 0;
   - text gives `#VALUE!`.
-- `&` concatenates text:
+- `&` concatenates text: <!-- tests: text, booleans, & and comparisons -->
   - numbers use `String(n)`;
   - booleans become `TRUE`/`FALSE`;
   - `null` becomes `""`.
-- Comparisons:
+- Comparisons: <!-- tests: text, booleans, & and comparisons -->
   - `null` takes the other side's empty value (`0`, `""` or `FALSE`);
   - text compares case-insensitively;
   - values of different types order as number < text < boolean.

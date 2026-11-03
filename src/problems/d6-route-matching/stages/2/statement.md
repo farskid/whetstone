@@ -8,13 +8,13 @@ r.match('GET', '/users/me');       // 'me': static beats param
 r.match('GET', '/files/a/b.txt');  // params: { '*': 'a/b.txt' }
 ```
 
-**Wildcard.** A last segment `*` matches the **rest** of the path, zero or more segments.
-- It's captured as `params['*']`: the remaining segments, each decoded, joined with `/`.
+**Wildcard.** A last segment `*` matches the **rest** of the path, zero or more segments. <!-- tests: param beats wildcard; wildcard captures the rest -->
+- It's captured as `params['*']`: the remaining segments, each decoded, joined with `/`. <!-- tests: param beats wildcard; wildcard captures the rest -->
 - With zero remaining segments, it's `''`. So `/files/*` matches `/files` with `{ '*': '' }`.
 - `*` only appears as the last segment.
 
-**Specificity.** When several routes match, the more specific one wins, **segment by segment from the left**: static > param > wildcard. Registration order doesn't matter.
-- If the best choice at one segment leads to a dead end later, **backtrack** and try the next option at that segment.
+**Specificity.** When several routes match, the more specific one wins, **segment by segment from the left**: static > param > wildcard. Registration order doesn't matter. <!-- tests: static beats param regardless of registration order | param beats wildcard; wildcard captures the rest -->
+- If the best choice at one segment leads to a dead end later, **backtrack** and try the next option at that segment. <!-- tests: backtracks when the most specific branch dead-ends -->
 
 ```ts
 add('GET', '/a/:x/c', 1); add('GET', '/a/b/d', 2); add('GET', '/a/*', 3);

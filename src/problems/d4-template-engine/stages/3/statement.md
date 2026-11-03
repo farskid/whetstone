@@ -21,16 +21,16 @@ export class TemplateError extends Error {
 Export `TemplateError` exactly as shown. `line` and `column` are 1-based and point at the `{{` of the tag responsible.
 
 **Partials: `{{> name}}`**
-- Render the named template from `partials` with the current stack.
-- A missing partial renders `''`.
-- Partials may recurse. Rendering a partial more than 100 levels deep throws a `TemplateError` whose message contains `Partial depth limit exceeded`.
+- Render the named template from `partials` with the current stack. <!-- tests: partials see the current context; missing partials render empty -->
+- A missing partial renders `''`. <!-- tests: partials see the current context; missing partials render empty -->
+- Partials may recurse. Rendering a partial more than 100 levels deep throws a `TemplateError` whose message contains `Partial depth limit exceeded`. <!-- tests: infinitely recursive partials hit the depth limit -->
 
 **Helpers**
-- If the first word of a variable tag names a helper (an own key of `helpers`), call it with the remaining words as arguments:
+- If the first word of a variable tag names a helper (an own key of `helpers`), call it with the remaining words as arguments: <!-- tests: helpers take literal and looked-up arguments, beat data, and are escaped -->
   - `"quoted"` or `'quoted'` strings (a backslash escapes the next character);
   - numbers (`-?\d+(\.\d+)?`);
   - anything else as a lookup.
-- Helpers apply even with zero arguments, and take precedence over data.
-- The result is rendered like a value (escaped unless the tag is raw).
+- Helpers apply even with zero arguments, and take precedence over data. <!-- tests: helpers take literal and looked-up arguments, beat data, and are escaped -->
+- The result is rendered like a value (escaped unless the tag is raw). <!-- tests: helpers take literal and looked-up arguments, beat data, and are escaped -->
 - A tag with several words whose first word isn't a helper throws ``TemplateError(`Unknown helper "<word>"`, …)`` when it's rendered.
 - Templates are still well-formed in this stage.

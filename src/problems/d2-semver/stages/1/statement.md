@@ -13,17 +13,17 @@ function compare(a: string, b: string): -1 | 0 | 1;
 ```
 
 **Versions**
-- A version is `MAJOR.MINOR.PATCH`, optionally followed by `-prerelease` and `+build`, with an optional leading `v`. Surrounding whitespace is ignored.
+- A version is `MAJOR.MINOR.PATCH`, optionally followed by `-prerelease` and `+build`, with an optional leading `v`. Surrounding whitespace is ignored. <!-- tests: parse splits prerelease and build; invalid input is null -->
 - Numbers have no leading zeros.
-- Prerelease and build parts are dot-separated, non-empty identifiers made of `[0-9A-Za-z-]`. A numeric prerelease identifier can't have leading zeros; build identifiers can (`05`).
-- `parse` returns `{ major, minor, patch, prerelease, build }`, where all-digit prerelease identifiers become numbers. It returns `null` for anything invalid (never throws).
+- Prerelease and build parts are dot-separated, non-empty identifiers made of `[0-9A-Za-z-]`. A numeric prerelease identifier can't have leading zeros; build identifiers can (`05`). <!-- tests: parse splits prerelease and build; invalid input is null -->
+- `parse` returns `{ major, minor, patch, prerelease, build }`, where all-digit prerelease identifiers become numbers. It returns `null` for anything invalid (never throws). <!-- tests: parse splits prerelease and build; invalid input is null -->
 
-**`compare(a, b)`** returns `-1`, `0` or `1`, and throws a `TypeError` whose message starts with `Invalid version` for an invalid version.
+**`compare(a, b)`** returns `-1`, `0` or `1`, and throws a `TypeError` whose message starts with `Invalid version` for an invalid version. <!-- tests: build metadata is ignored; invalid versions throw -->
 - Compare major, minor and patch numerically.
-- A version with a prerelease is lower than the same version without one.
-- Prerelease identifiers are compared left to right:
+- A version with a prerelease is lower than the same version without one. <!-- tests: prerelease precedence (the semver.org example chain) -->
+- Prerelease identifiers are compared left to right: <!-- tests: prerelease precedence (the semver.org example chain) -->
   - numbers are compared numerically;
   - numbers sort below strings;
   - strings are compared in ASCII order;
   - if all shared identifiers are equal, the shorter list is lower.
-- Build metadata is ignored.
+- Build metadata is ignored. <!-- tests: build metadata is ignored; invalid versions throw -->

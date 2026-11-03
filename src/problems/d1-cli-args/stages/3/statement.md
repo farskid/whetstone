@@ -11,9 +11,9 @@ interface CommandSpec { options?: Record<string, OptionSpec>; commands?: Record<
 createCli(spec: CommandSpec & { name: string })
 ```
 
-- While the current command has `commands` and no positional has been collected yet, a positional token must name a subcommand. It is appended to `command`, and parsing continues in that subcommand.
-- Otherwise the error is ``Unknown command: <tok>`` and the token goes to `_`. Once a positional is collected, later tokens are plain positionals even if they name a subcommand.
+- While the current command has `commands` and no positional has been collected yet, a positional token must name a subcommand. It is appended to `command`, and parsing continues in that subcommand. <!-- tests: nested subcommands with inherited options -->
+- Otherwise the error is ``Unknown command: <tok>`` and the token goes to `_`. Once a positional is collected, later tokens are plain positionals even if they name a subcommand. <!-- tests: unknown, missing and invalid values are all collected, never thrown -->
 - Tokens after `--` are never commands.
-- The options available at any point are those of every command on the path so far, root first. A child's definition of a name overrides its parent's. Options of other branches are unknown.
+- The options available at any point are those of every command on the path so far, root first. A child's definition of a name overrides its parent's. Options of other branches are unknown. <!-- tests: nested subcommands with inherited options -->
 - Flags may appear before the subcommand (`-v remote add`), as long as they are available at that point.
 - The defaults and required checks after the loop use the options available at the final command, in that order.

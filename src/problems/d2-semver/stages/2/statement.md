@@ -8,20 +8,20 @@ satisfies('1.5.0', '>=1.2.0 <2');    // true
 function satisfies(version: string, range: string): boolean;
 ```
 
-A range is one or more whitespace-separated comparators, and a version satisfies it when it satisfies **all** of them. Whitespace after an operator is allowed (`>= 1.2.0`).
+A range is one or more whitespace-separated comparators, and a version satisfies it when it satisfies **all** of them. Whitespace after an operator is allowed (`>= 1.2.0`). <!-- tests: tilde and plain comparators, ANDed by spaces -->
 
 A comparator is an operator followed by a version (optional leading `v`). After an operator the version may be *partial*: it may leave out minor/patch, or use `x`, `X` or `*` for them. `1.2.3` is full; `1.2`, `1.x` and `1` are partial. The major part must be a number.
 
 | Form | Means |
 | --- | --- |
-| `1.2.3` or `=1.2.3` | exactly 1.2.3 (a comparator without an operator must be a full version) |
-| `>=1.2` / `<1.2` | `>=1.2.0` / `<1.2.0` |
+| `1.2.3` or `=1.2.3` | exactly 1.2.3 (a comparator without an operator must be a full version) <!-- tests: tilde and plain comparators, ANDed by spaces --> |
+| `>=1.2` / `<1.2` | `>=1.2.0` / `<1.2.0` <!-- tests: tilde and plain comparators, ANDed by spaces --> |
 | `>1.2` / `<=1.2` | `>=1.3.0` / `<1.3.0` (above / within everything `1.2` covers) |
-| `~1.2.3` / `~1.2` | `>=1.2.3 <1.3.0` / `>=1.2.0 <1.3.0` |
+| `~1.2.3` / `~1.2` | `>=1.2.3 <1.3.0` / `>=1.2.0 <1.3.0` <!-- tests: tilde and plain comparators, ANDed by spaces --> |
 | `~1` | `>=1.0.0 <2.0.0` |
-| `^1.2.3`, `^1.2`, `^1` | `>=1.2.3 <2.0.0` etc.: don't change the left-most non-zero part |
-| `^0.2.3` | `>=0.2.3 <0.3.0` |
-| `^0.0.3` | `>=0.0.3 <0.0.4` |
+| `^1.2.3`, `^1.2`, `^1` | `>=1.2.3 <2.0.0` etc.: don't change the left-most non-zero part <!-- tests: caret keeps the left-most non-zero part --> |
+| `^0.2.3` | `>=0.2.3 <0.3.0` <!-- tests: caret keeps the left-most non-zero part --> |
+| `^0.0.3` | `>=0.0.3 <0.0.4` <!-- tests: caret keeps the left-most non-zero part --> |
 | `^0.0` / `^0.0.x` | `>=0.0.0 <0.1.0` |
 | `^0` / `^0.x` | `>=0.0.0 <1.0.0` |
 

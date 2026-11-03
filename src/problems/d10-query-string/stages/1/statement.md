@@ -14,15 +14,15 @@ function stringify(obj: Record<string, unknown>): string;
 
 **`parse`**
 - A leading `?` is ignored. Split on `&` and skip empty parts.
-- A part splits at its first `=`. With no `=`, the value is `''`.
-- Keys and values: `+` becomes a space, then percent-decoding. If decoding fails (`%E0%A4%A`), keep the text as is (with `+` already replaced).
-- Values are strings. A repeated key collects its values into an array, in order: `a=1&a=3` gives `{ a: ['1', '3'] }`.
+- A part splits at its first `=`. With no `=`, the value is `''`. <!-- tests: flat pairs, repeated keys, + as space, keys without values -->
+- Keys and values: `+` becomes a space, then percent-decoding. If decoding fails (`%E0%A4%A`), keep the text as is (with `+` already replaced). <!-- tests: flat pairs, repeated keys, + as space, keys without values | percent-decoding; malformed sequences stay literal -->
+- Values are strings. A repeated key collects its values into an array, in order: `a=1&a=3` gives `{ a: ['1', '3'] }`. <!-- tests: flat pairs, repeated keys, + as space, keys without values -->
 - Brackets have no meaning yet: `a[b]=1` gives the key `'a[b]'`.
 - Inputs in this stage don't use the keys `__proto__`, `constructor` or `prototype`.
 
 **`stringify`**
-- Walk keys in insertion order and emit `key=value` pairs joined with `&`.
-- Key names and values go through `encodeURIComponent`.
+- Walk keys in insertion order and emit `key=value` pairs joined with `&`. <!-- tests: stringify encodes and keeps key order -->
+- Key names and values go through `encodeURIComponent`. <!-- tests: stringify encodes and keeps key order -->
 - `undefined` and functions are skipped, and `null` gives `key=`.
 - Dates use `toISOString()`, and other values use `String(v)`.
 - Values in this stage are never arrays or plain objects.

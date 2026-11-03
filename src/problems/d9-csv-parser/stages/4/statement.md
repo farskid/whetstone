@@ -12,7 +12,7 @@ function createParser(opts: {
 ```
 
 - `createParser` applies the record and field rules from stages 1 and 2, including the BOM at the very start of the input.
-- `write` can receive any slice of the input. A record is emitted as soon as its line break arrives, so a `\r` at the end of one chunk followed by `\n` in the next is still one break.
+- `write` can receive any slice of the input. A record is emitted as soon as its line break arrives, so a `\r` at the end of one chunk followed by `\n` in the next is still one break. <!-- tests: rows are emitted as soon as their line break arrives | splits mid-quote, mid-escape and mid-CRLF give the same records -->
 - `end()` emits the last record if there is one, and reports `Unclosed quote` through `onError` first if the input ended inside a quoted field. Calling `end()` again does nothing.
-- Splitting the input at any positions must give exactly the same records as writing it all at once.
+- Splitting the input at any positions must give exactly the same records as writing it all at once. <!-- tests: splits mid-quote, mid-escape and mid-CRLF give the same records | every one- and two-cut split matches the one-shot parse -->
 - `write` after `end()` throws an `Error`.

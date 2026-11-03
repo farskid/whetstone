@@ -10,8 +10,8 @@ function expand(parsed: Record<string, string>, env?: Record<string, string | un
 
 `expand` returns a new object with the same keys in the same order. `env` defaults to `{}`. In every value:
 
-- `${NAME}` and `$NAME` are replaced by NAME's value. `${NAME:-fallback}` uses `fallback` when NAME is unset or empty. Names match `[A-Za-z_][A-Za-z0-9_]*`.
-- NAME is looked up in `parsed` first, already expanded, wherever it appears in the file. If it's not there, `env` is checked. Unset with no fallback gives `''`.
-- `\$` becomes a literal `$` and is not expanded.
-- A reference cycle throws `Circular reference: A -> B -> A`, starting from the first key of the cycle that was being expanded.
+- `${NAME}` and `$NAME` are replaced by NAME's value. `${NAME:-fallback}` uses `fallback` when NAME is unset or empty. Names match `[A-Za-z_][A-Za-z0-9_]*`. <!-- tests: ${VAR} and $VAR from the file, then env | defaults with :- for unset or empty; unset without default is empty -->
+- NAME is looked up in `parsed` first, already expanded, wherever it appears in the file. If it's not there, `env` is checked. Unset with no fallback gives `''`. <!-- tests: ${VAR} and $VAR from the file, then env | references resolve recursively and in any order; \$ escapes -->
+- `\$` becomes a literal `$` and is not expanded. <!-- tests: references resolve recursively and in any order; \$ escapes -->
+- A reference cycle throws `Circular reference: A -> B -> A`, starting from the first key of the cycle that was being expanded. <!-- tests: cycles throw with the chain -->
 - `parsed` is not modified.
