@@ -171,10 +171,21 @@ a.problem-row:hover, .link-row:hover { background: var(--bg-3); }
 .solved-badge { display: inline-flex; align-items: center; gap: 5px; padding: 1px 9px 1px 7px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--pass) 55%, transparent); background: color-mix(in srgb, var(--pass) 10%, transparent); color: var(--pass); font-weight: 650; font-size: 12px; letter-spacing: .02em; position: relative; overflow: hidden; }
 .solved-badge .crack-lock { font-size: 14px; }
 .workspace { flex: 1; display: flex; min-height: 0; }
-.left-pane { display: flex; flex-direction: column; min-width: 260px; background: var(--bg-2); }
+.left-pane { display: flex; flex-direction: column; min-width: 260px; container-type: inline-size; background: var(--bg-2); }
 .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); padding: 0 10px; flex: none; }
-.tab { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); padding: 9px 12px; cursor: pointer; font: inherit; font-weight: 500; }
+.tab { flex: none; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); padding: 9px 12px; cursor: pointer; font: inherit; font-weight: 500; }
 .tab.on { color: var(--text); border-bottom-color: var(--accent); }
+/* Tags docked beside the tabs once the description's own row scrolls away: one line, clipped, "+N" for the rest. */
+.tab-tags { flex: 1 1 0; min-width: 0; position: relative; display: flex; align-items: center; margin-left: 8px; overflow: hidden;
+  opacity: 0; visibility: hidden; transform: translateY(3px); transition: opacity .16s ease, transform .16s ease, visibility 0s linear .16s; }
+.tab-tags.on { opacity: 1; visibility: visible; transform: none; transition: opacity .16s ease, transform .16s ease, visibility 0s; }
+.tab-tags-row { display: flex; flex-wrap: nowrap; gap: 4px; min-width: 0; }
+.tab-tags-measure { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; width: max-content; }
+.tchip-more { font: inherit; font-size: 11px; line-height: 16px; cursor: pointer; flex: none; }
+.tab-tags .tchip { flex: none; }
+/* A narrow statement pane (phones) tightens the tabs so at least the "+N" chip fits. */
+@container (max-width: 340px) { .tab { padding: 9px 9px; } .tab-tags { margin-left: 4px; } }
+@media (prefers-reduced-motion: reduce) { .tab-tags, .tab-tags.on { transform: none; } }
 .left-body { overflow: auto; padding: 4px 22px 28px; flex: 1; }
 .right-pane { flex: 1; display: flex; flex-direction: column; min-width: 340px; container-type: inline-size; position: relative; }
 .editor-bar { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-bottom: 1px solid var(--line); background: var(--bg-2); flex: none; }

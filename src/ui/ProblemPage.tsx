@@ -9,6 +9,7 @@ import type { Language, TestResult, TestStatus } from '../runner/types';
 import { runInWorker, type RunHandle } from '../runner/client';
 import { monaco } from '../monaco';
 import { TagChips } from './TagChips';
+import { TabBarTags } from './TabBarTags';
 import { href } from './router';
 import { Markdown } from './Markdown';
 import { InlineCode, Results, type RunState } from './Results';
@@ -57,6 +58,28 @@ export function ProblemPage({ problem }: { problem: Problem }) {
   );
 
   const [tab, setTab] = useState<'statement' | 'solution'>('statement');
+  const leftBodyRef = useRef<HTMLDivElement>(null);
+  const pbTagsRef = useRef<HTMLDivElement>(null);
+  /** Whether the description's tag row is on screen; once it scrolls away the tags dock in the tab bar. */
+  const [tagsInView, setTagsInView] = useState(true);
+  useEffect(() => {
+    const root = leftBodyRef.current;
+    const target = pbTagsRef.current;
+    if (tab !== 'statement' || !root || !target) return;
+    const io = new IntersectionObserver(([e]) => {
+      // Below the fold (never, in practice) counts as in view: only scrolling past the row docks it.
+      setTagsInView(e.isIntersecting || (e.rootBounds !== null && e.boundingClientRect.top >= e.rootBounds.top));
+    }, { root });
+    io.observe(target);
+    return () => { io.disconnect(); setTagsInView(true); };
+  }, [tab]);
+  /** The Solution tab has no tag row of its own, so the tab bar keeps them there. */
+  const dockTags = tab === 'solution' || !tagsInView;
+  const showAllTags = () => {
+    const smooth = tab === 'statement' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTab('statement');
+    leftBodyRef.current?.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
+  };
   const [run, setRun] = useState<RunState>({ phase: 'idle' });
   /** The last run's status per test title (partial while running); paints the annotated rules in the statement. */
   const lastResults = useMemo(() => {
@@ -295,11 +318,12 @@ export function ProblemPage({ problem }: { problem: Problem }) {
             <button role="tab" aria-selected={tab === 'solution'} className={`tab ${tab === 'solution' ? 'on' : ''}`} onClick={() => setTab('solution')}>
               Solution {revealed ? '' : '🔒'}
             </button>
+            {problem.tags.length > 0 && <TabBarTags tags={problem.tags} show={dockTags} duplicate={tab === 'statement'} onMore={showAllTags} />}
           </div>
-          <div className="left-body">
+          <div className="left-body" ref={leftBodyRef}>
             {tab === 'statement' ? (
               <>
-                <div className="pb-tags" aria-label="Tags"><TagChips tags={problem.tags} /></div>
+                <div className="pb-tags" aria-label="Tags" ref={pbTagsRef}><TagChips tags={problem.tags} /></div>
                 {staged && !full ? (
                   <StagedStatement problem={problem} sections={sources.stageStatements} contracts={sources.stageContractsTs} unlocked={unlocked} current={viewStage} passed={stagePassed} theme={theme} results={lastResults} />
                 ) : (
