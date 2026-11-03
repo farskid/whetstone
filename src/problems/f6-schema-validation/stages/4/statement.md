@@ -21,12 +21,12 @@ lazy(get: () => Schema): Schema;
 | `.refine` false | `custom` | the given message, or `Invalid input` |
 
 **`.refine` / `.transform`**
-- They run only if the inner schema produced **no issues**. Otherwise the predicate or function is not called at all.
+- They run only if the inner schema produced **no issues**. Otherwise the predicate or function is not called at all. <!-- tests: refine and transform only run on valid input, in chain order -->
 - `refine(pred)` adds a `custom` issue at the current path when `pred(output)` is false.
 - `transform(fn)` replaces the output with `fn(output)`.
-- Chains run in order, so a `refine` after a `transform` sees the transformed value.
+- Chains run in order, so a `refine` after a `transform` sees the transformed value. <!-- tests: refine and transform only run on valid input, in chain order -->
 - Inside a union, the winning option's transformed output is returned.
 
-**Lazy.** `s.lazy(() => Node)` calls `get` when it first parses, so a schema can refer to itself and recursive structures work. Paths keep growing through the recursion.
+**Lazy.** `s.lazy(() => Node)` calls `get` when it first parses, so a schema can refer to itself and recursive structures work. Paths keep growing through the recursion. <!-- tests: lazy: recursive schemas -->
 
 Everything from earlier stages still applies.

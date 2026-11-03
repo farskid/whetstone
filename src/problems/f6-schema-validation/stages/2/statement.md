@@ -16,20 +16,20 @@ object(shape: Record<string, Schema>): Schema;
 
 | check | code | message |
 |---|---|---|
-| array `.min(n)` / `.max(n)` | `too_small` / `too_big` | `Array must contain at least n element(s)` / `Array must contain at most n element(s)` |
+| array `.min(n)` / `.max(n)` | `too_small` / `too_big` | `Array must contain at least n element(s)` / `Array must contain at most n element(s)` <!-- tests: arrays: item issues with index paths, then length checks; output is a new array --> |
 
-**Paths.** A nested issue's path is the list of keys and array indices from the root, such as `['list', 1, 'v']`. The error message joins them with `.`, as in `list.1.v: …`.
+**Paths.** A nested issue's path is the list of keys and array indices from the root, such as `['list', 1, 'v']`. The error message joins them with `.`, as in `list.1.v: …`. <!-- tests: objects: every issue collected with its path, in shape order -->
 
 **Objects**
 - Only plain objects pass. Arrays and `null` are `invalid_type` (`received array` / `received null`).
-- Validate each shape key in shape order and collect **every** issue. Don't stop at the first.
+- Validate each shape key in shape order and collect **every** issue. Don't stop at the first. <!-- tests: objects: every issue collected with its path, in shape order -->
 - A missing key is `undefined`, so it fails unless its schema accepts `undefined`.
 - Unknown keys are **stripped**. They are not copied to the output.
 
 **Arrays**
-- Check every item, with index paths. Then run the length checks on the array.
+- Check every item, with index paths. Then run the length checks on the array. <!-- tests: arrays: item issues with index paths, then length checks; output is a new array -->
 - If the array isn't an array, report only `invalid_type`.
 
-**Output.** Objects and arrays are always **new** values, never the input reference.
+**Output.** Objects and arrays are always **new** values, never the input reference. <!-- tests: arrays: item issues with index paths, then length checks; output is a new array -->
 
 Everything from earlier stages still applies.

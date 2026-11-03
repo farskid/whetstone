@@ -12,10 +12,10 @@ allocate(ratios: number[]): Money[]
 ```
 
 1. Each part gets `floor(|amount| × ratio / sum)` minor units.
-2. The leftover units are handed out one at a time, starting from the first part. Parts whose ratio is `0` are skipped and always stay at zero.
-3. A negative amount is split as its absolute value and then negated, so `-100.00` gives `-33.34`, `-33.33` and `-33.33`.
+2. The leftover units are handed out one at a time, starting from the first part. Parts whose ratio is `0` are skipped and always stay at zero. <!-- tests: allocate splits with no lost cents -->
+3. A negative amount is split as its absolute value and then negated, so `-100.00` gives `-33.34`, `-33.33` and `-33.33`. <!-- tests: negative amounts and zero ratios -->
 
-- Ratios must be non-negative integers, and at least one must be positive. An empty list, all zeros, a negative ratio or a fractional ratio throws a `RangeError`.
+- Ratios must be non-negative integers, and at least one must be positive. An empty list, all zeros, a negative ratio or a fractional ratio throws a `RangeError`. <!-- tests: bad ratios throw RangeError -->
 - The parts keep the receiver's currency and work for amounts of any size.
 
 Everything from earlier stages still applies.

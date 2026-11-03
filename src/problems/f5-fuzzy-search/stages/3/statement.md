@@ -11,7 +11,7 @@ fuzzyMatch('gus', 'get_user_status');
 interface Match { score: number; positions: number[]; ranges: [number, number][] }
 ```
 
-- `ranges` merges adjacent positions into half-open `[start, end)` pairs, in order.
+- `ranges` merges adjacent positions into half-open `[start, end)` pairs, in order. <!-- tests: ranges merge adjacent positions -->
 - An empty query gives `{ score: 0, positions: [], ranges: [] }`.
-- Texts can be several hundred characters long and are matched many times. Fifty matches against a 600-character text must finish well within a second.
+- Texts can be several hundred characters long and are matched many times. Fifty matches against a 600-character text must finish well within a second. <!-- tests: long texts are matched quickly -->
 - Everything from earlier stages still applies.
