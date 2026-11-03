@@ -39,10 +39,13 @@ its parent's colour doesn't leak into it.
 
 ## Annotated so far
 
-The stage statements of A1–A4, B1, E1, F1 and H1. Full-problem mode shows the root `statement.md`, which has no
-markers.
+Every staged statement is annotated: A1–A8, B1–B8, C1–C8, D1–D11, E1–E8, F1–F8, G1–G9 and H1–H9. Full-problem mode
+shows the root `statement.md`, which has no markers.
 
-Rules no test pins (left neutral):
+A rule is linked only when a test title clearly pins it, using tests from that stage or an earlier one. Rules that no
+test pins stay neutral.
+
+Unpinned rules in A1–A4, B1, E1, F1 and H1:
 
 - A2 stage 4: aborting while `fn` is running.
 - B1 stage 1: the `clear()` row. Only stage 3 tests `clear()`.
@@ -52,3 +55,6 @@ Rules no test pins (left neutral):
   cases.
 - H1 stage 3: `maxBatchSize` below 1 throwing `RangeError`. The bullet is linked for splitting.
 - Most intro paragraphs.
+
+The unpinned list items and table rows in the other problems are listed per problem and stage in
+`docs/rules-uncovered.md`.
