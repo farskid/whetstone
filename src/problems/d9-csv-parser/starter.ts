@@ -1,6 +1,6 @@
-import type { ParseOptions, ParseResult, StreamOptions } from './types';
+import type { ParseOptions, ParseResult, StreamOptions, CsvParser } from './types';
 
-export function createParser(opts: StreamOptions): { write(chunk: string): void; end(): void } {
+export function createParser(opts: StreamOptions): CsvParser {
   throw new Error('Not implemented');
 }
 

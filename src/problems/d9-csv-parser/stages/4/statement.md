@@ -4,11 +4,13 @@ Expose the parser as a streaming state machine, with `parse` built on top of it.
 const p = createParser({ onRow: (fields, row) => console.log(row, fields) });
 p.write('a,"b\r'); p.write('\nc"\r'); p.write('\n'); p.end(); // 1 ['a', 'b\r\nc']
 
-function createParser(opts: {
+interface StreamOptions {
   delimiter?: string;                         // default ','
   onRow(fields: string[], row: number): void; // row numbers start at 1
   onError?(err: ParseError): void;
-}): { write(chunk: string): void; end(): void };
+}
+interface CsvParser { write(chunk: string): void; end(): void }
+function createParser(opts: StreamOptions): CsvParser;
 ```
 
 - `createParser` applies the record and field rules from stages 1 and 2, including the BOM at the very start of the input.

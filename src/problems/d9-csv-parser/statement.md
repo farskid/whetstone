@@ -14,11 +14,13 @@ p.write('a,"b\r'); p.write('\nc"\r'); p.write('\n'); p.end(); // 1 ['a', 'b\r\nc
 
 ```ts
 interface ParseError { row: number; message: string }
-function createParser(opts: {
+interface StreamOptions {
   delimiter?: string;                         // default ','
   onRow(fields: string[], row: number): void; // row numbers start at 1
   onError?(err: ParseError): void;
-}): { write(chunk: string): void; end(): void };
+}
+interface CsvParser { write(chunk: string): void; end(): void }
+function createParser(opts: StreamOptions): CsvParser;
 
 function parse(text: string, opts?: {
   delimiter?: string | 'auto';                // default ','

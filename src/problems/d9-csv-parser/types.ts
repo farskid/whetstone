@@ -26,3 +26,10 @@ export interface ParseResult {
   data: unknown[];
   errors: ParseError[];
 }
+
+/** What `createParser` returns: feed it chunks, then end it. */
+export interface CsvParser {
+  write(chunk: string): void;
+  /** Flushes the last record. */
+  end(): void;
+}

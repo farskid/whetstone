@@ -1,8 +1,8 @@
-import type { ParseError, ParseOptions, ParseResult, StreamOptions } from './types';
+import type { ParseError, ParseOptions, ParseResult, StreamOptions, CsvParser } from './types';
 
 const CANDIDATES = [',', '\t', ';', '|'];
 
-export function createParser(opts: StreamOptions): { write(chunk: string): void; end(): void } {
+export function createParser(opts: StreamOptions): CsvParser {
   const delim = opts.delimiter ?? ',';
   let state: 'start' | 'unquoted' | 'quoted' | 'afterQuote' = 'start';
   let field = '';
