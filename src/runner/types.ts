@@ -1,3 +1,4 @@
+import type { ContractFailure } from './contract';
 import type { Expect } from './expect';
 import type { FakeClock } from './clock';
 
@@ -58,4 +59,9 @@ export interface RunSummary {
   total: number;
   /** Set when the whole run was killed (infinite loop, hard timeout). */
   aborted?: string;
+  /**
+   * TypeScript mode, staged problems: the stage contract checks the code fails (src/runner/contract.ts). Any of them
+   * keeps the stage from passing even when every test does.
+   */
+  contract?: ContractFailure[];
 }
