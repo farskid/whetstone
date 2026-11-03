@@ -39,6 +39,7 @@ export function Results({ titles, groups, state }: { titles: string[]; groups?: 
   if (state.phase === 'idle') headline = <span className="muted">{titles.length} tests. Run them with the button or Ctrl/⌘ + Enter.</span>;
   else if (state.phase === 'running') headline = <span>Running… {results.length}/{titles.length}</span>;
   else if (summary?.compileError) headline = <span className="fail-text">Could not run your code</span>;
+  else if (summary?.contract?.length) headline = <span className="fail-text" data-testid="contract-failed">{passed === titles.length ? `All ${titles.length} tests pass, but` : `${passed}/${titles.length} tests passed, and`} your types don't match this stage</span>;
   else if (passed === titles.length) headline = <span className="pass-text" data-testid="all-passed">All {titles.length} tests passed</span>;
   else headline = <span className="fail-text">{passed}/{titles.length} tests passed</span>;
 
@@ -51,6 +52,17 @@ export function Results({ titles, groups, state }: { titles: string[]; groups?: 
       </div>
       {summary?.compileError && <pre className="compile-error">{summary.compileError}</pre>}
       {summary?.aborted && <div className="aborted">{summary.aborted}</div>}
+      {summary?.contract?.length ? (
+        <div className="contract-error" data-testid="contract-error">
+          {summary.contract.map((f, i) => (
+            <div key={i} className="contract-failure">
+              <div className="contract-message"><InlineCode text={f.message} /></div>
+              <details><summary className="muted small">What TypeScript says</summary><pre>{f.details.join('\n')}</pre></details>
+            </div>
+          ))}
+          <div className="muted small">The tests run your code as JavaScript, so they can't see this. Only TypeScript mode checks it.</div>
+        </div>
+      ) : null}
       {summary?.moduleLogs?.length ? (
         <details className="module-logs"><summary>Console output while loading your code ({summary.moduleLogs.length})</summary><pre>{summary.moduleLogs.join('\n')}</pre></details>
       ) : null}
@@ -78,4 +90,9 @@ export function Results({ titles, groups, state }: { titles: string[]; groups?: 
       </ol>
     </div>
   );
+}
+
+/** `code` spans in a plain sentence. */
+export function InlineCode({ text }: { text: string }) {
+  return <>{text.split(/(`[^`]+`)/).map((part, i) => (part.startsWith('`') && part.endsWith('`') ? <code key={i}>{part.slice(1, -1)}</code> : part))}</>;
 }

@@ -60,6 +60,11 @@ export interface ProblemSources {
   typesTs?: string;
   /** Staged problems only: each stage's types file; stages/<k>/types.ts, and types.ts for the last one. */
   stageTypesTs: string[];
+  /**
+   * Staged problems only: each stage's hidden contract (src/runner/contract.ts), stages/<k>/contract.ts and
+   * contract.ts for the last one; undefined for a stage without one. The full problem uses the last.
+   */
+  stageContractsTs: (string | undefined)[];
 }
 
 export interface Problem extends ProblemMeta {

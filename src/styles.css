@@ -352,3 +352,9 @@ a.problem-row:hover, .link-row:hover { background: var(--bg-3); }
   .btn.go-next { animation: none; }
   .crack-lock.open .cl-shackle, .crack-lock.open .cl-crack, .crack-lock.open .cl-body, .solved-badge.just, .solved-badge.just .cl-shackle, .solved-badge.just .cl-crack { animation: none; }
 }
+.contract-error { margin: 10px 14px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--fail); background: color-mix(in srgb, var(--fail) 8%, transparent); font-size: 13px; display: flex; flex-direction: column; gap: 8px; }
+.contract-message { color: var(--fail); }
+.contract-failure pre { margin: 6px 0 0; white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 12px; }
+.contract-notes { margin: 10px 0; padding: 8px 12px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 4px; font-size: 13px; }
+.contract-notes-head { font-weight: 600; margin-bottom: 4px; }
+.contract-notes ul { margin: 0 0 4px; padding-left: 18px; }

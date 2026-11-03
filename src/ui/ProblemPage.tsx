@@ -11,11 +11,13 @@ import { monaco } from '../monaco';
 import { TagChips } from './TagChips';
 import { href } from './router';
 import { Markdown } from './Markdown';
-import { Results, type RunState } from './Results';
+import { InlineCode, Results, type RunState } from './Results';
 import { Splitter } from './Splitter';
 import { useEditorSplit } from './editorSplit';
 import { CodeView } from './CodeView';
 import { CrackedEffect, CrackLock } from './Cracked';
+import { checkContract, clearContractMarks, markContract } from './contractCheck';
+import { contractChanges } from '../runner/contract';
 import { useResolvedTheme, type ResolvedTheme } from '../theme';
 
 type Ed = Parameters<OnMount>[0];
@@ -44,6 +46,8 @@ export function ProblemPage({ problem }: { problem: Problem }) {
    */
   const typesTs = !staged ? undefined : full ? sources.typesTs ?? '' : sources.stageTypesTs[viewStage];
   const prevTypesTs = staged && !full && viewStage > 0 ? sources.stageTypesTs[viewStage - 1] : undefined;
+  /** The stage's hidden contract (src/runner/contract.ts), checked in TypeScript mode; full mode uses the last stage's. */
+  const contractTs = !staged ? undefined : sources.stageContractsTs[full ? n - 1 : viewStage];
   const typesPath = `file:///problems/${problem.id}/types.ts`;
   const stageTests = useMemo(() => testsForStage(problem, staged ? viewStage : undefined), [problem, staged, viewStage]);
   const titles = useMemo(() => stageTests.map((t) => t.title), [stageTests]);
@@ -167,17 +171,27 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     const stage = staged ? viewStage : undefined;
     // Pin the stage being run, so unlocking the next one doesn't move the view mid-run.
     if (staged && !full) setPicked(viewStage);
+    // TypeScript only: does the code accept what this stage hands it? Checked alongside the tests. If the checker itself
+    // fails, the run counts on the tests alone.
+    const model = ed.getModel();
+    clearContractMarks(model);
+    const contractRun = lang === 'ts' && contractTs && model
+      ? checkContract(problem.id, contractTs, model.uri).catch(() => undefined) : Promise.resolve(undefined);
     const h = runInWorker(problem.id, titles, source, lang, (r) => {
       if (handleRef.current !== h) return;
       partial.push(r);
       setRun({ phase: 'running', results: [...partial] });
     }, stage, typesTs);
     handleRef.current = h;
-    h.promise.then((summary) => {
+    h.promise.then(async (tested) => {
       if (handleRef.current !== h) return;
+      const contract = tested.compileError ? undefined : await contractRun;
+      if (handleRef.current !== h) return;
+      const summary = contract?.length ? { ...tested, contract } : tested;
+      if (contract?.length && model && !model.isDisposed()) markContract(model, contract);
       setRun({ phase: 'done', summary });
       if (summary.aborted !== 'Cancelled.') {
-        const passedAll = !summary.compileError && summary.passed === summary.total;
+        const passedAll = !summary.compileError && !summary.contract?.length && summary.passed === summary.total;
         const p = progressNow();
         const wasGreen = green.current[viewKey] ?? (viewKey.startsWith('s') ? !!p.stagePassed[problem.id]?.[viewStage] : !!p.solved[problem.id]);
         green.current[viewKey] = passedAll;
@@ -190,7 +204,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
         }
       }
     });
-  }, [problem.id, titles, lang, staged, viewStage, full, n, typesTs, viewKey]);
+  }, [problem.id, titles, lang, staged, viewStage, full, n, typesTs, contractTs, viewKey]);
 
   const runRef = useRef(doRun);
   runRef.current = doRun;
@@ -287,7 +301,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
               <>
                 <div className="pb-tags" aria-label="Tags"><TagChips tags={problem.tags} /></div>
                 {staged && !full ? (
-                  <StagedStatement problem={problem} sections={sources.stageStatements} unlocked={unlocked} current={viewStage} passed={stagePassed} theme={theme} results={lastResults} />
+                  <StagedStatement problem={problem} sections={sources.stageStatements} contracts={sources.stageContractsTs} unlocked={unlocked} current={viewStage} passed={stagePassed} theme={theme} results={lastResults} />
                 ) : (
                   <Markdown source={sources.statement} theme={theme} results={lastResults} />
                 )}
@@ -395,7 +409,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
                   defaultValue={initialCode}
                   theme={monacoTheme}
                   onMount={onMount}
-                  onChange={(v) => v !== undefined && actions.setCode(problem.id, lang, v)}
+                  onChange={(v) => { if (v !== undefined) actions.setCode(problem.id, lang, v); clearContractMarks(editorRef.current?.getModel()); }}
                   loading={<div className="muted pad">Loading editor…</div>}
                   options={{ ...editorOptions, renderLineHighlight: 'line' }}
                 />
@@ -429,8 +443,8 @@ const editorOptions = {
   padding: { top: 10 },
 } as const;
 
-function StagedStatement({ problem, sections, unlocked, current, passed, theme, results }: {
-  problem: Problem; sections: string[]; unlocked: number; current: number; passed: (string | null)[]; theme: ResolvedTheme;
+function StagedStatement({ problem, sections, contracts, unlocked, current, passed, theme, results }: {
+  problem: Problem; sections: string[]; contracts: (string | undefined)[]; unlocked: number; current: number; passed: (string | null)[]; theme: ResolvedTheme;
   results: ReadonlyMap<string, TestStatus>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -445,10 +459,23 @@ function StagedStatement({ problem, sections, unlocked, current, passed, theme, 
             <span className="stage-head-title">{st.title}</span>
           </div>
           <Markdown source={sections[k]} theme={theme} results={results} />
+          <ContractNotes changes={k > 0 ? contractChanges(contracts[k], contracts[k - 1]) : []} stage={k + 1} />
         </section>
       ) : (
         <div key={k} className="stage-section locked-section muted small">🔒 Stage {k + 1}: {st.title}. Unlocks when stage {k} passes.</div>
       ))}
+    </div>
+  );
+}
+
+/** The signatures a stage changes (its contract's new `@change` lines), so carried-over code knows what to update. */
+function ContractNotes({ changes, stage }: { changes: string[]; stage: number }) {
+  if (!changes.length) return null;
+  return (
+    <div className="contract-notes" data-testid={`contract-notes-${stage}`}>
+      <div className="contract-notes-head">Signature {changes.length === 1 ? 'change' : 'changes'} in stage {stage}</div>
+      <ul>{changes.map((c) => <li key={c}><InlineCode text={c} /></li>)}</ul>
+      <div className="muted small">Your code carries over, so update its signatures. In TypeScript a run fails until they match.</div>
     </div>
   );
 }
