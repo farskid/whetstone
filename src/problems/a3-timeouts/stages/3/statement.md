@@ -1,4 +1,4 @@
-Accept an abortable task, and an outside signal.
+Accept an abortable task, and an outside signal. The first argument can now be a function as well as a promise, so it is renamed from `promise` to `input`. The position is the same; only the name changes.
 
 ```ts
 interface TimeoutOptions<T> {
