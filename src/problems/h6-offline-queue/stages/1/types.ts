@@ -12,3 +12,11 @@ export interface QueueOptions {
   /** Passed in by callers but not used until stage 2. */
   storage: unknown;
 }
+
+/** What `createOfflineQueue` returns. */
+export interface OfflineQueue {
+  /** Returns the id. */
+  enqueue(type: string, payload: unknown): number;
+  /** Copies, in queue order, including the one in flight. */
+  pending(): Mutation[];
+}

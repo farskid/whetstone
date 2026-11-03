@@ -27,11 +27,15 @@ function createOfflineQueue(options: {
   isRetryable?: (error: unknown) => boolean;        // default: true unless error.status is 400–499
   onSettled?: (m: Mutation, outcome: Outcome) => void;
   clock?: { setTimeout(fn: () => void, ms: number): number; clearTimeout(id: number): void };
-}): {
-  enqueue(type: string, payload: unknown, opts?: { dedupeKey?: string }): number; // returns the id
+}): OfflineQueue;
+
+interface EnqueueOptions { dedupeKey?: string }
+
+interface OfflineQueue {
+  enqueue(type: string, payload: unknown, opts?: EnqueueOptions): number; // returns the id
   setOnline(online: boolean): void;
   pending(): Mutation[];                            // copies, queue order, including the one in flight
-};
+}
 ```
 
 ## Rules

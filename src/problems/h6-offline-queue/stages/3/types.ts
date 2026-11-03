@@ -31,3 +31,12 @@ export interface QueueOptions {
   onSettled?: (m: Mutation, outcome: Outcome) => void;
   clock?: { setTimeout(fn: () => void, ms: number): number; clearTimeout(id: number): void };
 }
+
+/** What `createOfflineQueue` returns. */
+export interface OfflineQueue {
+  /** Returns the id. */
+  enqueue(type: string, payload: unknown): number;
+  setOnline(online: boolean): void;
+  /** Copies, in queue order, including the one in flight. */
+  pending(): Mutation[];
+}

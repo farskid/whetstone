@@ -1,11 +1,11 @@
-import type { Mutation, Outcome, QueueOptions } from './types';
+import type { Mutation, Outcome, QueueOptions, OfflineQueue, EnqueueOptions } from './types';
 
 const defaultIsRetryable = (error: unknown) => {
   const status = (error as { status?: unknown } | null)?.status;
   return !(typeof status === 'number' && status >= 400 && status <= 499);
 };
 
-export function createOfflineQueue(options: QueueOptions) {
+export function createOfflineQueue(options: QueueOptions): OfflineQueue {
   const {
     send,
     storage,
@@ -85,7 +85,7 @@ export function createOfflineQueue(options: QueueOptions) {
   kick();
 
   return {
-    enqueue(type: string, payload: unknown, opts: { dedupeKey?: string } = {}): number {
+    enqueue(type: string, payload: unknown, opts: EnqueueOptions = {}): number {
       const { dedupeKey } = opts;
       if (dedupeKey !== undefined) {
         const existing = queue.find((m) => m.dedupeKey === dedupeKey && m !== inFlight);

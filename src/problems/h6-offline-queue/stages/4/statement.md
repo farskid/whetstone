@@ -7,7 +7,7 @@ q.enqueue('note.update', { id: 7, text: 'draft' }, { dedupeKey: 'note:7' });
 q.enqueue('note.update', { id: 7, text: 'final' }, { dedupeKey: 'note:7' }); // replaces the queued one
 ```
 
-`enqueue(type, payload, opts?: { dedupeKey?: string })` now takes options. A mutation created with a `dedupeKey` has that `dedupeKey` field; one without has no such field.
+`enqueue(type, payload, opts?: EnqueueOptions)` now takes options (`interface EnqueueOptions { dedupeKey?: string }`). A mutation created with a `dedupeKey` has that `dedupeKey` field; one without has no such field.
 
 **Coalescing.** `enqueue` with a `dedupeKey` that matches a queued mutation **that is not in flight** replaces that mutation's `type` and `payload` in place. It keeps that mutation's position, id and attempts, and returns its id. If the only match is in flight, append a new mutation instead. <!-- tests: coalescing: dedupeKey replaces a queued payload in place | coalescing never touches the in-flight mutation -->
 

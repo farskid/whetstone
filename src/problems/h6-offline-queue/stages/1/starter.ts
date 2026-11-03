@@ -1,6 +1,6 @@
-import type { Mutation, QueueOptions } from './types';
+import type { Mutation, QueueOptions, OfflineQueue } from './types';
 
-export function createOfflineQueue(options: QueueOptions) {
+export function createOfflineQueue(options: QueueOptions): OfflineQueue {
   return {
     enqueue(type: string, payload: unknown): number {
       throw new Error('Not implemented');

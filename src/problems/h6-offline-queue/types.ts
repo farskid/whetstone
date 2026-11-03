@@ -32,3 +32,18 @@ export interface QueueOptions {
   onSettled?: (m: Mutation, outcome: Outcome) => void;
   clock?: { setTimeout(fn: () => void, ms: number): number; clearTimeout(id: number): void };
 }
+
+/** Options for `enqueue`. */
+export interface EnqueueOptions {
+  /** A newer mutation with the same key replaces a queued one that isn't in flight. */
+  dedupeKey?: string;
+}
+
+/** What `createOfflineQueue` returns. */
+export interface OfflineQueue {
+  /** Returns the id. */
+  enqueue(type: string, payload: unknown, opts?: EnqueueOptions): number;
+  setOnline(online: boolean): void;
+  /** Copies, in queue order, including the one in flight. */
+  pending(): Mutation[];
+}

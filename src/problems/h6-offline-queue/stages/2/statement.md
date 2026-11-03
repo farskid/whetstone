@@ -14,6 +14,8 @@ window.addEventListener('offline', () => q.setOnline(false));
 storage: { getItem(key: string): string | null; setItem(key: string, value: string): void };
 storageKey?: string; // default 'offline-queue'
 online?: boolean;    // initial connectivity, default true
+
+// OfflineQueue gains:
 setOnline(online: boolean): void;
 ```
 

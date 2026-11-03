@@ -21,3 +21,12 @@ export interface QueueOptions {
   /** Initial connectivity (default true). */
   online?: boolean;
 }
+
+/** What `createOfflineQueue` returns. */
+export interface OfflineQueue {
+  /** Returns the id. */
+  enqueue(type: string, payload: unknown): number;
+  setOnline(online: boolean): void;
+  /** Copies, in queue order, including the one in flight. */
+  pending(): Mutation[];
+}

@@ -16,10 +16,12 @@ interface Mutation { id: number; type: string; payload: unknown; attempts: numbe
 function createOfflineQueue(options: {
   send(m: Mutation): Promise<unknown>;
   storage: unknown;                                 // not used until the next stage
-}): {
+}): OfflineQueue;
+
+interface OfflineQueue {
   enqueue(type: string, payload: unknown): number; // returns the id
   pending(): Mutation[];                            // copies, queue order, including the one in flight
-};
+}
 ```
 
 ## Rules
