@@ -32,3 +32,6 @@ export interface CommandHistory {
   canUndo(): boolean;
   canRedo(): boolean;
 }
+
+/** `capacity` caps the undo steps kept (default unlimited). */
+export interface CommandHistoryOptions { capacity?: number }

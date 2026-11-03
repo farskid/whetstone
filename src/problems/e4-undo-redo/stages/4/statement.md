@@ -24,7 +24,8 @@ interface CommandHistory {
   canUndo(): boolean;
   canRedo(): boolean;
 }
-function createCommandHistory(options?: { capacity?: number }): CommandHistory;
+interface CommandHistoryOptions { capacity?: number }
+function createCommandHistory(options?: CommandHistoryOptions): CommandHistory;
 ```
 
 ### Selection

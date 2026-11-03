@@ -1,4 +1,4 @@
-import type { HistoryOptions, History, Command, CommandHistory } from './types';
+import type { HistoryOptions, History, Command, CommandHistory, CommandHistoryOptions } from './types';
 
 interface Entry<S, Sel> { state: S; selection: Sel | undefined }
 
@@ -71,7 +71,7 @@ export function createHistory<S, Sel = unknown>(initial: S, options: HistoryOpti
   };
 }
 
-export function createCommandHistory(options: { capacity?: number } = {}): CommandHistory {
+export function createCommandHistory(options: CommandHistoryOptions = {}): CommandHistory {
   const capacity = options.capacity ?? Infinity;
   const done: Command[] = [];
   let undone: Command[] = [];
