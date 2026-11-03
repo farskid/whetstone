@@ -20,8 +20,8 @@ lines += ["];", "", "export const problemsById = new Map(problems.map((p) => [p.
 open(os.path.join(ROOT, 'index.ts'), 'w').write('\n'.join(lines))
 print(f'{len(dirs)} problems:', ' '.join(dirs))
 
-# README table between the problems markers.
-readme = os.path.join(ROOT, '..', '..', 'README.md')
+# Problems table in docs/DEVELOPMENT.md, between the problems markers.
+readme = os.path.join(ROOT, '..', '..', 'docs', 'DEVELOPMENT.md')
 def field(d, name):
     m = re.search(name + r": '((?:[^'\\]|\\.)*)'", open(os.path.join(ROOT, d, 'meta.ts')).read())
     return m.group(1).replace("\\'", "'") if m else ''
