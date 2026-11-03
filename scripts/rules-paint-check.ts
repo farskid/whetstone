@@ -83,7 +83,7 @@ async function main() {
     const a4 = 'a4-singleflight';
     const s3 = readFileSync(join(root, 'src/problems', a4, 'stages/3/solution.ts'), 'utf8');
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
-    const state = { version: 2, theme: 'dark', lang: 'ts', code: { [a4]: { ts: s3 } }, stage: { [a4]: 2 }, stagePassed: { [a4]: ['2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', null, null] } };
+    const state = { version: 2, theme: 'dark', themeChosen: true, lang: 'ts', code: { [a4]: { ts: s3 } }, stage: { [a4]: 2 }, stagePassed: { [a4]: ['2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', null, null] } };
     await ctx.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('practical:v2', ${JSON.stringify(JSON.stringify(state))}); }`);
     const page = await ctx.newPage();
     await page.goto(`${BASE}#/p/${a4}`);
@@ -123,7 +123,7 @@ async function main() {
     const ref = readFileSync(join(root, 'src/problems', a4, 'solution.ts'), 'utf8');
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     const passed = Array.from({ length: 3 }, () => '2026-01-01T00:00:00.000Z').concat([null as unknown as string]);
-    const state = { version: 2, theme: 'dark', lang: 'ts', code: { [a4]: { ts: ref } }, stage: { [a4]: 3 }, stagePassed: { [a4]: passed } };
+    const state = { version: 2, theme: 'dark', themeChosen: true, lang: 'ts', code: { [a4]: { ts: ref } }, stage: { [a4]: 3 }, stagePassed: { [a4]: passed } };
     await ctx.addInitScript(`localStorage.setItem('practical:v2', ${JSON.stringify(JSON.stringify(state))});`);
     const page = await ctx.newPage();
     await page.goto(`${BASE}#/p/${a4}`);

@@ -11,6 +11,11 @@ export interface Progress {
   version: 2;
   /** The header's pick; "system" follows the OS (see src/theme.ts). Old saves only have dark/light. */
   theme: ThemePref;
+  /**
+   * The theme was picked in the header. Saves from before System became the default always stored "dark" (the old
+   * default), so a "dark" without this flag opens as System; "light" and "system" were always picked.
+   */
+  themeChosen?: boolean;
   lang: Language;
   /** The editor buffer per problem. One buffer per language that carries over from stage to stage. */
   code: Record<string, Code>;
@@ -42,7 +47,7 @@ const V1_KEY = 'practical:v1';
 const FOLDED: Record<string, { into: string; stage: number }> = { 'f10-debounce-basic': { into: 'f1-debounce', stage: 0 } };
 
 const empty = (): Progress => ({
-  version: 2, theme: 'dark', lang: 'ts', code: {}, solved: {}, attempts: {}, revealed: {},
+  version: 2, theme: 'system', lang: 'ts', code: {}, solved: {}, attempts: {}, revealed: {},
   stage: {}, stagePassed: {}, stageCode: {}, stageRevealed: {}, full: {}, ownTypes: {},
 });
 const obj = (v: unknown) => (typeof v === 'object' && v && !Array.isArray(v) ? (v as Record<string, any>) : {});
@@ -64,7 +69,8 @@ export function normalize(raw: any): Progress {
   if (!raw || typeof raw !== 'object') return base;
   const s: Progress = {
     version: 2,
-    theme: raw.theme === 'light' || raw.theme === 'system' ? raw.theme : 'dark',
+    theme: raw.theme === 'light' || raw.theme === 'system' ? raw.theme : raw.theme === 'dark' && raw.themeChosen === true ? 'dark' : 'system',
+    ...(raw.themeChosen === true && (raw.theme === 'dark' || raw.theme === 'light' || raw.theme === 'system') ? { themeChosen: true } : {}),
     lang: raw.lang === 'js' ? 'js' : 'ts',
     code: { ...obj(raw.code) },
     solved: { ...obj(raw.solved) },
@@ -136,7 +142,7 @@ export function passedStages(s: Progress, id: string): number {
 }
 
 export const actions = {
-  setTheme: (theme: Progress['theme']) => update((s) => ({ ...s, theme })),
+  setTheme: (theme: Progress['theme']) => update((s) => ({ ...s, theme, themeChosen: true })),
   setLang: (lang: Language) => update((s) => ({ ...s, lang })),
   setCode: (id: string, lang: Language, code: string) =>
     update((s) => ({ ...s, code: { ...s.code, [id]: { ...s.code[id], [lang]: code } } })),
@@ -172,5 +178,5 @@ export const actions = {
     if (!parsed || typeof parsed !== 'object' || (parsed.app && parsed.app !== 'practical')) throw new Error('This file is not a progress export from this site.');
     update(() => normalize(parsed));
   },
-  resetAll: () => update(() => ({ ...empty(), theme: state.theme })),
+  resetAll: () => update(() => ({ ...empty(), theme: state.theme, ...(state.themeChosen ? { themeChosen: true } : {}) })),
 };

@@ -19,7 +19,7 @@ let bad = 0; const check = (c: boolean, m: string) => { console.log(`${c ? '✓'
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH ?? '/usr/bin/google-chrome', headless: true });
   async function open(id: string, w: number, h: number, theme: string) {
     const ctx = await b.newContext({ viewport: { width: w, height: h } });
-    await ctx.addInitScript(`localStorage.setItem('practical:v2', ${JSON.stringify(JSON.stringify({ version: 2, theme }))})`);
+    await ctx.addInitScript(`localStorage.setItem('practical:v2', ${JSON.stringify(JSON.stringify({ version: 2, theme, themeChosen: true }))})`);
     const p = await ctx.newPage();
     p.on('pageerror', (e) => { console.log('pageerror', e.message); bad++; });
     await p.goto(`${BASE}#/p/${id}`); await p.waitForSelector('.pb-tags'); await p.waitForTimeout(600);

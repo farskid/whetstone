@@ -45,9 +45,9 @@ export function App() {
           value={progress.theme}
           onChange={(e) => actions.setTheme(e.target.value as ThemePref)}
         >
+          <option value="system">◐ System ({theme === 'dark' ? 'dark' : 'light'})</option>
           <option value="dark">☾ Dark</option>
           <option value="light">☀ Light</option>
-          <option value="system">◐ System ({theme === 'dark' ? 'dark' : 'light'})</option>
         </select>
       </header>
       {route.name === 'problem' ? (

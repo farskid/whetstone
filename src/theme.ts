@@ -5,7 +5,7 @@ export type ThemePref = 'dark' | 'light' | 'system';
 /** What the page actually shows (`<html data-theme>`, the CSS and Monaco only know these two). */
 export type ResolvedTheme = 'dark' | 'light';
 
-export const THEME_PREFS: readonly ThemePref[] = ['dark', 'light', 'system'];
+export const THEME_PREFS: readonly ThemePref[] = ['system', 'dark', 'light'];
 
 const query = typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null;
 

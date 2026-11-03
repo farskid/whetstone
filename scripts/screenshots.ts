@@ -34,7 +34,7 @@ async function waitForServer() {
 function seed(state: object) {
   return `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('practical:v1', ${JSON.stringify(JSON.stringify(state))}); }`;
 }
-const baseState = (extra: object = {}) => ({ version: 1, theme: 'dark', lang: 'ts', code: {}, solved: {}, attempts: {}, revealed: {}, ...extra });
+const baseState = (extra: object = {}) => ({ version: 1, theme: 'dark', themeChosen: true, lang: 'ts', code: {}, solved: {}, attempts: {}, revealed: {}, ...extra });
 
 async function open(browser: Browser, hash: string, state: object, opts: { width?: number; height?: number } = {}): Promise<Page> {
   const ctx = await browser.newContext({ viewport: { width: opts.width ?? 1440, height: opts.height ?? 900 }, deviceScaleFactor: 1 });

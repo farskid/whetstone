@@ -56,7 +56,7 @@ async function main() {
   /** Opens a problem with the given saved progress (v2) and returns the page plus the list of bad requests. */
   async function open(id: string, state: Record<string, unknown>) {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, permissions: ['clipboard-read', 'clipboard-write'] });
-    await ctx.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('practical:v2', ${JSON.stringify(JSON.stringify({ version: 2, theme: 'dark', ...state }))}); }`);
+    await ctx.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('practical:v2', ${JSON.stringify(JSON.stringify({ version: 2, theme: 'dark', themeChosen: true, ...state }))}); }`);
     const page = await ctx.newPage();
     const bad: string[] = [];
     page.on('response', (r) => { if (r.status() >= 400) bad.push(`${r.status()} ${r.url()}`); });
@@ -384,7 +384,8 @@ async function main() {
     await page.goto(`${BASE}#/p/${id}`);
     await page.waitForSelector(SOL, { timeout: 20000 });
     const sel = '[data-testid="theme-select"]';
-    check(await page.inputValue(sel) === 'dark' && await shown() === 'dark', 'a fresh visit starts on Dark');
+    check(await page.inputValue(sel) === 'system' && await shown() === 'dark', 'a fresh visit starts on System (dark OS: dark)');
+    check(await page.$eval(sel, (e) => (e as HTMLSelectElement).options[0].value) === 'system', 'System is the first option');
     check(await page.getAttribute(sel, 'aria-label') === 'Color theme', 'the picker is labelled');
     const fb = '[data-testid="request-problem"]';
     check((await page.textContent(fb))?.trim() === 'send feedback or something', 'the topbar feedback link reads "send feedback or something"');
@@ -420,13 +421,14 @@ async function main() {
     await page.waitForSelector(SOL, { timeout: 20000 });
     check(await page.evaluate(() => (window as any).__firstTheme) === 'light' && await page.inputValue(sel) === 'system', 'reload with a light OS paints light from the start');
     // An old save with theme "light" (and one with garbage) keeps working.
-    for (const [raw, want] of [['light', 'light'], ['blue', 'dark']] as const) {
+    // A "dark" saved before System was the default (no themeChosen) was the old default, so it opens as System.
+    for (const [raw, chosen, want, shows] of [['light', false, 'light', 'light'], ['dark', true, 'dark', 'dark'], ['dark', false, 'system', 'light'], ['blue', false, 'system', 'light']] as const) {
       const old = await browser.newContext({ colorScheme: 'light' });
-      await old.addInitScript(`localStorage.setItem('practical:v2', ${JSON.stringify(JSON.stringify({ version: 2, theme: raw }))});`);
+      await old.addInitScript(`localStorage.setItem('practical:v2', ${JSON.stringify(JSON.stringify({ version: 2, theme: raw, ...(chosen ? { themeChosen: true } : {}) }))});`);
       const p2 = await old.newPage();
       await p2.goto(`${BASE}#/`);
       await p2.waitForSelector(sel);
-      check(await p2.inputValue(sel) === want && await p2.evaluate(() => document.documentElement.dataset.theme) === want, `a saved theme "${raw}" opens as ${want}`);
+      check(await p2.inputValue(sel) === want && await p2.evaluate(() => document.documentElement.dataset.theme) === shows, `a saved theme "${raw}"${chosen ? ' (picked)' : ''} opens as ${want} (${shows})`);
       await old.close();
     }
     await ctx.close();
