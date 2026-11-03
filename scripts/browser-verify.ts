@@ -271,6 +271,55 @@ async function main() {
     await narrowCtx.close();
   }
 
+  // Stage contracts: A3 stage 3 code whose `withTimeout` still says `input: Promise<T>` passes every test (they run the
+  // stripped JS) but fails the stage's contract in TypeScript: the results say so, the editor marks the declaration,
+  // and the stage isn't cleared. JavaScript mode doesn't check it, so the same code clears the stage there.
+  const contractId = 'a3-timeouts';
+  if (ids.includes(contractId)) {
+    const check = (ok: boolean, what: string) => (ok ? console.log(`  ✓ contract: ${what}`) : fail(`contract: ${what}`));
+    const s3 = readFileSync(join(problemsDir, contractId, 'stages', '3', 'solution.ts'), 'utf8');
+    const stale = s3.replace('  input: TimeoutInput<T>,', '  input: Promise<T>,');
+    if (stale === s3) fail('contract: the A3 stage 3 reference no longer declares `input: TimeoutInput<T>`');
+    const state = (lang: 'ts' | 'js') => ({ lang, code: { [contractId]: { [lang]: toJs(stale, lang) } }, stage: { [contractId]: 2 }, stagePassed: { [contractId]: ['2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', null, null] } });
+    const run = async (page: Page) => {
+      await page.click('[data-testid="run"]');
+      await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 60000 });
+    };
+    {
+      const { ctx, page, bad } = await open(contractId, state('ts'));
+      check(!!(await page.$('[data-testid="contract-notes-3"]')), 'the stage 3 statement lists its signature change');
+      await run(page);
+      const err = await page.$('[data-testid="contract-error"]');
+      check(!!err && ((await err.textContent()) ?? '').includes('TimeoutInput'), 'TypeScript: the results show the contract failure');
+      check(/All \d+ tests pass, but your types don't match/.test((await page.textContent('[data-testid="contract-failed"]').catch(() => '')) ?? ''), 'TypeScript: the headline says the tests pass but the types do not');
+      check(!(await page.$('[data-testid="all-passed"]')) && !(await page.$('[data-testid="stage-cleared"]')) && !(await page.$('[data-testid="cracked-fx"]')), 'TypeScript: no all-passed headline and no stage-cleared banner');
+      // The squiggle sits on the `export function withTimeout` line (Monaco draws overlays and lines at the same top).
+      const marked = await page.waitForFunction(() => {
+        const ed = document.querySelector('[data-testid="solution-editor"] .monaco-editor');
+        const line = [...(ed?.querySelectorAll('.view-line') ?? [])].find((e) => e.textContent?.replace(/\u00a0/g, ' ').includes('export function withTimeout')) as HTMLElement | undefined;
+        return !!line && [...(ed?.querySelectorAll('.view-overlays .squiggly-error') ?? [])].some((e) => (e.parentElement as HTMLElement).style.top === line.style.top);
+      }, null, { timeout: 5000 }).then(() => true).catch(() => false);
+      check(marked, 'TypeScript: the editor marks the withTimeout declaration');
+      await page.screenshot({ path: join(SHOTS, 'whetstone-contract-1-ts-fails.png') });
+      if (bad.length) fail(`contract bad requests:\n    ${bad.join('\n    ')}`);
+      // Fixing the signature clears it and the stage.
+      await paste(page, s3);
+      await run(page);
+      check(!(await page.$('[data-testid="contract-error"]')) && !!(await page.$('[data-testid="all-passed"]')), 'TypeScript: with `input: TimeoutInput<T>` the stage passes');
+      check(!!(await page.waitForSelector('[data-testid="stage-cleared"]', { timeout: 3000 }).catch(() => null)), 'TypeScript: and the stage-cleared banner shows');
+      await page.screenshot({ path: join(SHOTS, 'whetstone-contract-2-ts-fixed.png') });
+      await ctx.close();
+    }
+    {
+      const { ctx, page } = await open(contractId, state('js'));
+      await run(page);
+      check(!(await page.$('[data-testid="contract-error"]')) && !!(await page.$('[data-testid="all-passed"]')), 'JavaScript: the same code skips the check and passes');
+      check(!!(await page.waitForSelector('[data-testid="stage-cleared"]', { timeout: 3000 }).catch(() => null)), 'JavaScript: the stage-cleared banner shows');
+      await page.screenshot({ path: join(SHOTS, 'whetstone-contract-3-js-skips.png') });
+      await ctx.close();
+    }
+  }
+
   // "Cracked" on a single-stage problem: plays on the first all-green run, not on a green re-run, again after red →
   // green, again after Reset, and never on a solved problem's green re-run after a reload.
   const crackId = 'a9-promise-all-settled';
