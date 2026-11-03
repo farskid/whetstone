@@ -10,7 +10,8 @@
  * following an emulated OS colour scheme live, Monaco following along); its screenshots are whetstone-theme-*.png.
  * The divider between types.ts and the solution is dragged and moved by keyboard, side by side and stacked, and must persist
  * across a reload (whetstone-editor-split-*.png). Any request that 404s (a worker, chunk or asset
- * resolved outside the base) fails the run too.
+ * resolved outside the base) fails the run too. The "Cracked" effect must play only when the whole problem newly goes
+ * green (not on a stage pass, a green re-run or a reload of a solved problem) and again after red → green or Reset.
  * VERIFY_BASE=/whetstone/ serves dist/ under that base, to check a build made with BASE_PATH=/whetstone/.
  */
 import { spawn } from 'node:child_process';
@@ -140,6 +141,7 @@ async function main() {
     await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-0-readonly.png') });
     await paste(page, s1);
     check(await runAndCheck(`flow: ${flowId} stage 1 typed in the editor`, page, bad), 'stage 1 passes');
+    check(!(await page.$('[data-testid="cracked-fx"]')), 'passing stage 1 does not play "Cracked" (only the whole problem does)');
     // A first pass moves straight on to stage 2, with a notice saying stage 1 passed.
     const notice = await page.waitForSelector('[data-testid="stage-unlocked"]', { timeout: 5000 }).catch(() => null);
     check(!!notice && /Stage 1 passed.*now on stage 2/.test((await notice.textContent()) ?? ''), '"Stage 1 passed — now on stage 2" notice');
@@ -174,6 +176,7 @@ async function main() {
     await paste(page, s2);
     check(await runAndCheck(`flow: ${flowId} stage 2 reference in the editor`, page, bad), 'stage 2 passes with the stage-2 solution');
     check((await page.textContent('.stage-label'))?.trim() === 'Stage 3 of 3', 'passing stage 2 moves on to stage 3');
+    check(!(await page.$('[data-testid="cracked-fx"]')), 'passing stage 2 does not play "Cracked"');
     await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-3-stage2-passed.png') });
     // Statement borders: passed stages are the pass colour (the viewed one too, once passed); the viewed stage that
     // isn't passed yet is the accent.
@@ -228,6 +231,13 @@ async function main() {
     check(!!(await old.page.waitForSelector('[data-testid="own-types"]', { timeout: 3000 }).catch(() => null)), 'Ctrl/⌘+Z brings the old declarations (and the offer) back');
     await old.ctx.close();
 
+    // "Cracked": the final stage passing plays the effect once; the header then says Cracked.
+    const last = await open(flowId, { lang: 'ts', code: { [flowId]: { ts: read('solution.ts') } }, stage: { [flowId]: 2 }, stagePassed: { [flowId]: ['2026-01-01T00:00:00.000Z', '2026-01-01T00:00:00.000Z', null] } });
+    check(await runAndCheck('flow: final stage reference', last.page, last.bad), 'the final stage passes');
+    check(!!(await last.page.$('[data-testid="cracked-fx"]')), 'passing the final stage plays "Cracked"');
+    check(((await last.page.textContent('[data-testid="solved-badge"]')) ?? '').includes('Cracked'), 'the header says Cracked');
+    await last.ctx.close();
+
     // A narrow window stacks types.ts above the solution.
     const narrowCtx = await browser.newContext({ viewport: { width: 760, height: 900 } });
     const narrow = await narrowCtx.newPage();
@@ -238,6 +248,52 @@ async function main() {
     check(!!tb && !!sb && tb.y + tb.height <= sb.y + 1 && Math.abs(tb.x - sb.x) < 2, 'a narrow window stacks the editors');
     await narrow.screenshot({ path: join(SHOTS, 'whetstone-two-editors-5-narrow.png') });
     await narrowCtx.close();
+  }
+
+  // "Cracked" on a single-stage problem: plays on the first all-green run, not on a green re-run, again after red →
+  // green, again after Reset, and never on a solved problem's green re-run after a reload.
+  const crackId = 'a9-promise-all-settled';
+  if (ids.includes(crackId)) {
+    const ref = readFileSync(join(problemsDir, crackId, 'solution.ts'), 'utf8');
+    const { ctx, page, bad } = await open(crackId, { lang: 'ts' });
+    const check = (ok: boolean, what: string) => (ok ? console.log(`  ✓ cracked: ${what}`) : fail(`cracked: ${what}`));
+    const fx = () => page.$('[data-testid="cracked-fx"]');
+    const run = async () => {
+      await page.click('[data-testid="run"]');
+      await page.waitForFunction(() => !document.querySelector('[data-testid="run"]')?.hasAttribute('disabled'), null, { timeout: 60000 });
+    };
+    const gone = () => page.waitForSelector('[data-testid="cracked-fx"]', { state: 'detached', timeout: 4000 }).then(() => true).catch(() => false);
+    check(!(await page.$('[data-testid="solved-badge"]')), 'an unsolved problem has no Cracked badge');
+    await paste(page, ref);
+    await run();
+    check(!!(await fx()), 'the first all-green run plays it');
+    check(((await page.textContent('[data-testid="solved-badge"]')) ?? '').includes('Cracked'), 'the header says Cracked');
+    check(await gone(), 'it goes away by itself');
+    await run();
+    check(!(await fx()), 'a green re-run does not play it again');
+    await paste(page, 'export {}');
+    await run();
+    check(!(await fx()), 'a red run does not play it');
+    await paste(page, ref);
+    await run();
+    check(!!(await fx()), 'red → green plays it again');
+    page.once('dialog', (d) => d.accept());
+    await page.click('[data-testid="reset"]');
+    check(!(await fx()), 'Reset clears it');
+    await paste(page, ref);
+    await run();
+    check(!!(await fx()), 'green after Reset plays it again');
+    await page.waitForTimeout(400);
+    await page.reload();
+    await page.waitForSelector(SOL, { timeout: 20000 });
+    await run();
+    check(!(await fx()), 'a solved problem re-run green after a reload does not play it');
+    await page.goto(`${BASE}#/`);
+    const dot = await page.waitForSelector(`[data-testid="problem-${crackId}"]`, { timeout: 10000 }).then(() => page.$eval(`[data-testid="problem-${crackId}"]`, (a) => a.closest('.problem-row')?.querySelector('.status-dot.ok .crack-lock') ? true : false));
+    check(dot, 'the list row shows the cracked lock');
+    if (bad.length) fail(`cracked bad requests:\n    ${bad.join('\n    ')}`);
+    await ctx.close();
+
   }
   // Theme picker: Dark / Light / System, where System follows the OS live; Monaco follows the resolved theme.
   {
