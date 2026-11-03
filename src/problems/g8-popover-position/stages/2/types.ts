@@ -54,3 +54,17 @@ export interface ComputeResult {
 
 /** How far each edge sticks out past the viewport; negative means room to spare. */
 export type Overflow = Record<Side, number>;
+
+/** The floating element's size. */
+export interface FloatingSize {
+  width: number;
+  height: number;
+}
+
+export interface DetectOverflowOptions {
+  /** Default 0. */
+  padding?: number;
+}
+
+/** A plain number means `mainAxis`. */
+export type OffsetValue = number | { mainAxis?: number; crossAxis?: number };

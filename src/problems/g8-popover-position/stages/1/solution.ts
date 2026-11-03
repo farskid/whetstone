@@ -1,4 +1,4 @@
-import type { Side, Alignment, Placement, Rect, ComputeOptions, ComputeResult } from './types';
+import type { Side, Alignment, Placement, Rect, ComputeOptions, ComputeResult, FloatingSize } from './types';
 
 export function getSide(p: Placement): Side {
   return p.split('-')[0] as Side;
@@ -26,7 +26,7 @@ function coordsFor(reference: Rect, floating: Rect, placement: Placement, rtl: b
   return { x, y };
 }
 
-export function computePosition(reference: Rect, floating: { width: number; height: number }, options: ComputeOptions): ComputeResult {
+export function computePosition(reference: Rect, floating: FloatingSize, options: ComputeOptions): ComputeResult {
   const placement = options.placement ?? 'bottom';
   const { x, y } = coordsFor(reference, { x: 0, y: 0, width: floating.width, height: floating.height }, placement, options.rtl ?? false);
   return { x, y, placement, middlewareData: {} };

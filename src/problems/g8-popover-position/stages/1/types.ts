@@ -28,3 +28,9 @@ export interface ComputeResult {
   /** Always {} in this stage. */
   middlewareData: Record<string, any>;
 }
+
+/** The floating element's size. */
+export interface FloatingSize {
+  width: number;
+  height: number;
+}

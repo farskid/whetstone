@@ -1,4 +1,4 @@
-import type { Side, Alignment, Placement, Rect, MiddlewareState, Middleware, ComputeOptions, ComputeResult, Overflow } from './types';
+import type { Side, Alignment, Placement, Rect, MiddlewareState, Middleware, ComputeOptions, ComputeResult, Overflow, FloatingSize, DetectOverflowOptions, OffsetValue, FlipOptions, ShiftOptions } from './types';
 
 const MAX_RESETS = 50;
 const OPPOSITE: Record<Side, Side> = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' };
@@ -29,7 +29,7 @@ function coordsFor(reference: Rect, floating: Rect, placement: Placement, rtl: b
   return { x, y };
 }
 
-export function detectOverflow(state: Pick<MiddlewareState, 'x' | 'y' | 'rects' | 'viewport'>, options: { padding?: number } = {}): Overflow {
+export function detectOverflow(state: Pick<MiddlewareState, 'x' | 'y' | 'rects' | 'viewport'>, options: DetectOverflowOptions = {}): Overflow {
   const p = options.padding ?? 0;
   const { x, y, viewport: v } = state;
   const { width, height } = state.rects.floating;
@@ -41,7 +41,7 @@ export function detectOverflow(state: Pick<MiddlewareState, 'x' | 'y' | 'rects' 
   };
 }
 
-export function computePosition(reference: Rect, floating: { width: number; height: number }, options: ComputeOptions): ComputeResult {
+export function computePosition(reference: Rect, floating: FloatingSize, options: ComputeOptions): ComputeResult {
   const { middleware = [], viewport, rtl = false } = options;
   const initialPlacement = options.placement ?? 'bottom';
   const rects = { reference, floating: { x: 0, y: 0, width: floating.width, height: floating.height } };
@@ -66,7 +66,7 @@ export function computePosition(reference: Rect, floating: { width: number; heig
   return { x, y, placement, middlewareData };
 }
 
-export function offset(value: number | { mainAxis?: number; crossAxis?: number }): Middleware {
+export function offset(value: OffsetValue): Middleware {
   const { mainAxis = 0, crossAxis = 0 } = typeof value === 'number' ? { mainAxis: value } : value;
   return {
     name: 'offset',
@@ -79,7 +79,7 @@ export function offset(value: number | { mainAxis?: number; crossAxis?: number }
   };
 }
 
-export function flip(options: { padding?: number; fallbackPlacements?: Placement[] } = {}): Middleware {
+export function flip(options: FlipOptions = {}): Middleware {
   return {
     name: 'flip',
     fn(state) {
@@ -103,7 +103,7 @@ export function flip(options: { padding?: number; fallbackPlacements?: Placement
   };
 }
 
-export function shift(options: { padding?: number } = {}): Middleware {
+export function shift(options: ShiftOptions = {}): Middleware {
   const padding = options.padding ?? 0;
   return {
     name: 'shift',
