@@ -34,6 +34,7 @@ const expectType = (expected: string, check: (v: unknown) => boolean): ParseFn =
 type Check = (value: any) => { code: string; message: string } | null;
 
 export class Schema {
+  /** @internal */
   constructor(protected readonly _parse: ParseFn) {}
 
   /** @internal */
@@ -57,6 +58,7 @@ export class Schema {
 }
 
 class CheckedSchema<Self> extends Schema {
+  /** @internal */
   constructor(
     private readonly base: ParseFn,
     private readonly checks: Check[],
@@ -79,6 +81,7 @@ class CheckedSchema<Self> extends Schema {
 }
 
 export class StringSchema extends CheckedSchema<StringSchema> {
+  /** @internal */
   constructor(checks: Check[] = []) {
     super(expectType('string', (v) => typeof v === 'string'), checks, (c) => new StringSchema(c));
   }
@@ -97,6 +100,7 @@ export class StringSchema extends CheckedSchema<StringSchema> {
 }
 
 export class NumberSchema extends CheckedSchema<NumberSchema> {
+  /** @internal */
   constructor(checks: Check[] = []) {
     super(expectType('number', (v) => typeof v === 'number' && !Number.isNaN(v)), checks, (c) => new NumberSchema(c));
   }
@@ -112,6 +116,7 @@ export class NumberSchema extends CheckedSchema<NumberSchema> {
 }
 
 export class ArraySchema extends CheckedSchema<ArraySchema> {
+  /** @internal */
   constructor(item: Schema, checks: Check[] = []) {
     super(
       (input, path, ctx) => {
@@ -132,6 +137,7 @@ export class ArraySchema extends CheckedSchema<ArraySchema> {
 }
 
 export class ObjectSchema extends Schema {
+  /** @internal */
   constructor(shape: Record<string, Schema>) {
     super((input, path, ctx) => {
       if (typeName(input) !== 'object') return expectType('object', () => false)(input, path, ctx);
