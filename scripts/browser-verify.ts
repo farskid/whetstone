@@ -53,14 +53,17 @@ async function main() {
   let failed = 0;
   const fail = (msg: string) => { failed++; console.log(`  ✗ ${msg}`); };
 
+  const GC = /gc\.zgo\.at|goatcounter\.com/;
   /** Opens a problem with the given saved progress (v2) and returns the page plus the list of bad requests. */
   async function open(id: string, state: Record<string, unknown>) {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, permissions: ['clipboard-read', 'clipboard-write'] });
     await ctx.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('practical:v2', ${JSON.stringify(JSON.stringify({ version: 2, theme: 'dark', themeChosen: true, ...state }))}); }`);
+    // GoatCounter's script is optional (adblockers drop it) and has its own check (verify:analytics): never fetch it here.
+    await ctx.route(GC, (r) => r.abort());
     const page = await ctx.newPage();
     const bad: string[] = [];
-    page.on('response', (r) => { if (r.status() >= 400) bad.push(`${r.status()} ${r.url()}`); });
-    page.on('requestfailed', (r) => bad.push(`failed ${r.url()}`));
+    page.on('response', (r) => { if (r.status() >= 400 && !GC.test(r.url())) bad.push(`${r.status()} ${r.url()}`); });
+    page.on('requestfailed', (r) => { if (!GC.test(r.url())) bad.push(`failed ${r.url()}`); });
     await page.goto(`${BASE}#/p/${id}`);
     await page.waitForSelector(SOL, { timeout: 20000 });
     return { ctx, page, bad };
