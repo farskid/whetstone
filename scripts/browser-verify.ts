@@ -138,6 +138,10 @@ async function main() {
     check(sameText(await editorLines(page, TYPES), t1), 'typing into types.ts does nothing (read-only)');
     check(!!(await page.waitForSelector('.monaco-editor-overlaymessage', { timeout: 3000 }).catch(() => null)), 'types.ts says it is read-only');
     await page.screenshot({ path: join(SHOTS, 'whetstone-two-editors-0-readonly.png') });
+    // Dismiss the read-only message: it floats over the solution editor when the types file's last line is long.
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('ControlOrMeta+Home');
+    await page.waitForSelector('.monaco-editor-overlaymessage', { state: 'detached', timeout: 5000 }).catch(() => {});
     await paste(page, s1);
     check(await runAndCheck(`flow: ${flowId} stage 1 typed in the editor`, page, bad), 'stage 1 passes');
     // A stage pass plays the effect with a "Stage 1 cleared" banner and stays on stage 1 until "Go to stage 2".
