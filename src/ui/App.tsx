@@ -5,6 +5,7 @@ import { ListPage } from './ListPage';
 import { ProblemPage } from './ProblemPage';
 import { problemsById } from '../problems';
 import { useResolvedTheme, type ThemePref } from '../theme';
+import { pageView, trackEvent } from '../analytics';
 
 /** The generic feedback issue form: bugs, feature ideas, problem or library requests, anything else. */
 const FEEDBACK_URL = 'https://github.com/farskid/whetstone/issues/new?template=feedback.yml';
@@ -15,6 +16,7 @@ export function App() {
   const theme = useResolvedTheme(progress.theme);
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
   const problem = route.name === 'problem' ? problemsById.get(route.id) : undefined;
+  useEffect(() => { pageView(route, problem ? `${problem.title} · Whetstone` : undefined); }, [route, problem]);
 
   return (
     <div className="app">
@@ -30,6 +32,7 @@ export function App() {
           href={FEEDBACK_URL}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackEvent('feedback-click')}
           title="Opens a GitHub issue for bugs, feature ideas, problem or library requests, or anything else"
         >
           send feedback or something

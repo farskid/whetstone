@@ -20,6 +20,7 @@ import { CrackedEffect, CrackLock } from './Cracked';
 import { checkContract, clearContractMarks, markContract } from './contractCheck';
 import { contractChanges } from '../runner/contract';
 import { useResolvedTheme, type ResolvedTheme } from '../theme';
+import { trackEvent } from '../analytics';
 
 type Ed = Parameters<OnMount>[0];
 
@@ -192,6 +193,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
     setRun({ phase: 'running', results: [] });
     setCracked(null);
     const stage = staged ? viewStage : undefined;
+    trackEvent(`run/${problem.id}${!staged ? '' : full ? '/full' : `/s${viewStage + 1}`}`);
     // Pin the stage being run, so unlocking the next one doesn't move the view mid-run.
     if (staged && !full) setPicked(viewStage);
     // TypeScript only: does the code accept what this stage hands it? Checked alongside the tests. If the checker itself
@@ -219,6 +221,10 @@ export function ProblemPage({ problem }: { problem: Problem }) {
         const wasGreen = green.current[viewKey] ?? (viewKey.startsWith('s') ? !!p.stagePassed[problem.id]?.[viewStage] : !!p.solved[problem.id]);
         green.current[viewKey] = passedAll;
         actions.recordAttempt(problem.id, passedAll, lang, stage, source);
+        // First-ever passes (stored progress, so once per browser): each newly passed stage, then the whole problem.
+        const after = progressNow();
+        if (staged) after.stagePassed[problem.id]?.forEach((at, k) => { if (at && !p.stagePassed[problem.id]?.[k]) trackEvent(`pass/${problem.id}/s${k + 1}`); });
+        if (after.solved[problem.id] && !p.solved[problem.id]) trackEvent(`solved/${problem.id}`);
         // Newly green. The whole problem is cracked; a stage that isn't the last is cleared, and its banner offers the
         // next stage (no jump without it). The code carries over either way (it is the saved code).
         if (passedAll && !wasGreen) {
@@ -228,6 +234,12 @@ export function ProblemPage({ problem }: { problem: Problem }) {
       }
     });
   }, [problem.id, titles, lang, staged, viewStage, full, n, typesTs, contractTs, viewKey]);
+
+  const chooseLang = (l: Language) => {
+    if (l === lang) return;
+    trackEvent(`lang/${problem.id}/${l}`);
+    actions.setLang(l);
+  };
 
   const runRef = useRef(doRun);
   runRef.current = doRun;
@@ -315,7 +327,7 @@ export function ProblemPage({ problem }: { problem: Problem }) {
         <section className="left-pane" ref={leftRef} style={{ width: leftW }}>
           <div className="tabs" role="tablist">
             <button role="tab" aria-selected={tab === 'statement'} className={`tab ${tab === 'statement' ? 'on' : ''}`} onClick={() => setTab('statement')}>Description</button>
-            <button role="tab" aria-selected={tab === 'solution'} className={`tab ${tab === 'solution' ? 'on' : ''}`} onClick={() => setTab('solution')}>
+            <button role="tab" aria-selected={tab === 'solution'} className={`tab ${tab === 'solution' ? 'on' : ''}`} onClick={() => { if (tab !== 'solution') trackEvent(`solution-tab/${problem.id}`); setTab('solution'); }}>
               Solution {revealed ? '' : '🔒'}
             </button>
             {problem.tags.length > 0 && <TabBarTags tags={problem.tags} show={dockTags} duplicate={tab === 'statement'} onMore={showAllTags} />}
@@ -364,8 +376,8 @@ export function ProblemPage({ problem }: { problem: Problem }) {
           </span>
           <div className="editor-bar">
             <div className="seg" role="group" aria-label="Language">
-              <button className={lang === 'ts' ? 'on' : ''} onClick={() => actions.setLang('ts')}>TypeScript</button>
-              <button className={lang === 'js' ? 'on' : ''} onClick={() => actions.setLang('js')}>JavaScript</button>
+              <button className={lang === 'ts' ? 'on' : ''} onClick={() => chooseLang('ts')}>TypeScript</button>
+              <button className={lang === 'js' ? 'on' : ''} onClick={() => chooseLang('js')}>JavaScript</button>
             </div>
             <button className="btn ghost small" onClick={reset} data-testid="reset" title={snapshot !== undefined ? `Reset to the code that passed stage ${viewStage}` : 'Reset to starter code'}>↺ {snapshot !== undefined ? 'Restart stage' : 'Reset'}</button>
             <div className="spacer" />
