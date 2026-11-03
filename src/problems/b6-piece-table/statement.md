@@ -21,6 +21,7 @@ snap.getText();                // still "hello,\nworld"
 ```ts
 type Position = { line: number; col: number };   // both 0-based
 
+interface Snapshot { readonly length: number; getText(): string }
 class TextBuffer {
   constructor(initial?: string);
   readonly length: number;
@@ -31,7 +32,7 @@ class TextBuffer {
   getLine(line: number): string;                  // without its line break
   positionAt(offset: number): Position;
   offsetAt(position: Position): number;
-  snapshot(): { readonly length: number; getText(): string };
+  snapshot(): Snapshot;
 }
 ```
 

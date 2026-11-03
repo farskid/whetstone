@@ -13,7 +13,10 @@ const selectTotal = createSelector([(s: State) => s.items, (s: State) => s.taxRa
 ```ts
 function memoizeOne<F extends (...args: any[]) => any>(fn: F, isEqual?: (newArgs: unknown[], lastArgs: unknown[]) => boolean): F;
 
-function memoize<F extends (...args: any[]) => any>(fn: F, options?: { max?: number }): F & { clear(): void };
+interface MemoizeOptions { max?: number }
+type Memoized<F> = F & { clear(): void };
+
+function memoize<F extends (...args: any[]) => any>(fn: F, options?: MemoizeOptions): Memoized<F>;
 
 function createSelector<S, R>(
   inputs: ((state: S, ...args: any[]) => unknown)[],

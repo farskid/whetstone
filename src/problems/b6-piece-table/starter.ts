@@ -1,4 +1,4 @@
-import type { Position } from './types';
+import type { Position, Snapshot } from './types';
 
 export class TextBuffer {
   constructor(initial = '') { throw new Error('Not implemented'); }
@@ -10,5 +10,5 @@ export class TextBuffer {
   getLine(line: number): string { throw new Error('Not implemented'); }
   positionAt(offset: number): Position { throw new Error('Not implemented'); }
   offsetAt(position: Position): number { throw new Error('Not implemented'); }
-  snapshot(): { readonly length: number; getText(): string } { throw new Error('Not implemented'); }
+  snapshot(): Snapshot { throw new Error('Not implemented'); }
 }

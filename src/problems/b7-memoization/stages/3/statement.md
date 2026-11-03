@@ -3,7 +3,10 @@ Add `memoize`, which caches every distinct argument tuple, with an optional LRU 
 ```ts
 const fib = memoize((n: number): number => (n < 2 ? n : fib(n - 1) + fib(n - 2)), { max: 1000 });
 
-function memoize<F extends (...args: any[]) => any>(fn: F, options?: { max?: number }): F & { clear(): void };
+interface MemoizeOptions { max?: number }
+type Memoized<F> = F & { clear(): void };
+
+function memoize<F extends (...args: any[]) => any>(fn: F, options?: MemoizeOptions): Memoized<F>;
 ```
 
 - Key the cache through nested `Map`s, one level per argument. No `JSON.stringify` or string keys.

@@ -1,4 +1,4 @@
-import type {} from './types';
+import type { MemoizeOptions, Memoized } from './types';
 
 type AnyFn = (...args: any[]) => any;
 
@@ -35,7 +35,7 @@ function child(node: CacheNode, key: unknown, create: boolean): CacheNode | unde
   return next;
 }
 
-export function memoize<F extends AnyFn>(fn: F, options: { max?: number } = {}): F & { clear(): void } {
+export function memoize<F extends AnyFn>(fn: F, options: MemoizeOptions = {}): Memoized<F> {
   const max = options.max;
   let root = newNode();
   // Recency list (only with max): path keys of each stored result, least recent first.
@@ -83,7 +83,7 @@ export function memoize<F extends AnyFn>(fn: F, options: { max?: number } = {}):
       }
     }
     return value;
-  } as F & { clear(): void };
+  } as Memoized<F>;
   memoized.clear = () => { root = newNode(); recent.clear(); };
   return memoized;
 }

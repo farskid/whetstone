@@ -1,4 +1,4 @@
-import type { Position } from './types';
+import type { Position, Snapshot } from './types';
 
 /** Immutable: never mutated after creation, so snapshots can share them. */
 type Piece = { add: boolean; start: number; length: number; breaks: number[] /* offsets of '\n' inside the piece */ };
@@ -175,7 +175,7 @@ export class TextBuffer {
     return offset;
   }
 
-  snapshot() {
+  snapshot(): Snapshot {
     this.shared = true;
     const pieces = this.pieces, original = this.original, added = this.added, length = this.len;
     return {

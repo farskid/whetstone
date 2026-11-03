@@ -1,9 +1,10 @@
 Add snapshots, and make the whole thing fast.
 
 ```ts
+interface Snapshot { readonly length: number; getText(): string }
 class TextBuffer {
   // ...stage 3, plus:
-  snapshot(): { readonly length: number; getText(): string };
+  snapshot(): Snapshot;
 }
 ```
 
