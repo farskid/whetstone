@@ -33,3 +33,12 @@ export interface Keybindings {
   /** `true` when a handler ran or a sequence started or advanced. */
   handle(event: KeyEventLike): boolean;
 }
+
+/** Options for `createKeybindings`. */
+export interface KeybindingsOptions {
+  clock: Clock;
+  /** Default 'other'. */
+  platform?: Platform;
+  /** Milliseconds before a pending sequence is dropped; default 1000. */
+  sequenceTimeout?: number;
+}

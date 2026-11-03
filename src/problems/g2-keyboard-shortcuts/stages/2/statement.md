@@ -16,7 +16,9 @@ interface Keybindings {
   bind(shortcut: string, handler: Handler): () => void;
   handle(event: KeyEventLike): boolean;
 }
-createKeybindings(options: { clock: Clock; platform?: Platform; sequenceTimeout?: number }): Keybindings
+interface KeybindingsOptions { clock: Clock; platform?: Platform; sequenceTimeout?: number }
+
+createKeybindings(options: KeybindingsOptions): Keybindings
 ```
 
 Defaults: `platform = 'other'`, `sequenceTimeout = 1000`.

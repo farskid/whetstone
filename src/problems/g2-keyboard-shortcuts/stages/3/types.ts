@@ -44,3 +44,12 @@ export interface Keybindings {
   /** Returns `pop`. */
   pushScope(name: string): () => void;
 }
+
+/** Options for `createKeybindings`. */
+export interface KeybindingsOptions {
+  clock: Clock;
+  /** Default 'other'. */
+  platform?: Platform;
+  /** Milliseconds before a pending sequence is dropped; default 1000. */
+  sequenceTimeout?: number;
+}

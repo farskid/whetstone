@@ -1,4 +1,4 @@
-import type { Platform, KeyEventLike, Combo, Clock, Handler, Keybindings } from './types';
+import type { Platform, KeyEventLike, Combo, Clock, Handler, Keybindings, KeybindingsOptions } from './types';
 
 const MODIFIERS: Record<string, 'ctrl' | 'alt' | 'shift' | 'meta'> = {
   ctrl: 'ctrl', control: 'ctrl',
@@ -111,7 +111,7 @@ function isEditable(target: KeyEventLike['target']): boolean {
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
 }
 
-export function createKeybindings(options: { clock: Clock; platform?: Platform; sequenceTimeout?: number }): Keybindings {
+export function createKeybindings(options: KeybindingsOptions): Keybindings {
   const { clock, platform = 'other', sequenceTimeout = 1000 } = options;
   const bindings: Binding[] = [];
   const scopes: { name: string }[] = [];
