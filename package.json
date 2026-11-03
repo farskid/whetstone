@@ -2,6 +2,15 @@
   "name": "practice-site",
   "private": true,
   "version": "0.1.0",
+  "description": "Practice coding on the problems real libraries solve.",
+  "homepage": "https://farskid.github.io/whetstone/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farskid/whetstone.git"
+  },
+  "bugs": {
+    "url": "https://github.com/farskid/whetstone/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
