@@ -22,12 +22,14 @@ type Row = { id: Id } & Record<string, unknown>;
 type Query = Record<string, unknown>; // field -> value, or field -> { $gt?, $gte?, $lt?, $lte? }
 interface FindOptions { orderBy?: string | [string, 'asc' | 'desc']; limit?: number }
 
+interface IndexOptions { unique?: boolean }
+type IndexFields = string | string[];
 class Table<T extends Row> {
   insert(row: T): T;
   get(id: Id): T | undefined;
   update(id: Id, patch: Partial<T>): T;
   remove(id: Id): boolean;
-  createIndex(fields: string | string[], opts?: { unique?: boolean }): void;
+  createIndex(fields: IndexFields, opts?: IndexOptions): void;
   where(query: Query, opts?: FindOptions): T[];
   lastScanned: number;
   subscribe(query: Query, cb: (rows: T[]) => void, opts?: FindOptions): () => void;

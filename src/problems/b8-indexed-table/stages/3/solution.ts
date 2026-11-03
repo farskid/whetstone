@@ -1,4 +1,4 @@
-import type { Id, Row, Range, Query, FindOptions } from './types';
+import type { Id, Row, Range, Query, FindOptions, IndexOptions, IndexFields } from './types';
 
 type Key = unknown[];
 interface Index { fields: string[]; unique: boolean; entries: { key: Key; id: Id }[] }
@@ -91,7 +91,7 @@ export class Table<T extends Row> {
     return true;
   }
 
-  createIndex(fields: string | string[], opts: { unique?: boolean } = {}): void {
+  createIndex(fields: IndexFields, opts: IndexOptions = {}): void {
     const ix: Index = { fields: Array.isArray(fields) ? fields : [fields], unique: !!opts.unique, entries: [] };
     for (const r of this.rows.values()) {
       if (ix.unique) {

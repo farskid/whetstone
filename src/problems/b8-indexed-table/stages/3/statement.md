@@ -4,9 +4,11 @@ Add range queries, compound and unique indexes, and sorting.
 type Range = { $gt?: unknown; $gte?: unknown; $lt?: unknown; $lte?: unknown };
 interface FindOptions { orderBy?: string | [string, 'asc' | 'desc']; limit?: number }
 
+interface IndexOptions { unique?: boolean }
+type IndexFields = string | string[];
 class Table<T extends Row> {
   // ...stage 2, changed:
-  createIndex(fields: string | string[], opts?: { unique?: boolean }): void;
+  createIndex(fields: IndexFields, opts?: IndexOptions): void;
   where(query: Query, opts?: FindOptions): T[];
 }
 ```

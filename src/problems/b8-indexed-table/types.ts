@@ -15,3 +15,12 @@ export interface FindOptions {
   /** Applied after sorting. */
   limit?: number;
 }
+
+/** Options for `createIndex`. */
+export interface IndexOptions {
+  /** Reject a row whose indexed fields duplicate another row's. */
+  unique?: boolean;
+}
+
+/** One field, or several for a compound index. */
+export type IndexFields = string | string[];

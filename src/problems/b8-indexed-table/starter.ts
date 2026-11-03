@@ -1,4 +1,4 @@
-import type { Id, Row, Query, FindOptions } from './types';
+import type { Id, Row, Query, FindOptions, IndexOptions, IndexFields } from './types';
 
 export class Table<T extends Row> {
   /** Rows examined by the most recent where(). */
@@ -20,7 +20,7 @@ export class Table<T extends Row> {
     throw new Error('Not implemented');
   }
 
-  createIndex(fields: string | string[], opts: { unique?: boolean } = {}): void {
+  createIndex(fields: IndexFields, opts: IndexOptions = {}): void {
     throw new Error('Not implemented');
   }
 
