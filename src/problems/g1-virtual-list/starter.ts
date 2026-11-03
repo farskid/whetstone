@@ -1,6 +1,6 @@
-import type { VirtualItem, VirtualizerOptions } from './types';
+import type { VirtualItem, VirtualizerOptions, Virtualizer, ScrollToIndexOptions } from './types';
 
-export function createVirtualizer(options: VirtualizerOptions) {
+export function createVirtualizer(options: VirtualizerOptions): Virtualizer {
   return {
     getVirtualItems(scrollTop: number): VirtualItem[] {
       throw new Error('Not implemented');
@@ -11,7 +11,7 @@ export function createVirtualizer(options: VirtualizerOptions) {
     measure(index: number, size: number, scrollTop = 0): number {
       throw new Error('Not implemented');
     },
-    scrollToIndex(index: number, opts: { align?: 'start' | 'center' | 'end' | 'auto'; scrollTop?: number } = {}): number {
+    scrollToIndex(index: number, opts: ScrollToIndexOptions = {}): number {
       throw new Error('Not implemented');
     },
     setCount(count: number): void {

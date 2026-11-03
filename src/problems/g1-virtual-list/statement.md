@@ -20,14 +20,18 @@ function createVirtualizer(options: {
   viewportHeight: number;
   overscan?: number;  // default 1, extra rows on EACH side of the visible range
   gap?: number;       // default 0, space between consecutive rows
-}): {
+}): Virtualizer;
+
+interface ScrollToIndexOptions { align?: 'start' | 'center' | 'end' | 'auto'; scrollTop?: number }
+
+interface Virtualizer {
   getVirtualItems(scrollTop: number): VirtualItem[];
   getTotalSize(): number;
   measure(index: number, size: number, scrollTop?: number): number;
-  scrollToIndex(index: number, opts?: { align?: 'start' | 'center' | 'end' | 'auto'; scrollTop?: number }): number;
+  scrollToIndex(index: number, opts?: ScrollToIndexOptions): number;
   setCount(count: number): void;
   setViewportHeight(height: number): void;
-};
+}
 ```
 
 ## Rules

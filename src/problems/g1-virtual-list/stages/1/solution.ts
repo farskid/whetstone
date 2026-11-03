@@ -1,6 +1,6 @@
-import type { VirtualItem, VirtualizerOptions } from './types';
+import type { VirtualItem, VirtualizerOptions, Virtualizer } from './types';
 
-export function createVirtualizer(options: VirtualizerOptions) {
+export function createVirtualizer(options: VirtualizerOptions): Virtualizer {
   const { count, viewportHeight: viewport, overscan = 1 } = options;
   const size = count > 0 ? options.estimateSize(0) : 0;
   const total = () => count * size;

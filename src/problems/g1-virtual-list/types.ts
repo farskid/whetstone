@@ -16,3 +16,23 @@ export interface VirtualizerOptions {
   /** Space between consecutive rows. Default 0. */
   gap?: number;
 }
+
+/** Options for `scrollToIndex`. */
+export interface ScrollToIndexOptions {
+  /** Where the row lands in the viewport; default `'auto'` (scroll only as far as needed). */
+  align?: 'start' | 'center' | 'end' | 'auto';
+  /** The current scrollTop; default 0. */
+  scrollTop?: number;
+}
+
+/** What `createVirtualizer` returns. */
+export interface Virtualizer {
+  getVirtualItems(scrollTop: number): VirtualItem[];
+  getTotalSize(): number;
+  /** Replaces the row's size; returns the scroll adjustment for a row above the viewport. */
+  measure(index: number, size: number, scrollTop?: number): number;
+  /** Returns the scrollTop that brings the row into view. */
+  scrollToIndex(index: number, opts?: ScrollToIndexOptions): number;
+  setCount(count: number): void;
+  setViewportHeight(height: number): void;
+}

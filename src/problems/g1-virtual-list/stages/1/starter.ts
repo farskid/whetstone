@@ -1,6 +1,6 @@
-import type { VirtualItem, VirtualizerOptions } from './types';
+import type { VirtualItem, VirtualizerOptions, Virtualizer } from './types';
 
-export function createVirtualizer(options: VirtualizerOptions) {
+export function createVirtualizer(options: VirtualizerOptions): Virtualizer {
   return {
     getVirtualItems(scrollTop: number): VirtualItem[] {
       throw new Error('Not implemented');

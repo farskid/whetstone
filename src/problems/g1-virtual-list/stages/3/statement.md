@@ -10,8 +10,11 @@ v.scrollToIndex(500, { align: 'center', scrollTop: 1000 }); // → scrollTop to 
 ## API changes
 
 ```ts
-measure(index: number, size: number, scrollTop?: number): number;
-scrollToIndex(index: number, opts?: { align?: 'start' | 'center' | 'end' | 'auto'; scrollTop?: number }): number;
+interface ScrollToIndexOptions { align?: 'start' | 'center' | 'end' | 'auto'; scrollTop?: number }
+
+// Virtualizer changes:
+measure(index: number, size: number, scrollTop?: number): number;   // now returns the scroll adjustment
+scrollToIndex(index: number, opts?: ScrollToIndexOptions): number;
 ```
 
 ## Rules

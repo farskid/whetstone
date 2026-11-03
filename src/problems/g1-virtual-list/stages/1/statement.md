@@ -20,10 +20,12 @@ function createVirtualizer(options: {
   estimateSize: (index: number) => number; // returns the same size for every row in this stage
   viewportHeight: number;
   overscan?: number;  // default 1, extra rows on EACH side of the visible range
-}): {
+}): Virtualizer;
+
+interface Virtualizer {
   getVirtualItems(scrollTop: number): VirtualItem[];
   getTotalSize(): number;
-};
+}
 ```
 
 ## Rules

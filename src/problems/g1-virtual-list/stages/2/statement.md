@@ -14,10 +14,12 @@ v.getVirtualItems(95);
 createVirtualizer(options: {
   // ...as before, plus:
   gap?: number;       // default 0, space between consecutive rows
-}): {
+}): Virtualizer;
+
+interface Virtualizer {
   // ...as before, plus:
   measure(index: number, size: number): void;
-};
+}
 ```
 
 ## Rules

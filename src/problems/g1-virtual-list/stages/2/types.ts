@@ -16,3 +16,11 @@ export interface VirtualizerOptions {
   /** Space between consecutive rows. Default 0. */
   gap?: number;
 }
+
+/** What `createVirtualizer` returns. */
+export interface Virtualizer {
+  getVirtualItems(scrollTop: number): VirtualItem[];
+  getTotalSize(): number;
+  /** Replaces the row's estimated size. */
+  measure(index: number, size: number): void;
+}

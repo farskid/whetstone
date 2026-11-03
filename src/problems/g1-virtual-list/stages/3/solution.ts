@@ -1,6 +1,6 @@
-import type { VirtualItem, VirtualizerOptions } from './types';
+import type { VirtualItem, VirtualizerOptions, Virtualizer, ScrollToIndexOptions } from './types';
 
-export function createVirtualizer(options: VirtualizerOptions) {
+export function createVirtualizer(options: VirtualizerOptions): Virtualizer {
   const { count, viewportHeight: viewport, overscan = 1, gap = 0 } = options;
   const sizes = Array.from({ length: count }, (_, i) => options.estimateSize(i));
 
@@ -41,7 +41,7 @@ export function createVirtualizer(options: VirtualizerOptions) {
       return above ? delta : 0;
     },
 
-    scrollToIndex(index: number, opts: { align?: 'start' | 'center' | 'end' | 'auto'; scrollTop?: number } = {}): number {
+    scrollToIndex(index: number, opts: ScrollToIndexOptions = {}): number {
       const { align = 'auto', scrollTop = 0 } = opts;
       if (count === 0) return 0;
       const i = Math.min(Math.max(0, index), count - 1);

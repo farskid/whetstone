@@ -10,6 +10,7 @@ v.setViewportHeight(600);  // the window was resized
 ## API changes
 
 ```ts
+// Virtualizer gains:
 setCount(count: number): void;
 setViewportHeight(height: number): void;
 ```

@@ -14,3 +14,9 @@ export interface VirtualizerOptions {
   /** Extra rows on each side of the visible range. Default 1. */
   overscan?: number;
 }
+
+/** What `createVirtualizer` returns. */
+export interface Virtualizer {
+  getVirtualItems(scrollTop: number): VirtualItem[];
+  getTotalSize(): number;
+}

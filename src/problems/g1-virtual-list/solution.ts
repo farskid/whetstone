@@ -1,4 +1,4 @@
-import type { VirtualItem, VirtualizerOptions } from './types';
+import type { VirtualItem, VirtualizerOptions, Virtualizer, ScrollToIndexOptions } from './types';
 
 /** Fenwick tree over (size + gap) per row: prefix(i) = start(i). */
 class Fenwick {
@@ -36,7 +36,7 @@ class Fenwick {
   }
 }
 
-export function createVirtualizer(options: VirtualizerOptions) {
+export function createVirtualizer(options: VirtualizerOptions): Virtualizer {
   const { estimateSize, overscan = 1, gap = 0 } = options;
   let count = options.count;
   let viewport = options.viewportHeight;
@@ -98,7 +98,7 @@ export function createVirtualizer(options: VirtualizerOptions) {
       return wasAbove ? delta : 0;
     },
 
-    scrollToIndex(index: number, opts: { align?: 'start' | 'center' | 'end' | 'auto'; scrollTop?: number } = {}): number {
+    scrollToIndex(index: number, opts: ScrollToIndexOptions = {}): number {
       const { align = 'auto', scrollTop = 0 } = opts;
       if (count === 0) return 0;
       const it = item(Math.min(Math.max(0, index), count - 1));
