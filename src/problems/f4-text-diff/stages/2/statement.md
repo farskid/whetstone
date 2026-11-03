@@ -11,8 +11,9 @@ createPatch('f.txt', 'a\nb\nc\n', 'a\nx\nc\n');
 interface Hunk { oldStart: number; oldLines: number; newStart: number; newLines: number; lines: string[] }
 interface StructuredPatch { oldFileName: string; newFileName: string; hunks: Hunk[] }
 
-structuredPatch(oldFileName, newFileName, oldText, newText, options?: { context?: number }): StructuredPatch
-createPatch(fileName, oldText, newText, options?: { context?: number }): string
+interface PatchOptions { context?: number }
+structuredPatch(oldFileName, newFileName, oldText, newText, options?: PatchOptions): StructuredPatch
+createPatch(fileName, oldText, newText, options?: PatchOptions): string
 ```
 
 **Lines**

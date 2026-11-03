@@ -22,3 +22,9 @@ export interface StructuredPatch {
   newFileName: string;
   hunks: Hunk[];
 }
+
+/** Options for `structuredPatch` and `createPatch`. */
+export interface PatchOptions {
+  /** Unchanged lines kept around each change; default 3. */
+  context?: number;
+}

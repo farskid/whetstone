@@ -1,4 +1,4 @@
-import type { Change, Hunk, StructuredPatch } from './types';
+import type { Change, Hunk, StructuredPatch, PatchOptions } from './types';
 
 export const NO_NEWLINE = '\\ No newline at end of file';
 
@@ -93,7 +93,7 @@ export function diffLines(oldText: string, newText: string): Change[] {
   return toChanges(splitLines(oldText), splitLines(newText));
 }
 
-export function structuredPatch(oldFileName: string, newFileName: string, oldText: string, newText: string, options: { context?: number } = {}): StructuredPatch {
+export function structuredPatch(oldFileName: string, newFileName: string, oldText: string, newText: string, options: PatchOptions = {}): StructuredPatch {
   const context = options.context ?? 3;
   const a = splitLines(oldText), b = splitLines(newText);
   const ops = editScript(a, b);
@@ -152,6 +152,6 @@ export function formatPatch(patch: StructuredPatch): string {
   return out.join('\n') + '\n';
 }
 
-export function createPatch(fileName: string, oldText: string, newText: string, options: { context?: number } = {}): string {
+export function createPatch(fileName: string, oldText: string, newText: string, options: PatchOptions = {}): string {
   return formatPatch(structuredPatch(fileName, fileName, oldText, newText, options));
 }
