@@ -3,6 +3,10 @@ export interface Clock {
   clearTimeout(id: unknown): void;
 }
 
-export interface TimeoutOptions {
+/** What `withTimeout` races against the deadline: a promise (stage 3 adds a task function). */
+export type TimeoutInput<T> = Promise<T>;
+
+/** `T` is the result type; stage 2's `fallback` uses it. */
+export interface TimeoutOptions<T> {
   clock?: Clock;
 }

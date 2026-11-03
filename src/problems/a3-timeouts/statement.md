@@ -18,6 +18,8 @@ interface Clock {
 
 class TimeoutError extends Error {}   // name = 'TimeoutError'
 
+type TimeoutInput<T> = Promise<T> | ((signal: AbortSignal) => Promise<T>);
+
 interface TimeoutOptions<T> {
   fallback?: T | (() => T | Promise<T>);
   message?: string | Error;
@@ -26,7 +28,7 @@ interface TimeoutOptions<T> {
 }
 
 function withTimeout<T>(
-  input: Promise<T> | ((signal: AbortSignal) => Promise<T>),
+  input: TimeoutInput<T>,
   ms: number,
   options?: TimeoutOptions<T>,
 ): Promise<T>;

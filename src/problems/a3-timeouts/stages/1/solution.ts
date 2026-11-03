@@ -1,4 +1,4 @@
-import type { Clock, TimeoutOptions } from './types';
+import type { Clock, TimeoutInput, TimeoutOptions } from './types';
 
 export class TimeoutError extends Error {
   constructor(message: string) {
@@ -12,10 +12,10 @@ const globalClock: Clock = {
   clearTimeout: (id) => clearTimeout(id as any),
 };
 
-export function withTimeout<T>(promise: Promise<T>, ms: number, options: TimeoutOptions = {}): Promise<T> {
+export function withTimeout<T>(input: TimeoutInput<T>, ms: number, options: TimeoutOptions<T> = {}): Promise<T> {
   const { clock = globalClock } = options;
   return new Promise<T>((resolve, reject) => {
     if (ms !== Infinity) clock.setTimeout(() => reject(new TimeoutError(`Timed out after ${ms} ms`)), ms);
-    promise.then(resolve, reject);
+    input.then(resolve, reject);
   });
 }

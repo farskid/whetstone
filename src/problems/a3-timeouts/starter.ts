@@ -1,4 +1,4 @@
-import type { Clock, TimeoutOptions } from './types';
+import type { Clock, TimeoutInput, TimeoutOptions } from './types';
 
 export class TimeoutError extends Error {
   constructor(message: string) {
@@ -8,7 +8,7 @@ export class TimeoutError extends Error {
 }
 
 export function withTimeout<T>(
-  input: Promise<T> | ((signal: AbortSignal) => Promise<T>),
+  input: TimeoutInput<T>,
   ms: number,
   options: TimeoutOptions<T> = {},
 ): Promise<T> {

@@ -1,13 +1,15 @@
-Accept an abortable task, and an outside signal. The first argument can now be a function as well as a promise, so it is renamed from `promise` to `input`. The position is the same; only the name changes.
+Accept an abortable task, and an outside signal. The first argument can now be a function as well as a promise: `TimeoutInput<T>` widens.
 
 ```ts
+type TimeoutInput<T> = Promise<T> | ((signal: AbortSignal) => Promise<T>);
+
 interface TimeoutOptions<T> {
   // ...stage 2, plus:
   signal?: AbortSignal;   // an outside signal that cancels the wait
 }
 
 function withTimeout<T>(
-  input: Promise<T> | ((signal: AbortSignal) => Promise<T>),
+  input: TimeoutInput<T>,
   ms: number,
   options?: TimeoutOptions<T>,
 ): Promise<T>;

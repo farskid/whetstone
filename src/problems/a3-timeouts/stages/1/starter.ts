@@ -1,4 +1,4 @@
-import type { Clock, TimeoutOptions } from './types';
+import type { Clock, TimeoutInput, TimeoutOptions } from './types';
 
 export class TimeoutError extends Error {
   constructor(message: string) {
@@ -7,6 +7,6 @@ export class TimeoutError extends Error {
   }
 }
 
-export function withTimeout<T>(promise: Promise<T>, ms: number, options: TimeoutOptions = {}): Promise<T> {
+export function withTimeout<T>(input: TimeoutInput<T>, ms: number, options: TimeoutOptions<T> = {}): Promise<T> {
   throw new Error('Not implemented');
 }

@@ -1,4 +1,4 @@
-import type { Clock, TimeoutOptions } from './types';
+import type { Clock, TimeoutInput, TimeoutOptions } from './types';
 
 export class TimeoutError extends Error {
   constructor(message: string) {
@@ -12,7 +12,7 @@ const globalClock: Clock = {
   clearTimeout: (id) => clearTimeout(id as any),
 };
 
-export function withTimeout<T>(promise: Promise<T>, ms: number, options: TimeoutOptions<T> = {}): Promise<T> {
+export function withTimeout<T>(input: TimeoutInput<T>, ms: number, options: TimeoutOptions<T> = {}): Promise<T> {
   const { clock = globalClock } = options;
   const hasFallback = 'fallback' in options;
   return new Promise<T>((resolve, reject) => {
@@ -40,6 +40,6 @@ export function withTimeout<T>(promise: Promise<T>, ms: number, options: Timeout
       if (timer !== undefined) clock.clearTimeout(timer);
       fn();
     };
-    promise.then((v) => settle(() => resolve(v)), (e) => settle(() => reject(e)));
+    input.then((v) => settle(() => resolve(v)), (e) => settle(() => reject(e)));
   });
 }
