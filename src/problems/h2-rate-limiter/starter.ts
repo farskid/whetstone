@@ -1,4 +1,4 @@
-import type { BucketOptions, KeyedLimiterOptions, KeyedLimiter, WindowOptions, RateResult } from './types';
+import type { BucketOptions, KeyedLimiterOptions, KeyedLimiter, WindowOptions, RateResult, RemoveTokensOptions } from './types';
 
 export class TokenBucket {
   constructor(options: BucketOptions) {
@@ -13,7 +13,7 @@ export class TokenBucket {
     throw new Error('Not implemented');
   }
 
-  removeTokens(n = 1, options: { signal?: AbortSignal } = {}): Promise<void> {
+  removeTokens(n = 1, options: RemoveTokensOptions = {}): Promise<void> {
     throw new Error('Not implemented');
   }
 }

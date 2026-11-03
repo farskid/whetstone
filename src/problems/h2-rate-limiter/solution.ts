@@ -1,4 +1,4 @@
-import type { Clock, BucketOptions, KeyedLimiterOptions, KeyedLimiter, WindowOptions, RateResult } from './types';
+import type { Clock, BucketOptions, KeyedLimiterOptions, KeyedLimiter, WindowOptions, RateResult, RemoveTokensOptions } from './types';
 
 const realClock: Clock = {
   now: () => Date.now(),
@@ -49,7 +49,7 @@ export class TokenBucket {
     return true;
   }
 
-  removeTokens(n = 1, options: { signal?: AbortSignal } = {}): Promise<void> {
+  removeTokens(n = 1, options: RemoveTokensOptions = {}): Promise<void> {
     try {
       checkCount(n);
       if (n > this.capacity) throw new RangeError(`cannot remove ${n} tokens from a bucket of ${this.capacity}`);

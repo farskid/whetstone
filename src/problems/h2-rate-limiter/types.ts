@@ -44,3 +44,9 @@ export interface RateResult {
   /** 0 when allowed; otherwise ms until the same request would be allowed. */
   retryAfter: number;
 }
+
+/** Options for `removeTokens`. */
+export interface RemoveTokensOptions {
+  /** Aborting it rejects the wait and gives up the place in line. */
+  signal?: AbortSignal;
+}
