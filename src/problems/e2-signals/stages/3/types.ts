@@ -8,3 +8,6 @@ export interface ReadonlySignal<T> {
 export interface Signal<T> extends ReadonlySignal<T> {
   value: T;
 }
+
+/** An effect body: may return a cleanup, run before the next run and on dispose. */
+export type EffectFn = () => void | (() => void);

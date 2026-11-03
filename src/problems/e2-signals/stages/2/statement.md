@@ -12,7 +12,8 @@ dispose();            // "cleanup", and the effect never runs again
 ```
 
 ```ts
-function effect(fn: () => void | (() => void)): () => void;
+type EffectFn = () => void | (() => void);
+function effect(fn: EffectFn): () => void;
 ```
 
 - `effect` runs `fn` right away and tracks every signal or computed it reads (`.value`, not `.peek()`). <!-- tests: effect runs immediately and re-runs on change -->

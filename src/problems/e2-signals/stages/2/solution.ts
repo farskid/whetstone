@@ -1,4 +1,4 @@
-import type { ReadonlySignal, Signal } from './types';
+import type { ReadonlySignal, Signal, EffectFn } from './types';
 
 // Every reactive thing is a node. Sources (signals, computeds) have a version that
 // bumps only when their value really changes. Observers (computeds, effects) remember
@@ -151,7 +151,7 @@ class EffectNode implements Observer {
   private cleanup: (() => void) | void = undefined;
   private disposed = false;
 
-  constructor(private fn: () => void | (() => void)) {}
+  constructor(private fn: EffectFn) {}
 
   markStale() {
     if (!this.disposed) pendingEffects.add(this);
@@ -199,7 +199,7 @@ export function computed<T>(fn: () => T): ReadonlySignal<T> {
   return new ComputedNode(fn);
 }
 
-export function effect(fn: () => void | (() => void)): () => void {
+export function effect(fn: EffectFn): () => void {
   const e = new EffectNode(fn);
   e.run();
   return e.dispose;

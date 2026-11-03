@@ -1,4 +1,4 @@
-import type { ReadonlySignal, Signal } from './types';
+import type { ReadonlySignal, Signal, EffectFn } from './types';
 
 export function signal<T>(initial: T): Signal<T> {
   throw new Error('Not implemented');
@@ -8,7 +8,7 @@ export function computed<T>(fn: () => T): ReadonlySignal<T> {
   throw new Error('Not implemented');
 }
 
-export function effect(fn: () => void | (() => void)): () => void {
+export function effect(fn: EffectFn): () => void {
   throw new Error('Not implemented');
 }
 
