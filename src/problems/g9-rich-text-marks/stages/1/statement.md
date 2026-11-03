@@ -19,10 +19,10 @@ ed.getSpans(); // [{ text: 'Hello', marks: [{ type: 'bold' }] }, { text: ' world
   - a span keeps one mark per type, and the last one wins;
   - marks are sorted in the order `link`, `color`, `bold`, `italic`, `underline`, `code`;
   - neighbours with equal marks are merged. Two marks are equal when their type and attributes match.
-- **Input and output.** Never mutate the input, and don't share mark objects with it.
+- **Input and output.** Never mutate the input, and don't share mark objects with it. <!-- tests: normalizes its input and is idempotent -->
 - **Editor.** `createEditor(initial = [])` starts from the normalized spans. `getSpans()` returns a normalized copy, and `getText()` returns the plain text.
-- **`addMark(from, to, mark)`.** Adds the mark to every character in the range, replacing any mark of the same type. Spans split where the range starts and ends.
+- **`addMark(from, to, mark)`.** Adds the mark to every character in the range, replacing any mark of the same type. Spans split where the range starts and ends. <!-- tests: addMark splits spans where the range starts and ends -->
 - **`removeMark(from, to, type)`.** Removes marks of that type, whatever their attributes.
-- **Bad ranges.** A range that isn't whole numbers with `0 ≤ from ≤ to ≤ length` throws a `RangeError`. This applies to every method that takes positions. An empty range is valid and changes nothing.
+- **Bad ranges.** A range that isn't whole numbers with `0 ≤ from ≤ to ≤ length` throws a `RangeError`. This applies to every method that takes positions. An empty range is valid and changes nothing. <!-- tests: handles empty ranges, span edges and bad ranges -->
 
-After every change the spans are back in normal form, so neighbours that end up alike merge again.
+After every change the spans are back in normal form, so neighbours that end up alike merge again. <!-- tests: normalizes its input and is idempotent -->

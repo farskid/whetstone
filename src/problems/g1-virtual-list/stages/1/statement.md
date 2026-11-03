@@ -29,11 +29,11 @@ function createVirtualizer(options: {
 ## Rules
 
 **Layout**
-- Every row has size `estimateSize(0)`. Row `i` starts at `i * size`.
-- `getTotalSize()` is `count * size`, or `0` when the list is empty.
+- Every row has size `estimateSize(0)`. Row `i` starts at `i * size`. <!-- tests: fixed size: visible rows, positions and total -->
+- `getTotalSize()` is `count * size`, or `0` when the list is empty. <!-- tests: fixed size: visible rows, positions and total -->
 
 **Visible range** for a given `scrollTop`:
-- The visible rows are every row that overlaps `[scrollTop, scrollTop + viewportHeight)`, meaning `end > scrollTop` and `start < scrollTop + viewportHeight`. A row that ends exactly at `scrollTop` is not visible.
-- Add `overscan` rows before and after, clamped to `[0, count - 1]`.
-- `scrollTop` beyond either end is clamped to `[0, max(0, total - viewportHeight)]` first.
-- Return the rows in index order, or `[]` when `count` is 0. A list shorter than the viewport returns all its rows.
+- The visible rows are every row that overlaps `[scrollTop, scrollTop + viewportHeight)`, meaning `end > scrollTop` and `start < scrollTop + viewportHeight`. A row that ends exactly at `scrollTop` is not visible. <!-- tests: partially visible rows at both edges count as visible -->
+- Add `overscan` rows before and after, clamped to `[0, count - 1]`. <!-- tests: overscan adds rows on each side, clamped to the list -->
+- `scrollTop` beyond either end is clamped to `[0, max(0, total - viewportHeight)]` first. <!-- tests: scrollTop is clamped to the scrollable range -->
+- Return the rows in index order, or `[]` when `count` is 0. A list shorter than the viewport returns all its rows. <!-- tests: empty and short lists -->

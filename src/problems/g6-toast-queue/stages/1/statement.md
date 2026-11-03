@@ -22,8 +22,8 @@ A toast looks like `{ id, message, type, duration, count }`. Its `type` is `'def
 This adds a toast and returns its new, unique id:
 
 - **Duration.** A toast without an explicit `duration` gets the toaster's default. `'loading'` toasts default to `Infinity`. A toast with an `Infinity` duration never auto-dismisses.
-- **Timer.** The toast's timer starts right away, and it dismisses itself after `duration` ms.
+- **Timer.** The toast's timer starts right away, and it dismisses itself after `duration` ms. <!-- tests: toasts dismiss themselves after their duration -->
 
 ### `dismiss(id?)`
 
-Removes one toast, or every toast when there's no id. An unknown id is ignored. A dismissed toast's timer is cleared, so no timers are left behind.
+Removes one toast, or every toast when there's no id. An unknown id is ignored. A dismissed toast's timer is cleared, so no timers are left behind. <!-- tests: dismiss one, all, or an unknown id -->

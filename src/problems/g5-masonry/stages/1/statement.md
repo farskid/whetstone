@@ -15,8 +15,8 @@ r.height;       // 100
 ### Columns
 
 - **`columnCount`** must be a positive integer. Otherwise it throws a `RangeError`.
-- **Gutters.** There is a `gutter` between neighbouring columns, and below every item. There's none at the outer edges.
-- **Width.** Each column is `(containerWidth − gutter × (columnCount − 1)) / columnCount` wide. Column `c` starts at `x = c × (columnWidth + gutter)`. Compute `x` with this formula rather than by adding widths, so rounding doesn't build up.
+- **Gutters.** There is a `gutter` between neighbouring columns, and below every item. There's none at the outer edges. <!-- tests: gutters sit between columns and below items -->
+- **Width.** Each column is `(containerWidth − gutter × (columnCount − 1)) / columnCount` wide. Column `c` starts at `x = c × (columnWidth + gutter)`. Compute `x` with this formula rather than by adding widths, so rounding doesn't build up. <!-- tests: x is computed per column, not accumulated -->
 - A negative `containerWidth` or `gutter` throws a `RangeError`.
 
 ### Items
@@ -25,7 +25,7 @@ An item is `{ height }`. Every item is one column wide. A negative or non-finite
 
 ### Placement
 
-Place the items in order. Put each item at the top of the **shortest** column. On a tie, use the leftmost. That column now ends at `y + height + gutter`.
+Place the items in order. Put each item at the top of the **shortest** column. On a tie, use the leftmost. That column now ends at `y + height + gutter`. <!-- tests: each item goes to the shortest column, leftmost on ties -->
 
 ### Result
 

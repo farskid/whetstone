@@ -21,18 +21,18 @@ bind(shortcut: string, handler: Handler, options?: BindOptions): () => void; // 
 pushScope(name: string): () => void; // returns pop; pops may be called in any order, and twice
 ```
 
-**Scopes.** The active scope is the most recently pushed one that hasn't been popped, or `'global'` when none is left. The active bindings are:
+**Scopes.** The active scope is the most recently pushed one that hasn't been popped, or `'global'` when none is left. The active bindings are: <!-- tests: the last pushed scope wins over global -->
 
 - the active scope's bindings;
-- the `'global'` bindings, except any whose normalized shortcut is also bound in the active scope. The scope wins.
+- the `'global'` bindings, except any whose normalized shortcut is also bound in the active scope. The scope wins. <!-- tests: the last pushed scope wins over global -->
 
 Bindings in other scopes are inactive.
 
 **Ignored events.** These are ignored:
 
-- **Text fields.** Events whose `target` is an `INPUT`, `TEXTAREA` or `SELECT` (by `tagName`, any case), or has `isContentEditable`, are ignored by bindings without `allowInInputs`.
-- **Key repeats.** Events with `repeat: true` are ignored by bindings without `allowRepeat`.
-- **Modifier keys on their own.** These are `Shift`, `Control`, `Alt`, `AltGraph`, `Meta`, `OS`, `CapsLock` and `Fn`. They are ignored entirely: they return `false` and don't break a pending sequence.
+- **Text fields.** Events whose `target` is an `INPUT`, `TEXTAREA` or `SELECT` (by `tagName`, any case), or has `isContentEditable`, are ignored by bindings without `allowInInputs`. <!-- tests: text fields, key repeat and lone modifiers -->
+- **Key repeats.** Events with `repeat: true` are ignored by bindings without `allowRepeat`. <!-- tests: text fields, key repeat and lone modifiers -->
+- **Modifier keys on their own.** These are `Shift`, `Control`, `Alt`, `AltGraph`, `Meta`, `OS`, `CapsLock` and `Fn`. They are ignored entirely: they return `false` and don't break a pending sequence. <!-- tests: text fields, key repeat and lone modifiers -->
 
 A pending sequence only continues through bindings that are active and not ignored for the new event.
 

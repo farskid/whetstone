@@ -19,9 +19,9 @@ toHTML([{ text: 'a', marks: [{ type: 'bold' }] }, { text: 'b', marks: [{ type: '
   | italic | `<em>` |
   | underline | `<u>` |
   | code | `<code>` |
-- **Nesting.** Tags nest in the mark order above, outermost first. Adjacent spans share their open outer tags: `<strong>a<em>b</em></strong>`, not two separate `<strong>` tags. Tags with different attributes aren't shared.
-- **Escaping.** In text, escape `&`, `<` and `>`. Attributes escape `"` as well.
-- **`parseHTML(html)`.** Reads that HTML back into normalized spans, so `parseHTML(toHTML(spans))` equals `normalize(spans)`. It also handles these cases:
+- **Nesting.** Tags nest in the mark order above, outermost first. Adjacent spans share their open outer tags: `<strong>a<em>b</em></strong>`, not two separate `<strong>` tags. Tags with different attributes aren't shared. <!-- tests: serializes to HTML with shared outer tags and escaping -->
+- **Escaping.** In text, escape `&`, `<` and `>`. Attributes escape `"` as well. <!-- tests: serializes to HTML with shared outer tags and escaping -->
+- **`parseHTML(html)`.** Reads that HTML back into normalized spans, so `parseHTML(toHTML(spans))` equals `normalize(spans)`. It also handles these cases: <!-- tests: parseHTML reads the HTML back into the same spans -->
   - tag names in any case, plus `<b>` and `<i>` as aliases;
   - unknown tags like `<p>`, whose text is kept and whose tag is ignored;
   - the entities `&amp;`, `&lt;`, `&gt;`, `&quot;` and `&#39;`, each decoded exactly once;

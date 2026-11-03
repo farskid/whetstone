@@ -13,11 +13,11 @@ layout([{ aspectRatio: 2 }], { containerWidth: 400, columnCount: 2 }).positions[
 { containerWidth, gutter = 0, columnCount?, minColumnWidth? }
 ```
 
-- Give **exactly one** of `columnCount` or `minColumnWidth`. Giving both, or neither, throws a `TypeError`.
-- **`minColumnWidth`** must be positive, or it throws a `RangeError`. It asks for as many columns as fit, and always at least one: `max(1, floor((containerWidth + gutter) / (minColumnWidth + gutter)))`.
+- Give **exactly one** of `columnCount` or `minColumnWidth`. Giving both, or neither, throws a `TypeError`. <!-- tests: options and items are validated -->
+- **`minColumnWidth`** must be positive, or it throws a `RangeError`. It asks for as many columns as fit, and always at least one: `max(1, floor((containerWidth + gutter) / (minColumnWidth + gutter)))`. <!-- tests: minColumnWidth decides the column count -->
 
 ## Items
 
-An item is now `{ height }` or `{ aspectRatio }`. `aspectRatio` is width ÷ height, so that item's height is `columnWidth / aspectRatio`. An `aspectRatio` of 0 gives an infinite height, which throws a `RangeError` like any non-finite height.
+An item is now `{ height }` or `{ aspectRatio }`. `aspectRatio` is width ÷ height, so that item's height is `columnWidth / aspectRatio`. An `aspectRatio` of 0 gives an infinite height, which throws a `RangeError` like any non-finite height. <!-- tests: aspect ratios scale with the column width -->
 
 Everything from earlier stages still applies.

@@ -14,12 +14,12 @@ pending.retry();  // user said yes: the push goes through
 
 - **Asking.** Each blocker is called with a transition `{ action, location, retry }`. `location` is where the navigation would go.
 - **Allowing.** A blocker that returns `true` lets it through.
-- **Blocking.** Any other return value stops the navigation right there. Later blockers aren't asked, and nothing changes.
+- **Blocking.** Any other return value stops the navigation right there. Later blockers aren't asked, and nothing changes. <!-- tests: a blocker stops navigation until retry -->
 
-`tx.retry()` means "the blocker that stopped this transition now approves". The navigation carries on from there:
+`tx.retry()` means "the blocker that stopped this transition now approves". The navigation carries on from there: <!-- tests: a blocker stops navigation until retry -->
 
-- **Who is asked.** Only the blockers that haven't approved it yet are asked. Each one is checked against the blockers that exist **now**, so removed ones are skipped.
-- **Stale transitions.** If any other navigation has been attempted since, even a blocked one, the transition is **stale**. `retry` then does nothing.
+- **Who is asked.** Only the blockers that haven't approved it yet are asked. Each one is checked against the blockers that exist **now**, so removed ones are skipped. <!-- tests: several blockers in order; retry asks only the rest -->
+- **Stale transitions.** If any other navigation has been attempted since, even a blocked one, the transition is **stale**. `retry` then does nothing. <!-- tests: a newer navigation makes old transitions stale -->
 - **Already done.** Calling `retry` again after the navigation went through also does nothing.
 
 Everything from earlier stages still applies.

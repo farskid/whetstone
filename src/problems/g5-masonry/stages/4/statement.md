@@ -12,8 +12,8 @@ m.resize(600);         // everything is laid out again
 ## `createMasonry(options)`
 
 - **`layout`** is the current result, in the same shape as `layout()` returns. With no items it is the empty layout for the options.
-- **`append(items)`** places more items **without moving any that are already placed**. The result must be the same as calling `layout` once with every item so far. It returns the new items' positions.
-- **`resize(containerWidth)`** keeps the other options and lays every item out again. It returns the new layout.
+- **`append(items)`** places more items **without moving any that are already placed**. The result must be the same as calling `layout` once with every item so far. It returns the new items' positions. <!-- tests: append keeps placed items and matches a full layout -->
+- **`resize(containerWidth)`** keeps the other options and lays every item out again. It returns the new layout. <!-- tests: resize lays everything out again -->
 - Options are validated by `createMasonry` itself, with the same errors as `layout`.
 
 Everything from earlier stages still applies.

@@ -22,9 +22,9 @@ createVirtualizer(options: {
 
 ## Rules
 
-- A row's size is its measured size if `measure` has been called for it. Otherwise it's `estimateSize(index)`.
-- `start(0) = 0`, and `start(i + 1) = end(i) + gap`.
+- A row's size is its measured size if `measure` has been called for it. Otherwise it's `estimateSize(index)`. <!-- tests: variable estimated sizes | measure() replaces the estimate and shifts later rows -->
+- `start(0) = 0`, and `start(i + 1) = end(i) + gap`. <!-- tests: gap between rows (and a scrollTop that lands in a gap) -->
 - `getTotalSize()` is `end(count - 1)` (no trailing gap), or `0` when the list is empty.
-- If `scrollTop` falls inside a gap, the first visible row is the next one.
-- `measure` records the real size of row `index`. Measuring the same size again changes nothing. An index outside `[0, count - 1]` is ignored.
+- If `scrollTop` falls inside a gap, the first visible row is the next one. <!-- tests: gap between rows (and a scrollTop that lands in a gap) -->
+- `measure` records the real size of row `index`. Measuring the same size again changes nothing. An index outside `[0, count - 1]` is ignored. <!-- tests: measure() replaces the estimate and shifts later rows -->
 - Everything from earlier stages still applies.

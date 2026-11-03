@@ -10,9 +10,9 @@ t.promise(save(), { loading: 'Saving…', success: 'Saved', error: (e) => `Faile
 
 This shows a new `'loading'` toast and returns its id. It is never merged with a duplicate, even when another toast has the same loading message.
 
-- **Resolves.** The toast is updated to type `'success'` with the `success` message, as `update` would do, so it gets the default duration.
+- **Resolves.** The toast is updated to type `'success'` with the `success` message, as `update` would do, so it gets the default duration. <!-- tests: loading turns into success -->
 - **Rejects.** The toast is updated to type `'error'` with the `error` message.
 - **Message functions.** Either message can be a function of the value or the reason.
-- **Already gone.** If the toast was dismissed before the promise settled, nothing reappears.
+- **Already gone.** If the toast was dismissed before the promise settled, nothing reappears. <!-- tests: rejection, early dismissal and duplicate loading messages -->
 
 Everything from earlier stages still applies.

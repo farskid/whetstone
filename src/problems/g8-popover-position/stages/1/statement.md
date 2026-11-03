@@ -22,10 +22,10 @@ A placement is a side, optionally with an alignment: `'top' | 'right' | 'bottom'
 
 **Cross axis:**
 
-- **No alignment.** The floating element is centred on the reference.
-- **`start`.** It lines up with the reference's left edge for `top` and `bottom`, or its top edge for `left` and `right`.
-- **`end`.** It lines up with the opposite edge.
-- **RTL.** With `rtl: true`, `start` and `end` swap for `top` and `bottom` only.
+- **No alignment.** The floating element is centred on the reference. <!-- tests: four sides, centred -->
+- **`start`.** It lines up with the reference's left edge for `top` and `bottom`, or its top edge for `left` and `right`. <!-- tests: start and end alignments, and RTL -->
+- **`end`.** It lines up with the opposite edge. <!-- tests: start and end alignments, and RTL -->
+- **RTL.** With `rtl: true`, `start` and `end` swap for `top` and `bottom` only. <!-- tests: start and end alignments, and RTL -->
 
 `getSide` and `getAlignment` are provided.
 

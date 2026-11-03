@@ -18,15 +18,15 @@ scrollToIndex(index: number, opts?: { align?: 'start' | 'center' | 'end' | 'auto
 
 **`measure(index, size, scrollTop = 0)`**
 - Records the real size, as before.
-- Returns the **scroll adjustment**: `newSize - oldSize` when the row **starts above** the viewport (`start < scrollTop`, using the row's start before the change), otherwise `0`. A row that starts exactly at `scrollTop` is not above. Out-of-range indexes return `0`.
+- Returns the **scroll adjustment**: `newSize - oldSize` when the row **starts above** the viewport (`start < scrollTop`, using the row's start before the change), otherwise `0`. A row that starts exactly at `scrollTop` is not above. Out-of-range indexes return `0`. <!-- tests: measure() returns a scroll adjustment only for rows starting above the viewport -->
 
 **`scrollToIndex(index, { align = 'auto', scrollTop = 0 })`** returns the new scrollTop:
-- `start`: the row's start is at the top.
-- `end`: the row's end is at the bottom.
-- `center`: the row's middle is in the middle.
-- `auto`: if the row is fully visible in `[scrollTop, scrollTop + viewportHeight]`, keep `scrollTop`. If it starts above, use `start`. Otherwise use `end`.
+- `start`: the row's start is at the top. <!-- tests: scrollToIndex: start / end / center -->
+- `end`: the row's end is at the bottom. <!-- tests: scrollToIndex: start / end / center -->
+- `center`: the row's middle is in the middle. <!-- tests: scrollToIndex: start / end / center -->
+- `auto`: if the row is fully visible in `[scrollTop, scrollTop + viewportHeight]`, keep `scrollTop`. If it starts above, use `start`. Otherwise use `end`. <!-- tests: scrollToIndex auto: only scrolls if needed, by the minimum amount -->
 - Clamp `index` to `[0, count - 1]`, and clamp the result to `[0, max(0, total - viewportHeight)]`.
 - An empty list returns `0`.
-- Positions use measured sizes.
+- Positions use measured sizes. <!-- tests: scrollToIndex uses measured sizes -->
 
 Everything from earlier stages still applies.

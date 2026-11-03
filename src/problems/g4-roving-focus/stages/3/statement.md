@@ -20,10 +20,10 @@ createGrid(options: { count: number; columns: number; rtl?: boolean }): {
 
 | Key | Moves to |
 | --- | --- |
-| `ArrowRight` / `ArrowLeft` | the next or previous item **within the row**. There's no wrap into the neighbouring row. With `rtl: true`, the two keys swap meaning: ArrowRight moves to the previous index. |
-| `ArrowDown` | the same column in the next row. If that row is too short, the last item. On the last row, stay put. |
-| `ArrowUp` | the same column in the previous row. On the first row, stay put. |
-| `Home` / `End` | the first or last item of the current row. With `{ ctrlKey: true }` as the second argument, the first or last item of the grid. |
+| `ArrowRight` / `ArrowLeft` | the next or previous item **within the row**. There's no wrap into the neighbouring row. With `rtl: true`, the two keys swap meaning: ArrowRight moves to the previous index. <!-- tests: arrows stay within rows; the ragged last row clamps | RTL swaps left and right only --> |
+| `ArrowDown` | the same column in the next row. If that row is too short, the last item. On the last row, stay put. <!-- tests: arrows stay within rows; the ragged last row clamps --> |
+| `ArrowUp` | the same column in the previous row. On the first row, stay put. <!-- tests: arrows stay within rows; the ragged last row clamps --> |
+| `Home` / `End` | the first or last item of the current row. With `{ ctrlKey: true }` as the second argument, the first or last item of the grid. <!-- tests: Home and End, with and without Ctrl --> |
 
 `handleKey(key, mods?)` returns `true` for these keys and `false` for anything else.
 

@@ -24,16 +24,16 @@ A missing modifier flag on an event means `false`.
 
 ## `parseCombo(text, platform = 'other')`
 
-- **Format.** A combo is zero or more modifiers followed by a key, all joined with `+`: `'Ctrl+Shift+K'`.
+- **Format.** A combo is zero or more modifiers followed by a key, all joined with `+`: `'Ctrl+Shift+K'`. <!-- tests: parseCombo resolves modifier and key aliases -->
 - **Result.** Return `{ key, ctrl, alt, shift, meta }`.
 - **Modifiers.** These are case-insensitive:
   - `ctrl`/`control`
   - `alt`/`option`/`opt`
   - `shift`
   - `meta`/`cmd`/`command`/`super`/`win`
-  - `$mod`, which means `meta` when `platform` is `'mac'` and `ctrl` otherwise.
-- **Single-character keys.** These are lowercased: `'K'` becomes `'k'`.
-- **Key aliases.** These are case-insensitive:
+  - `$mod`, which means `meta` when `platform` is `'mac'` and `ctrl` otherwise. <!-- tests: $mod, canonical form and parse errors -->
+- **Single-character keys.** These are lowercased: `'K'` becomes `'k'`. <!-- tests: parseCombo resolves modifier and key aliases -->
+- **Key aliases.** These are case-insensitive: <!-- tests: parseCombo resolves modifier and key aliases -->
 
   | Alias | Key |
   | --- | --- |
@@ -47,11 +47,11 @@ A missing modifier flag on an event means `false`.
   The full names (`escape`, `enter`, `arrowup`, `delete`, `backspace`, `tab`) are case-insensitive too.
 - **Other keys.** Any other multi-character key is kept exactly as written: `'F5'`, `'PageDown'`, `'KeyK'`.
 - **The `+` key.** `'Ctrl++'` and `'+'` bind the `+` key itself.
-- **Errors.** Throw for an unknown modifier, an empty modifier, or a missing key: `'Hyper+K'`, `'Ctrl++K'`, `'Ctrl+'`, `''`.
+- **Errors.** Throw for an unknown modifier, an empty modifier, or a missing key: `'Hyper+K'`, `'Ctrl++K'`, `'Ctrl+'`, `''`. <!-- tests: $mod, canonical form and parse errors -->
 
 ## `normalize(shortcut, platform = 'other')`
 
-A shortcut is one combo, or a **sequence** of combos separated by whitespace, like `'g i'`. `normalize` returns its canonical form:
+A shortcut is one combo, or a **sequence** of combos separated by whitespace, like `'g i'`. `normalize` returns its canonical form: <!-- tests: $mod, canonical form and parse errors -->
 
 - Modifiers come in the order `Ctrl`, `Alt`, `Shift`, `Meta`, joined by `+`, followed by the key.
 - The space key is written as `Space`.
@@ -65,7 +65,7 @@ normalize('g   i');              // 'g i'
 
 ## `matches(event, combo)`
 
-- **Modifiers.** `ctrlKey`, `altKey`, `metaKey` and `shiftKey` must match the combo exactly, so `Ctrl+K` doesn't fire on `Ctrl+Shift+K`.
-  - **Exception for shift.** If the combo's key is a single non-letter character and the combo doesn't name `shift`, then `shiftKey` is ignored. Typing `?` needs Shift on most layouts, but `'?'` should still match.
-  - `'Shift+?'` requires Shift.
-- **Key.** `event.key` must equal the combo key, case-insensitively, so `'Shift+K'` matches `key: 'K'`.
+- **Modifiers.** `ctrlKey`, `altKey`, `metaKey` and `shiftKey` must match the combo exactly, so `Ctrl+K` doesn't fire on `Ctrl+Shift+K`. <!-- tests: modifiers must match exactly; keys are case-insensitive -->
+  - **Exception for shift.** If the combo's key is a single non-letter character and the combo doesn't name `shift`, then `shiftKey` is ignored. Typing `?` needs Shift on most layouts, but `'?'` should still match. <!-- tests: shifted punctuation like ? ignores Shift unless it is named -->
+  - `'Shift+?'` requires Shift. <!-- tests: shifted punctuation like ? ignores Shift unless it is named -->
+- **Key.** `event.key` must equal the combo key, case-insensitively, so `'Shift+K'` matches `key: 'K'`. <!-- tests: modifiers must match exactly; keys are case-insensitive -->
